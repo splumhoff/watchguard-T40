@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<netpdl name="DSA" description="Dsa">
+<protocol name="dsa" longname="dsa" prevproto="ethernet">
+	<format>
+		<fields>
+			<field type="fixed" name="dsa_tag" size="4"/>
+		</fields>
+	</format>
+       
+	<execute-code>
+		<before>
+			<!--Condition for DSA tagged frame -->
+			<!-- WG:XD FBX-21910 to make the soft parser work with both eth0 - eth7 and eth8/eth9 on M690 -->
+			<if expr="((ethernet.type bitwand 0xDF00) == 0xC000) or ((ethernet.type bitwand 0xDF00) == 0x0000)">
+				<!-- MJ: Why is there a check for 0x2000 and 0xC000? explained below -->
+				<!-- /* excerpt from wg kernel 4.14.140: linux/net/dsa/tag_dsa.c
+				         /*
+				         * Check that frame type is either TO_CPU or FORWARD.
+				         */
+				        if ((dsa_header[0] & 0xc0) != 0x00 && (dsa_header[0] & 0xc0) != 0xc0)
+				                return NULL;
+				[...]
+				
+					if (dsa_header[0] & 0x20) -->
+				<if-true>
+					<!--Adjust ipoffset / l4offset ethtype offset /: they are offsetted with 4 bytes-->
+					<assign-variable name="$ipoffset_1" value="0x12"/>
+					<assign-variable name="$l4offset" value="0x26"/>
+					<assign-variable name="$lastetypeoffset" value="0x10"/>
+					<!--Unset unknown protocol field -it's ethernet but because wverything is offsetted due to dsa it's not recognised-->
+					<assign-variable name="$fafflags[4:1]" value="$fafflags[4:1] bitwxor 0x80"/>
+					<!-- Do not validate L4 checksum. DSA is in the middle of eth protocol which meanst that the next header
+					will always point to something invalid. That's why the tcp computation will always be wrong-->
+					<assign-variable name="$sperc" value="$sperc bitwxor 0x0004"/>
+				</if-true>
+				<if-false>
+					<action type="exit"  nextproto="return"/>
+				</if-false>
+			</if>
+		</before>
+
+		<after>
+			<!-- Set the DSA tag offset -->
+			<assign-variable name="$shimoffset_1" value="0x0C"/>
+			<assign-variable name="$nxtHdr" value="dsa_tag"/>
+			<action type="exit" confirmcustom="shim1" advance="yes" nextproto="after_ethernet"/>
+		</after>
+
+	</execute-code>
+
+</protocol>
+
+
+</netpdl>

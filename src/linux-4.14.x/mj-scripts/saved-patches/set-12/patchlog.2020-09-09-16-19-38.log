@@ -1,0 +1,239 @@
+2073
+2123
+trying to patch file: patchfile:hello/2073-scsi-virtio_scsi-don-t-send-sc-payload-with-tmfs.patch
+checking file drivers/scsi/virtio_scsi.c
+patching file drivers/scsi/virtio_scsi.c
+patch status: 0
+trying to patch file: patchfile:hello/2074-scsi-aacraid-Fix-performance-issue-on-logical-drives.patch
+checking file drivers/scsi/aacraid/linit.c
+patching file drivers/scsi/aacraid/linit.c
+patch status: 0
+trying to patch file: patchfile:hello/2075-scsi-sd-Optimal-I-O-size-should-be-a-multiple-of-phy.patch
+checking file drivers/scsi/sd.c
+Hunk #1 succeeded at 3079 (offset 2 lines).
+Hunk #2 succeeded at 3208 (offset 13 lines).
+patching file drivers/scsi/sd.c
+Hunk #1 succeeded at 3079 (offset 2 lines).
+Hunk #2 succeeded at 3208 (offset 13 lines).
+patch status: 0
+trying to patch file: patchfile:hello/2076-scsi-target-iscsi-Avoid-iscsit_release_commands_from.patch
+checking file drivers/target/iscsi/iscsi_target.c
+patching file drivers/target/iscsi/iscsi_target.c
+patch status: 0
+trying to patch file: patchfile:hello/2077-fs-devpts-always-delete-dcache-dentry-s-in-dput.patch
+checking file fs/devpts/inode.c
+patching file fs/devpts/inode.c
+patch status: 0
+trying to patch file: patchfile:hello/2078-splice-don-t-merge-into-linked-buffers.patch
+checking file fs/pipe.c
+checking file fs/splice.c
+checking file include/linux/pipe_fs_i.h
+patching file fs/pipe.c
+patching file fs/splice.c
+patching file include/linux/pipe_fs_i.h
+patch status: 0
+trying to patch file: patchfile:hello/2079-m68k-Add-ffreestanding-to-CFLAGS.patch
+checking file arch/m68k/Makefile
+patching file arch/m68k/Makefile
+patch status: 0
+trying to patch file: patchfile:hello/2080-Btrfs-setup-a-nofs-context-for-memory-allocation-at-.patch
+checking file fs/btrfs/acl.c
+patching file fs/btrfs/acl.c
+patch status: 0
+trying to patch file: patchfile:hello/2081-btrfs-ensure-that-a-DUP-or-RAID1-block-group-has-exa.patch
+checking file fs/btrfs/volumes.c
+patching file fs/btrfs/volumes.c
+patch status: 0
+trying to patch file: patchfile:hello/2082-Btrfs-fix-corruption-reading-shared-and-compressed-e.patch
+checking file fs/btrfs/extent_io.c
+patching file fs/btrfs/extent_io.c
+patch status: 0
+trying to patch file: patchfile:hello/2083-crypto-pcbc-remove-bogus-memcpy-s-with-src-dest.patch
+checking file crypto/pcbc.c
+Hunk #2 succeeded at 71 with fuzz 2.
+Hunk #3 succeeded at 90 (offset 7 lines).
+Hunk #4 succeeded at 125 (offset 7 lines).
+Hunk #5 succeeded at 136 (offset 7 lines).
+Hunk #6 succeeded at 146 (offset 7 lines).
+Hunk #7 succeeded at 158 (offset 7 lines).
+patching file crypto/pcbc.c
+Hunk #2 succeeded at 71 with fuzz 2.
+Hunk #3 succeeded at 90 (offset 7 lines).
+Hunk #4 succeeded at 125 (offset 7 lines).
+Hunk #5 succeeded at 136 (offset 7 lines).
+Hunk #6 succeeded at 146 (offset 7 lines).
+Hunk #7 succeeded at 158 (offset 7 lines).
+patch status: 0
+trying to patch file: patchfile:hello/2084-libertas_tf-don-t-set-URB_ZERO_PACKET-on-IN-USB-tran.patch
+checking file drivers/net/wireless/marvell/libertas_tf/if_usb.c
+patching file drivers/net/wireless/marvell/libertas_tf/if_usb.c
+patch status: 0
+trying to patch file: patchfile:hello/2085-irqchip-gic-v3-its-Avoid-parsing-_indirect_-twice-fo.patch
+checking file drivers/irqchip/irq-gic-v3-its.c
+patching file drivers/irqchip/irq-gic-v3-its.c
+patch status: 0
+trying to patch file: patchfile:hello/2086-x86-kprobes-Prohibit-probing-on-optprobe-template-co.patch
+checking file arch/x86/kernel/kprobes/opt.c
+patching file arch/x86/kernel/kprobes/opt.c
+patch status: 0
+trying to patch file: patchfile:hello/2087-cpufreq-tegra124-add-missing-of_node_put.patch
+checking file drivers/cpufreq/tegra124-cpufreq.c
+patching file drivers/cpufreq/tegra124-cpufreq.c
+patch status: 0
+trying to patch file: patchfile:hello/2088-cpufreq-pxa2xx-remove-incorrect-__init-annotation.patch
+checking file drivers/cpufreq/pxa2xx-cpufreq.c
+patching file drivers/cpufreq/pxa2xx-cpufreq.c
+patch status: 0
+trying to patch file: patchfile:hello/2089-ext4-add-mask-of-ext4-flags-to-swap.patch
+checking file fs/ext4/ext4.h
+checking file fs/ext4/ioctl.c
+patching file fs/ext4/ext4.h
+patching file fs/ext4/ioctl.c
+patch status: 0
+trying to patch file: patchfile:hello/2090-ext4-fix-crash-during-online-resizing.patch
+checking file fs/ext4/resize.c
+patching file fs/ext4/resize.c
+patch status: 0
+trying to patch file: patchfile:hello/2091-IB-hfi1-Close-race-condition-on-user-context-disable.patch
+checking file drivers/infiniband/hw/hfi1/hfi.h
+checking file drivers/infiniband/hw/hfi1/init.c
+patching file drivers/infiniband/hw/hfi1/hfi.h
+patching file drivers/infiniband/hw/hfi1/init.c
+patch status: 0
+trying to patch file: patchfile:hello/2092-cxl-Wrap-iterations-over-afu-slices-inside-afu_list_.patch
+checking file drivers/misc/cxl/guest.c
+checking file drivers/misc/cxl/pci.c
+patching file drivers/misc/cxl/guest.c
+patching file drivers/misc/cxl/pci.c
+patch status: 0
+trying to patch file: patchfile:hello/2093-ext2-Fix-underflow-in-ext2_max_size.patch
+checking file fs/ext2/super.c
+patching file fs/ext2/super.c
+patch status: 0
+trying to patch file: patchfile:hello/2094-clk-uniphier-Fix-update-register-for-CPU-gear.patch
+checking file drivers/clk/uniphier/clk-uniphier-cpugear.c
+patching file drivers/clk/uniphier/clk-uniphier-cpugear.c
+patch status: 0
+trying to patch file: patchfile:hello/2095-clk-clk-twl6040-Fix-imprecise-external-abort-for-pdm.patch
+checking file drivers/clk/clk-twl6040.c
+patching file drivers/clk/clk-twl6040.c
+patch status: 0
+trying to patch file: patchfile:hello/2096-clk-ingenic-Fix-round_rate-misbehaving-with-non-inte.patch
+checking file drivers/clk/ingenic/cgu.c
+patching file drivers/clk/ingenic/cgu.c
+patch status: 0
+trying to patch file: patchfile:hello/2097-clk-ingenic-Fix-doc-of-ingenic_cgu_div_info.patch
+checking file drivers/clk/ingenic/cgu.h
+patching file drivers/clk/ingenic/cgu.h
+patch status: 0
+trying to patch file: patchfile:hello/2098-usb-chipidea-tegra-Fix-missed-ci_hdrc_remove_device.patch
+checking file drivers/usb/chipidea/ci_hdrc_tegra.c
+patching file drivers/usb/chipidea/ci_hdrc_tegra.c
+patch status: 0
+trying to patch file: patchfile:hello/2099-nfit-acpi_nfit_ctl-Check-out_obj-type-in-the-right-p.patch
+checking file drivers/acpi/nfit/core.c
+patching file drivers/acpi/nfit/core.c
+patch status: 0
+trying to patch file: patchfile:hello/2100-mm-hwpoison-fix-thp-split-handing-in-soft_offline_in.patch
+checking file mm/memory-failure.c
+patching file mm/memory-failure.c
+patch status: 0
+trying to patch file: patchfile:hello/2101-mm-vmalloc-fix-size-check-for-remap_vmalloc_range_pa.patch
+checking file mm/vmalloc.c
+patching file mm/vmalloc.c
+patch status: 0
+trying to patch file: patchfile:hello/2102-kernel-sysctl.c-add-missing-range-check-in-do_proc_d.patch
+checking file kernel/sysctl.c
+patching file kernel/sysctl.c
+patch status: 0
+trying to patch file: patchfile:hello/2103-device-property-Fix-the-length-used-in-PROPERTY_ENTR.patch
+checking file include/linux/property.h
+patching file include/linux/property.h
+patch status: 0
+trying to patch file: patchfile:hello/2104-intel_th-Don-t-reference-unassigned-outputs.patch
+checking file drivers/hwtracing/intel_th/gth.c
+patching file drivers/hwtracing/intel_th/gth.c
+patch status: 0
+trying to patch file: patchfile:hello/2105-parport_pc-fix-find_superio-io-compare-code-should-u.patch
+checking file drivers/parport/parport_pc.c
+patching file drivers/parport/parport_pc.c
+patch status: 0
+trying to patch file: patchfile:hello/2106-i2c-tegra-fix-maximum-transfer-size.patch
+checking file drivers/i2c/busses/i2c-tegra.c
+patching file drivers/i2c/busses/i2c-tegra.c
+patch status: 0
+trying to patch file: patchfile:hello/2107-crypto-arm64-aes-neonbs-fix-returning-final-keystrea.patch
+checking file arch/arm64/crypto/aes-neonbs-core.S
+patching file arch/arm64/crypto/aes-neonbs-core.S
+patch status: 0
+trying to patch file: patchfile:hello/2108-drm-i915-Relax-mmap-VMA-check.patch
+checking file drivers/gpu/drm/i915/i915_gem.c
+patching file drivers/gpu/drm/i915/i915_gem.c
+patch status: 0
+trying to patch file: patchfile:hello/2109-serial-uartps-Fix-stuck-ISR-if-RX-disabled-with-non-.patch
+checking file drivers/tty/serial/xilinx_uartps.c
+patching file drivers/tty/serial/xilinx_uartps.c
+patch status: 0
+trying to patch file: patchfile:hello/2110-serial-8250_of-assume-reg-shift-of-2-for-mrvl-mmp-ua.patch
+checking file drivers/tty/serial/8250/8250_of.c
+patching file drivers/tty/serial/8250/8250_of.c
+patch status: 0
+trying to patch file: patchfile:hello/2111-serial-8250_pci-Fix-number-of-ports-for-ACCES-serial.patch
+checking file drivers/tty/serial/8250/8250_pci.c
+patching file drivers/tty/serial/8250/8250_pci.c
+patch status: 0
+trying to patch file: patchfile:hello/2112-serial-8250_pci-Have-ACCES-cards-that-use-the-four-p.patch
+checking file drivers/tty/serial/8250/8250_pci.c
+patching file drivers/tty/serial/8250/8250_pci.c
+patch status: 0
+trying to patch file: patchfile:hello/2113-jbd2-clear-dirty-flag-when-revoking-a-buffer-from-an.patch
+checking file fs/jbd2/transaction.c
+patching file fs/jbd2/transaction.c
+patch status: 0
+trying to patch file: patchfile:hello/2114-jbd2-fix-compile-warning-when-using-JBUFFER_TRACE.patch
+checking file fs/jbd2/transaction.c
+patching file fs/jbd2/transaction.c
+patch status: 0
+trying to patch file: patchfile:hello/2115-security-selinux-fix-SECURITY_LSM_NATIVE_LABELS-on-r.patch
+checking file security/selinux/hooks.c
+patching file security/selinux/hooks.c
+patch status: 0
+trying to patch file: patchfile:hello/2116-powerpc-32-Clear-on-stack-exception-marker-upon-exce.patch
+checking file arch/powerpc/kernel/entry_32.S
+Hunk #1 succeeded at 736 (offset 10 lines).
+Hunk #2 succeeded at 976 (offset 10 lines).
+Hunk #3 succeeded at 1018 (offset 10 lines).
+patching file arch/powerpc/kernel/entry_32.S
+Hunk #1 succeeded at 736 (offset 10 lines).
+Hunk #2 succeeded at 976 (offset 10 lines).
+Hunk #3 succeeded at 1018 (offset 10 lines).
+patch status: 0
+trying to patch file: patchfile:hello/2117-powerpc-wii-properly-disable-use-of-BATs-when-reques.patch
+checking file arch/powerpc/platforms/embedded6xx/wii.c
+patching file arch/powerpc/platforms/embedded6xx/wii.c
+patch status: 0
+trying to patch file: patchfile:hello/2118-powerpc-powernv-Make-opal-log-only-readable-by-root.patch
+checking file arch/powerpc/platforms/powernv/opal-msglog.c
+patching file arch/powerpc/platforms/powernv/opal-msglog.c
+patch status: 0
+trying to patch file: patchfile:hello/2119-powerpc-83xx-Also-save-restore-SPRG4-7-during-suspen.patch
+checking file arch/powerpc/platforms/83xx/suspend-asm.S
+patching file arch/powerpc/platforms/83xx/suspend-asm.S
+patch status: 0
+trying to patch file: patchfile:hello/2120-powerpc-Fix-32-bit-KVM-PR-lockup-and-host-crash-with.patch
+checking file arch/powerpc/kernel/process.c
+patching file arch/powerpc/kernel/process.c
+patch status: 0
+trying to patch file: patchfile:hello/2121-powerpc-ptrace-Simplify-vr_get-set-to-avoid-GCC-warn.patch
+checking file arch/powerpc/kernel/ptrace.c
+patching file arch/powerpc/kernel/ptrace.c
+patch status: 0
+trying to patch file: patchfile:hello/2122-powerpc-hugetlb-Don-t-do-runtime-allocation-of-16G-p.patch
+checking file arch/powerpc/include/asm/book3s/64/hugetlb.h
+patching file arch/powerpc/include/asm/book3s/64/hugetlb.h
+patch status: 0
+trying to patch file: patchfile:hello/2123-powerpc-traps-fix-recoverability-of-machine-check-ha.patch
+checking file arch/powerpc/kernel/traps.c
+patching file arch/powerpc/kernel/traps.c
+patch status: 0
+patch end(2123) reached(2123). 				submit these and comeback and proceed: last patched hello/2123-powerpc-traps-fix-recoverability-of-machine-check-ha.patch

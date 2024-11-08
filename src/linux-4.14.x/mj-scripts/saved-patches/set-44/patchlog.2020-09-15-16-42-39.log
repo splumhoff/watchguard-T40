@@ -1,0 +1,122 @@
+4887
+4937
+trying to patch file: patchfile:hello/4887-dpaa2-eth-defer-probe-on-object-allocate.patch
+Checking patch drivers/staging/fsl-dpaa2/ethernet/dpaa2-eth.c...
+git apply status: 0
+trying to patch file: patchfile:hello/4888-bus-fsl-mc-add-autorescan-sysfs.patch
+Checking patch drivers/bus/fsl-mc/dprc-driver.c...
+Checking patch drivers/bus/fsl-mc/fsl-mc-bus.c...
+Checking patch drivers/bus/fsl-mc/fsl-mc-private.h...
+Checking patch include/linux/fsl/mc.h...
+git apply status: 0
+trying to patch file: patchfile:hello/4889-dt-bindings-clk-Add-optional-field-vco-frequency.patch
+Checking patch Documentation/devicetree/bindings/clock/fsl,plldig.yaml...
+git apply status: 0
+trying to patch file: patchfile:hello/4890-clk-plldig-make-VCO-frequency-configurable.patch
+Checking patch drivers/clk/clk-plldig.c...
+git apply status: 0
+trying to patch file: patchfile:hello/4891-net-mscc-ocelot-do-not-force-Felix-MACs-at-lower-spe.patch
+Checking patch drivers/net/ethernet/mscc/ocelot.c...
+git apply status: 0
+trying to patch file: patchfile:hello/4892-sdk_dpaa-ethtool-drop-unused-variable.patch
+Checking patch drivers/net/ethernet/freescale/sdk_dpaa/dpaa_ethtool.c...
+git apply status: 0
+trying to patch file: patchfile:hello/4893-sdk_dpaa-ls1043a-errata-check-if-the-page-allocation.patch
+Checking patch drivers/net/ethernet/freescale/sdk_dpaa/dpaa_eth_sg.c...
+Hunk #1 succeeded at 929 (offset 18 lines).
+git apply status: 0
+trying to patch file: patchfile:hello/4894-sdk_dpaa-ls1043a-errata-update-the-restrictions.patch
+Checking patch drivers/net/ethernet/freescale/sdk_dpaa/dpaa_eth.h...
+Hunk #1 succeeded at 685 (offset 23 lines).
+Checking patch drivers/net/ethernet/freescale/sdk_dpaa/dpaa_eth_sg.c...
+Hunk #1 succeeded at 789 (offset 18 lines).
+git apply status: 0
+trying to patch file: patchfile:hello/4895-sdk_dpaa-ls1043a-errata-re-enable-SG-support.patch
+Checking patch drivers/net/ethernet/freescale/sdk_dpaa/dpaa_eth.c...
+Hunk #1 succeeded at 905 (offset 127 lines).
+git apply status: 0
+trying to patch file: patchfile:hello/4896-sdk_dpaa-ls1043a-errata-re-enable-recycling.patch
+Checking patch drivers/net/ethernet/freescale/sdk_dpaa/dpaa_eth.h...
+Hunk #1 succeeded at 684 (offset 23 lines).
+Checking patch drivers/net/ethernet/freescale/sdk_dpaa/dpaa_eth_sg.c...
+Hunk #2 succeeded at 919 (offset 18 lines).
+git apply status: 0
+trying to patch file: patchfile:hello/4897-sdk_dpaa-ls1043a-errata-optimize-detection.patch
+Checking patch drivers/net/ethernet/freescale/sdk_dpaa/dpaa_eth_sg.c...
+Hunk #1 succeeded at 1114 (offset 18 lines).
+Hunk #2 succeeded at 1140 (offset 18 lines).
+Hunk #3 succeeded at 1162 (offset 18 lines).
+Hunk #4 succeeded at 1188 (offset 18 lines).
+git apply status: 0
+trying to patch file: patchfile:hello/4898-sdk_dpaa-sdk_fman-ls1043a-errata-detect-based-on-DTB.patch
+Checking patch drivers/net/ethernet/freescale/sdk_dpaa/dpaa_eth.c...
+Hunk #3 succeeded at 1261 (offset 132 lines).
+Hunk #4 succeeded at 1276 (offset 132 lines).
+Checking patch drivers/net/ethernet/freescale/sdk_dpaa/dpaa_eth.h...
+Hunk #3 succeeded at 683 (offset 23 lines).
+Hunk #4 succeeded at 691 (offset 23 lines).
+Checking patch drivers/net/ethernet/freescale/sdk_dpaa/dpaa_eth_sg.c...
+Hunk #3 succeeded at 783 (offset 18 lines).
+Hunk #4 succeeded at 961 (offset 18 lines).
+Hunk #5 succeeded at 1140 (offset 18 lines).
+Hunk #6 succeeded at 1213 (offset 18 lines).
+Hunk #7 succeeded at 1228 (offset 18 lines).
+Checking patch drivers/net/ethernet/freescale/sdk_fman/inc/integrations/LS1043/dpaa_integration_ext.h...
+Checking patch drivers/net/ethernet/freescale/sdk_fman/src/inc/wrapper/lnxwrp_fsl_fman.h...
+Checking patch drivers/net/ethernet/freescale/sdk_fman/src/wrapper/lnxwrp_fm.c...
+warning: drivers/net/ethernet/freescale/sdk_fman/src/wrapper/lnxwrp_fm.c has type 100644, expected 100755
+warning: drivers/net/ethernet/freescale/sdk_fman/src/wrapper/lnxwrp_fm.c has type 100644, expected 100755
+git apply status: 0
+trying to patch file: patchfile:hello/4899-sdk_dpaa-ls1043a-errata-use-get_order-API.patch
+Checking patch drivers/net/ethernet/freescale/sdk_dpaa/dpaa_eth_sg.c...
+Hunk #1 succeeded at 863 (offset 18 lines).
+Hunk #2 succeeded at 879 (offset 18 lines).
+git apply status: 0
+trying to patch file: patchfile:hello/4900-sdk_dpaa-ls1043a-errata-fix-potential-skb-memory-lea.patch
+Checking patch drivers/net/ethernet/freescale/sdk_dpaa/dpaa_eth_sg.c...
+Hunk #1 succeeded at 919 (offset 18 lines).
+Hunk #2 succeeded at 1115 (offset 18 lines).
+Hunk #3 succeeded at 1201 (offset 18 lines).
+Hunk #4 succeeded at 1236 (offset 18 lines).
+git apply status: 0
+trying to patch file: patchfile:hello/4901-sdk_dpaa-sdk_fman-ls1034a-errata-update-number-to-A0.patch
+Checking patch drivers/net/ethernet/freescale/sdk_dpaa/dpaa_eth.h...
+Hunk #2 succeeded at 683 (offset 23 lines).
+Checking patch drivers/net/ethernet/freescale/sdk_dpaa/dpaa_eth_sg.c...
+Hunk #2 succeeded at 783 (offset 18 lines).
+Hunk #3 succeeded at 858 (offset 18 lines).
+Hunk #4 succeeded at 868 (offset 18 lines).
+Hunk #5 succeeded at 959 (offset 18 lines).
+Hunk #6 succeeded at 1117 (offset 18 lines).
+Hunk #7 succeeded at 1139 (offset 18 lines).
+Hunk #8 succeeded at 1194 (offset 18 lines).
+Hunk #9 succeeded at 1212 (offset 18 lines).
+Hunk #10 succeeded at 1227 (offset 18 lines).
+Checking patch drivers/net/ethernet/freescale/sdk_fman/inc/integrations/LS1043/dpaa_integration_ext.h...
+Checking patch drivers/net/ethernet/freescale/sdk_fman/src/inc/wrapper/lnxwrp_fsl_fman.h...
+Checking patch drivers/net/ethernet/freescale/sdk_fman/src/wrapper/lnxwrp_fm.c...
+warning: drivers/net/ethernet/freescale/sdk_fman/src/wrapper/lnxwrp_fm.c has type 100644, expected 100755
+warning: drivers/net/ethernet/freescale/sdk_fman/src/wrapper/lnxwrp_fm.c has type 100644, expected 100755
+git apply status: 0
+trying to patch file: patchfile:hello/4902-arm64-dts-ls1043a-mark-the-A050385-FMan-erratum.patch
+Checking patch arch/arm64/boot/dts/freescale/fsl-ls1043-post.dtsi...
+git apply status: 0
+trying to patch file: patchfile:hello/4903-sdk_dpaa-ceetm-enable-building-as-a-module.patch
+Checking patch drivers/net/ethernet/freescale/sdk_dpaa/Makefile...
+Checking patch drivers/net/ethernet/freescale/sdk_dpaa/dpaa_eth_ceetm.c...
+git apply status: 0
+trying to patch file: patchfile:hello/4904-sdk_dpaa-ceetm-coding-style-cleanup.patch
+Checking patch drivers/net/ethernet/freescale/sdk_dpaa/dpaa_eth_ceetm.c...
+git apply status: 0
+trying to patch file: patchfile:hello/4905-crypto-caam-qi-abort-algorithm-setup-on-DPAA2-parts.patch
+Checking patch drivers/crypto/caam/caamalg_qi.c...
+Hunk #1 succeeded at 3271 (offset 42 lines).
+git apply status: 0
+trying to patch file: patchfile:hello/4906-crypto-caam-qi-execute-library-only-on-DPAA-1.x.patch
+Checking patch drivers/crypto/caam/caamalg_qi.c...
+Hunk #1 succeeded at 3271 (offset 42 lines).
+git apply status: 0
+trying to patch file: patchfile:hello/4907-sdk_dpaa-ceetm-save-the-root-class-pointer.patch
+Checking patch drivers/net/ethernet/freescale/sdk_dpaa/dpaa_eth_ceetm.c...
+git apply status: 0
+./mj-scripts/patch-it.bin: line 36: [: .files.log: integer expression expected

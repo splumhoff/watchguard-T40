@@ -1,0 +1,674 @@
+WatchGuard patches to sources for atf-LSDK-19.09-update-311219 as of
+Mon May  9 13:30:28 PDT 2022
+The patches shown here have been applied to source .tar.gz 
+files supplied with the WatchGuard Open Source Archive.
+
+==========================================================================
+--- atf-LSDK-19.09-update-311219/plat/nxp/soc-ls2088/include/soc.h.orig	2022-05-09 13:30:13.717266210 -0700
++++ atf-LSDK-19.09-update-311219/plat/nxp/soc-ls2088/include/soc.h	2022-05-09 13:30:18.197084821 -0700
+@@ -177,6 +177,7 @@
+ #define NXP_ERRATUM_A009942
+ #define NXP_ERRATUM_A010165
+ 
++#define NXP_ERRATUM_LITEON_M390
+ #define NUM_OF_DDRC	2
+ #define NXP_DDR_INTLV_256B
+ 
+--- atf-LSDK-19.09-update-311219/plat/nxp/soc-ls2088/ls2088ardb/ddr_init.c.orig	2022-05-09 13:30:13.717266210 -0700
++++ atf-LSDK-19.09-update-311219/plat/nxp/soc-ls2088/ls2088ardb/ddr_init.c	2022-05-09 13:30:18.209084335 -0700
+@@ -20,25 +20,90 @@
+ #include <utils_def.h>
+ #include <errata.h>
+ 
++#ifdef CONFIG_STATIC_DDR
++const struct ddr_cfg_regs static_2100 = {
++	.cs[0].config = 0x80048412,
++	.cs[0].bnds = 0xff,
++	.sdram_cfg[0] = 0xe5004000,
++	.sdram_cfg[1] = 0x401150,
++	.sdram_cfg[2] = 0x0,
++	.timing_cfg[0] = 0xd1770018,
++	.timing_cfg[1] = 0xf5fc8275,
++	.timing_cfg[2] = 0x5941a5,
++	.timing_cfg[3] = 0x2161100,
++	.timing_cfg[4] = 0x220002,
++	.timing_cfg[5] = 0x5401400,
++	.timing_cfg[7] = 0x26600000,
++	.timing_cfg[8] = 0x6558a00,
++	.dq_map[0] = 0,
++	.dq_map[1] = 0,
++	.dq_map[2] = 0,
++	.dq_map[3] = 0,
++	.sdram_mode[0] = 0x3010631,
++	.sdram_mode[1] = 0x100200,
++	.sdram_mode[9] = 0xc400000,
++	.sdram_mode[8] = 0x500,
++	.sdram_mode[2] = 0x10631,
++	.sdram_mode[3] = 0x100200,
++	.sdram_mode[10] = 0x400,
++	.sdram_mode[11] = 0xc400000,
++	.sdram_mode[4] = 0x10631,
++	.sdram_mode[5] = 0x100200,
++	.sdram_mode[12] = 0x400,
++	.sdram_mode[13] = 0xc400000,
++	.sdram_mode[6] = 0x10631,
++	.sdram_mode[7] = 0x100200,
++	.sdram_mode[14] = 0x400,
++	.sdram_mode[15] = 0xc400000,
++	.interval = 0x1FFE07FF,
++	.zq_cntl = 0x8A090705,
++	.clk_cntl = 0x2400000,
++	.cdr[0] = 0x80040000,
++	.cdr[1] = 0xC1,
++	.wrlvl_cntl[0] = 0x86750606,
++	.wrlvl_cntl[1] = 0x708090a,
++	.wrlvl_cntl[2] = 0xc0d0e0b,
++	.debug[28] = 0x4d,
++};
++
++long long board_static_ddr(struct ddr_info *priv)
++{
++	long long size = 0;
++	memcpy(&priv->ddr_reg, &static_2100, sizeof(static_2100));
++
++	size = 0x200000000UL; //8G
++	return size;
++}
++#else
++
+ static const struct rc_timing rcb_1[] = {
+ 	{1600, 10, 9},
+ 	{1867, 12, 0xB},
+-	{2134, 12, 0xB},
++	//{2134, 12, 0xB},
++	//{2134, 10, 8}, //CRI  Code Warrior
++#ifdef CONFIG_DDR_SEC
++	{2134, 10, 7},   //CRII Code Warrior 2nd
++#else
++	{2134, 9, 7},    //CRII Code Warrior
++#endif
+ 	{}
+ };
+-
++#if 0
+ static const struct rc_timing rce_1[] = {
+ 	{1600, 10, 9},
+ 	{1867, 12, 0xA},
+ 	{2134, 12, 0xB},
+ 	{}
+ };
+-
++#endif
+ static const struct board_timing udimm1[] = {
+-	{0x01, rcb_1, 0x01020306, 0x07090A00},
+-	{0x04, rce_1, 0x01020407, 0x090A0B05},
++	//{0x01, rcb_1, 0x01020306, 0x07090A00},
++	//{0x04, rce_1, 0x01020407, 0x090A0B05},
++	//{0x1f, rcb_1, 0x00010104, 0x04050502}, //CRI  Code Warrior
++	{0x1f, rcb_1, 0x00000002, 0x02040301},   //CRII Code Warrior
+ };
+ 
++#if 1
+ static const struct rc_timing rcb_2[] = {
+ 	{1600, 8, 0xD},
+ 	{}
+@@ -65,6 +130,7 @@
+ 	{0x01, rcb, 0xFEFCFAFA, 0xFAFCFEF9},
+ 	{0x04, rcb, 0xFEFCFAFA, 0xFAFCFEF9},
+ };
++#endif
+ 
+ int ddr_board_options(struct ddr_info *priv)
+ {
+@@ -78,25 +144,26 @@
+ 	int is_dpddr = 0;
+ 
+ 	if (NXP_DDR3_ADDR == (unsigned long)priv->ddr[0]) { /* DP-DDR */
+-		is_dpddr = 1;
++		//is_dpddr = 1;
+ 		if (popts->rdimm) {
+ 			ERROR("RDIMM parameters not set.\n");
+ 			return -EINVAL;
+ 		}
+ 		ret = cal_board_params(priv, udimm2, ARRAY_SIZE(udimm2));
+-	} else {
+-		if (popts->rdimm) {
+-			ret = cal_board_params(priv, rdimm,
++	}
++ 
++	if (popts->rdimm) {
++		ret = cal_board_params(priv, rdimm,
+ 					       ARRAY_SIZE(rdimm));
+-		} else {
+-			ret = cal_board_params(priv, udimm1,
++	} else {
++		ret = cal_board_params(priv, udimm1,
+ 					       ARRAY_SIZE(udimm1));
+-		}
+ 	}
+ 	if (ret)
+ 		return ret;
+ 
+-	popts->cpo_sample = 0x78;
++	//popts->cpo_sample = 0x78;
++	popts->cpo_sample = 0x4d; //VM1P
+ 
+ 	if (is_dpddr) {
+ 		/* DPDDR bus width 32 bits */
+@@ -140,6 +207,7 @@
+ 			popts->ddr_cdr1 = DDR_CDR1_DHC_EN |
+ 					  DDR_CDR1_ODT(DDR_CDR_ODT_60ohm);
+ 			popts->ddr_cdr2 = DDR_CDR2_ODT(DDR_CDR_ODT_60ohm) |
++					  //DDR_CDR2_VREF_TRAIN_EN		|
+ 					  DDR_CDR2_VREF_RANGE_2;
+ 		}
+ 	} else {
+@@ -152,14 +220,89 @@
+ 	return 0;
+ }
+ 
++/* WG1008-VM1P Add for fixed dram init */ 
++/* DDR model number: MT40A512M8HX-093E */
++struct dimm_params ddr_raw_timing = {
++	.n_ranks = 1,
++	.rank_density = 8589934592u,
++	.capacity = 8589934592u,
++	.primary_sdram_width = 64,
++	.ec_sdram_width = 8,
++	.mirrored_dimm = 0,
++	.device_width = 16,
++	.n_row_addr = 17,
++	.n_col_addr = 10,
++	.bank_addr_bits = 2,
++	.bank_group_bits = 1,
++	.edc_config = 2,
++	.burst_lengths_bitmask = 0x0c,
++	.tckmin_x_ps = 937,
++	.tckmax_ps = 1071,
++	.caslat_x = 0x000DFA00,
++	.taa_ps = 14060,
++	.trcd_ps = 14060,
++	.trp_ps = 14060,
++	.tras_ps = 33000,
++	.trc_ps = 47060,
++	.twr_ps = 15000,
++	.trfc1_ps = 350000,
++	.trfc2_ps = 260000,
++	.trfc4_ps = 160000,
++	.tfaw_ps = 30000,
++	.trrds_ps = 5300,
++	.trrdl_ps = 6400,
++	.tccdl_ps = 5355,
++	.refresh_rate_ps = 7800000,
++	.rc = 0x1f,
++	.dq_mapping[0] = 0x0,
++	.dq_mapping[1] = 0x0,
++	.dq_mapping[2] = 0x0,
++	.dq_mapping[3] = 0x0,
++	.dq_mapping[4] = 0x0,
++	.dq_mapping[5] = 0x0,
++	.dq_mapping[6] = 0x0,
++	.dq_mapping[7] = 0x0,
++	.dq_mapping[8] = 0x0,
++	.dq_mapping[9] = 0x0,
++	.dq_mapping[10] = 0x0,
++	.dq_mapping[11] = 0x0,
++	.dq_mapping[12] = 0x0,
++	.dq_mapping[13] = 0x0,
++	.dq_mapping[14] = 0x0,
++	.dq_mapping[15] = 0x0,
++	.dq_mapping[16] = 0x0,
++	.dq_mapping[17] = 0x0,
++	.dq_mapping_ors = 0,
++};
++
++int ddr_get_ddr_params(struct dimm_params *pdimm,
++			    struct ddr_conf *conf)
++{
++	static const char dimm_model[] = "Fixed DDR on board";
++#ifdef CONFIG_DDR_SEC
++	static const char ddr_src[] = "DDR 2nd Source (SAMSUNG: K4AAG165WA-BCTD)";
++#else
++	static const char ddr_src[] = "DDR Main Source (SAMSUNG: K4AAG165WA-BCWE)";
++#endif
++
++	conf->dimm_in_use[0] = 1;
++	memcpy(pdimm, &ddr_raw_timing, sizeof(struct dimm_params));
++	memcpy(pdimm->mpart, dimm_model, sizeof(dimm_model) - 1);
++	printf("\n<< %s >>\n", ddr_src);
++	printf("<< Func %s: line %d, rc_timing rcb_1[2] = {%d, %d, %d} >>\n",
++		__FUNCTION__, __LINE__, rcb_1[2].speed_bin, rcb_1[2].clk_adj, rcb_1[2].wrlvl);
++	return 1;
++}
++#endif
++
+ long long _init_ddr(void)
+ {
+ 	int spd_addr[] = { 0x51, 0x52, 0x53, 0x54 };
+-	int dpddr_spd_addr[] = { 0x55 };
++	//int dpddr_spd_addr[] = { 0x55 };
+ 	struct ddr_info info;
+ 	struct sysinfo sys;
+ 	long long dram_size;
+-	long long dp_dram_size;
++	//long long dp_dram_size;
+ 
+ 	zeromem(&sys, sizeof(sys));
+ 	get_clocks(&sys);
+@@ -182,7 +325,7 @@
+ 
+ 	if (dram_size < 0)
+ 		ERROR("DDR init failed.\n");
+-
++#if 0
+ 	zeromem(&info, sizeof(info));
+ 	info.num_ctlrs = 1;
+ 	info.dimm_on_ctlr = 1;
+@@ -193,6 +336,8 @@
+ 	dp_dram_size = dram_init(&info);
+ 	if (dp_dram_size < 0)
+ 		debug("DPDDR init failed.\n");
+-
++#endif
++	//erratum_a008850_post(); //LS1046A
++	
+ 	return dram_size;
+ }
+--- atf-LSDK-19.09-update-311219/plat/nxp/soc-ls2088/ls2088ardb/platform_def.h.orig	2022-05-09 13:30:13.717266210 -0700
++++ atf-LSDK-19.09-update-311219/plat/nxp/soc-ls2088/ls2088ardb/platform_def.h	2022-05-09 13:30:18.209084335 -0700
+@@ -34,14 +34,22 @@
+ 
+ #define NXP_SYSCLK_FREQ		100000000
+ #define NXP_DDRCLK_FREQ		133333333	/*TBD York to check */	
++#define CONFIG_WG1008_PX2
+ 
+ /* UART related definition */
++#ifdef CONFIG_WG1008_PX2
++#define NXP_CONSOLE_ADDR	NXP_UART_ADDR
++#else
+ #define NXP_CONSOLE_ADDR	NXP_UART1_ADDR
++#endif
+ #define NXP_CONSOLE_BAUDRATE	115200
+ 
+ #define NXP_SPD_EEPROM0		0x51
+ 
+-#define DDRC_NUM_DIMM		2
++//#define DDR_DEBUG
++#define CONFIG_DDR_NODIMM
++#define DDRC_NUM_DIMM		1
++#define DDRC_NUM_CS 		1
+ #define CONFIG_DDR_ECC_EN
+ 
+ #define PLAT_DEF_DRAM0_SIZE	0x80000000	/*  2G */
+--- atf-LSDK-19.09-update-311219/plat/nxp/drivers/ddr/nxp-ddr/ddrc.c.orig	2022-05-09 13:30:13.685267506 -0700
++++ atf-LSDK-19.09-update-311219/plat/nxp/drivers/ddr/nxp-ddr/ddrc.c	2022-05-09 13:30:17.701104904 -0700
+@@ -18,6 +18,9 @@
+ #include "ddr.h"
+ #include "immap.h"
+ 
++#if 0
++#define BIST_EN
++#endif
+ #define BIST_CR		0x80060000
+ #define BIST_CR_EN	0x80000000
+ #define BIST_CR_STAT	0x00000001
+@@ -224,7 +227,9 @@
+ 		}
+ 		ddr_out32(&ddr->csn_cfg_2[i], regs->cs[i].config_2);
+ 	}
+-
++#if 0
++	ddr_out32((void *)0x1080080, 0x80040512);
++#endif
+ 	ddr_out32(&ddr->timing_cfg_0, regs->timing_cfg[0]);
+ 	ddr_out32(&ddr->timing_cfg_1, regs->timing_cfg[1]);
+ 	ddr_out32(&ddr->timing_cfg_2, regs->timing_cfg[2]);
+@@ -561,7 +566,20 @@
+ 		INFO("\tWait up to %d ms\n", timeout * 10);
+ 		ret = bist(ddr, timeout);
+ 	}
++#if 0
++	for (int i=0;i<10;i++)
++	{
++		uint32_t *addr, val;
++		addr = (void *)0x82000000;
++		//ddr_out32(addr, 0xaa55aa55);
++		val = ddr_in32(addr);
++		INFO("0x82000000 val=0x%x\n", val);
++	}
++#endif
+ 	dump_ddrc((void *)ddr);
++#if 0
++	mdelay(120000);
++#endif
+ 
+ 	return ret;
+ }
+--- atf-LSDK-19.09-update-311219/plat/nxp/soc-ls1046/ls1046ardb/ddr_init.c.orig	2022-05-09 13:30:13.713266373 -0700
++++ atf-LSDK-19.09-update-311219/plat/nxp/soc-ls1046/ls1046ardb/ddr_init.c	2022-05-09 13:30:18.173085792 -0700
+@@ -194,14 +194,28 @@
+ }
+ #else
+ static const struct rc_timing rce[] = {
++#ifdef CONFIG_WG1008_PX1
++	{1600, 9, 6},
++	{1867, 9, 6},
++#ifdef CONFIG_MICRON_DDR
++	{2100, 9, 7}, //Micron
++#else
++	{2100, 10, 8}, //CRI Code Warrior
++#endif
++#else
+ 	{1600, 8, 7},
+ 	{1867, 8, 7},
+ 	{2134, 8, 9},
++#endif
+ 	{}
+ };
+ 
+ static const struct board_timing udimm[] = {
++#ifdef CONFIG_WG1008_PX1
++	{0x1f, rce, 0x00010104, 0x04050502}, //CRI Code Warrior
++#else
+ 	{0x04, rce, 0x01020304, 0x06070805},
++#endif
+ };
+ 
+ int ddr_board_options(struct ddr_info *priv)
+@@ -220,7 +234,11 @@
+ 
+ 	popts->wrlvl_override = 1;
+ 	popts->wrlvl_sample = 0x0;	/* 32 clocks */
++#ifdef CONFIG_WG1008_PX1
++	popts->cpo_sample = 0x4d;
++#else
+ 	popts->cpo_sample = 0x61;
++#endif
+ 	popts->ddr_cdr1 = DDR_CDR1_DHC_EN	|
+ 			  DDR_CDR1_ODT(DDR_CDR_ODT_80ohm);
+ 	popts->ddr_cdr2 = DDR_CDR2_ODT(DDR_CDR_ODT_80ohm)	|
+@@ -230,6 +248,104 @@
+ 
+ 	return 0;
+ }
++
++/*Add for fixed dram init*/
++#ifdef CONFIG_WG1008_PX1
++/* DDR model number: MT40A512M8HX-093E */
++struct dimm_params ddr_raw_timing = {
++	.n_ranks = 1,
++	.rank_density = 4294967296u,
++	.capacity = 4294967296u,
++	.primary_sdram_width = 64,
++	.ec_sdram_width = 8,
++	.mirrored_dimm = 0,
++	.device_width = 16,
++	.n_row_addr = 16,
++	.n_col_addr = 10,
++	.bank_addr_bits = 2,
++	.bank_group_bits = 1,
++	.edc_config = 2,
++	.burst_lengths_bitmask = 0x0c,
++	.caslat_x = 0x000DFA00,
++#if 0
++	.tckmin_x_ps = 1250,
++	.tckmax_ps = 1500,
++	.taa_ps = 13500,
++	.trcd_ps = 13500,
++	.trp_ps = 13500,
++	.tras_ps = 35000,
++	.trc_ps = 48500,
++	.twr_ps = 15000,
++	.trfc1_ps = 350000,
++	.trfc2_ps = 260000,
++	.trfc4_ps = 160000,
++	.tfaw_ps = 35000,
++	.trrds_ps = 6000,
++	.trrdl_ps = 7500,
++	.tccdl_ps = 6250,
++#else
++	.tckmin_x_ps = 937,
++	.tckmax_ps = 1071,
++	.taa_ps = 14060,
++	.trcd_ps = 14060,
++	.trp_ps = 14060,
++	.tras_ps = 33000,
++	.trc_ps = 47060,
++	.twr_ps = 15000,
++	.trfc1_ps = 350000,
++	.trfc2_ps = 260000,
++	.trfc4_ps = 160000,
++	.tfaw_ps = 30000,
++	.trrds_ps = 5300,
++	.trrdl_ps = 6400,
++	#ifdef CONFIG_MICRON_DDR
++	.tccdl_ps = 5355,
++	#else
++	.tccdl_ps = 5625,
++	#endif
++#endif
++	.refresh_rate_ps = 7800000,
++	.rc = 0x1f,
++	.dq_mapping[0] = 0x0,
++	.dq_mapping[1] = 0x0,
++	.dq_mapping[2] = 0x0,
++	.dq_mapping[3] = 0x0,
++	.dq_mapping[4] = 0x0,
++	.dq_mapping[5] = 0x0,
++	.dq_mapping[6] = 0x0,
++	.dq_mapping[7] = 0x0,
++	.dq_mapping[8] = 0x0,
++	.dq_mapping[9] = 0x0,
++	.dq_mapping[10] = 0x0,
++	.dq_mapping[11] = 0x0,
++	.dq_mapping[12] = 0x0,
++	.dq_mapping[13] = 0x0,
++	.dq_mapping[14] = 0x0,
++	.dq_mapping[15] = 0x0,
++	.dq_mapping[16] = 0x0,
++	.dq_mapping[17] = 0x0,
++	.dq_mapping_ors = 0,
++};
++
++int ddr_get_ddr_params(struct dimm_params *pdimm,
++			    struct ddr_conf *conf)
++{
++	static const char dimm_model[] = "Fixed DDR on board";
++#ifdef CONFIG_MICRON_DDR
++	static const char ddr_src[] = "DDR 2nd Source (MICRON: MT40A512M16TB-062E)";
++#else
++	static const char ddr_src[] = "DDR Main Source (SAMSUNG: K4A8G165WC-BCTD)";
++#endif
++
++	conf->dimm_in_use[0] = 1;
++	memcpy(pdimm, &ddr_raw_timing, sizeof(struct dimm_params));
++	memcpy(pdimm->mpart, dimm_model, sizeof(dimm_model) - 1);
++	printf("\n<< %s >>\n", ddr_src);
++	printf("<< Func %s: line %d, rc_timing rce[2] = {%d, %d, %d},  ddr_raw_timing.tccdl_ps = %d >>\n",
++		__FUNCTION__, __LINE__, rce[2].speed_bin, rce[2].clk_adj, rce[2].wrlvl, pdimm->tccdl_ps);
++	return 1;
++}
++#endif
+ #endif
+ 
+ long long _init_ddr(void)
+--- atf-LSDK-19.09-update-311219/plat/nxp/soc-ls1046/ls1046ardb/platform_def.h.orig	2022-05-09 13:30:13.713266373 -0700
++++ atf-LSDK-19.09-update-311219/plat/nxp/soc-ls1046/ls1046ardb/platform_def.h	2022-05-09 13:30:18.173085792 -0700
+@@ -41,6 +41,10 @@
+ 
+ #define NXP_SPD_EEPROM0		0x51
+ 
++#define CONFIG_WG1008_PX1
++//#define DDR_DEBUG
++#define CONFIG_DDR_NODIMM
++#define CONFIG_SYS_DDR_RAW_TIMING
+ #define DDRC_NUM_DIMM		1
+ #define CONFIG_DDR_ECC_EN
+ 
+--- atf-LSDK-19.09-update-311219/Makefile.orig	2022-05-09 13:30:13.489275442 -0700
++++ atf-LSDK-19.09-update-311219/Makefile	2022-05-09 13:30:13.977255683 -0700
+@@ -582,6 +582,14 @@
+         $(eval $(call add_define,AARCH64))
+ endif
+ 
++# WG Talor Lin: For M290 and M390 DDR second source
++ifeq (${DDR_SRC}, ddr_brd2_micron)
++$(eval $(call add_define,CONFIG_MICRON_DDR))
++endif
++
++ifeq (${DDR_SRC}, ddr_brd2_samsung)
++$(eval $(call add_define,CONFIG_DDR_SEC))
++endif
+ ################################################################################
+ # Build targets
+ ################################################################################
+--- atf-LSDK-19.09-update-311219/tools/fip_create/fip_create.orig	1969-12-31 16:00:00.000000000 -0800
++++ atf-LSDK-19.09-update-311219/tools/fip_create/fip_create	2022-05-09 13:30:18.549070568 -0700
+@@ -0,0 +1,147 @@
++#!/bin/sh
++#
++# This script implements the old fip_create tool on top of
++# the new fiptool.
++#
++# SPDX-License-Identifier: BSD-3-Clause
++#
++
++usage() {
++    cat << EOF
++This tool is used to create a Firmware Image Package.
++
++Usage:
++	fip_create [options] FIP_FILENAME
++
++Options:
++	-h,--help: Print this help message and exit
++	-d,--dump: Print contents of FIP after update
++	-u,--unpack: Unpack images from an existing FIP
++	-f,--force: Overwrite existing files when unpacking images
++
++Components that can be added/updated:
++	--scp-fwu-cfg FILENAME		SCP Firmware Updater Configuration FWU SCP_BL2U
++	--ap-fwu-cfg FILENAME		AP Firmware Updater Configuration BL2U
++	--fwu FILENAME			Firmware Updater NS_BL2U
++	--fwu-cert FILENAME		Non-Trusted Firmware Updater certificate
++	--tb-fw FILENAME		Trusted Boot Firmware BL2
++	--scp-fw FILENAME		SCP Firmware SCP_BL2
++	--soc-fw FILENAME		EL3 Runtime Firmware BL31
++	--tos-fw FILENAME		Secure Payload BL32 (Trusted OS)
++	--tos-fw-extra1 FILENAME	Secure Payload BL32 Extra1 (Trusted OS Extra1)
++	--tos-fw-extra2 FILENAME	Secure Payload BL32 Extra2 (Trusted OS Extra2)
++	--nt-fw FILENAME		Non-Trusted Firmware BL33
++	--ddr-imem-udimm-1d FILENAME	DDR UDIMM Imem 1d image
++	--ddr-imem-udimm-2d FILENAME	DDR PHY image
++	--ddr-imem-rdimm-1d FILENAME	DDR PHY Image
++	--ddr-imem-rdimm-2d FILENAME	DDR PHY Image
++	--ddr-dmem-udimm-1d FILENAME	DDR PHY Image
++	--ddr-dmem-udimm-2d FILENAME	DDR PHY Image
++	--ddr-dmem-rdimm-1d FILENAME	DDR PHY Image
++	--ddr-dmem-rdimm-2d FILENAME	DDR PHY Image
++	--fuse-prov FILENAME		Fuse Prov Image
++	--fuse-upgrade FILENAME		Fuse Upgrade Image
++	--rot-cert FILENAME		Root Of Trust key certificate
++	--trusted-key-cert FILENAME	Trusted key certificate
++	--scp-fw-key-cert FILENAME	SCP Firmware key certificate
++	--soc-fw-key-cert FILENAME	SoC Firmware key certificate
++	--tos-fw-key-cert FILENAME	Trusted OS Firmware key certificate
++	--nt-fw-key-cert FILENAME	Non-Trusted Firmware key certificate
++	--tb-fw-cert FILENAME		Trusted Boot Firmware BL2 certificate
++	--scp-fw-cert FILENAME		SCP Firmware content certificate
++	--soc-fw-cert FILENAME		SoC Firmware content certificate
++	--tos-fw-cert FILENAME		Trusted OS Firmware content certificate
++	--nt-fw-cert FILENAME		Non-Trusted Firmware content certificate
++EOF
++    exit
++}
++
++echo "!! The fip_create tool is deprecated.  Use the new fiptool. !!"
++basedir="$(dirname $0)/../fiptool"
++fiptool_args=
++while :; do
++    case "$1" in
++	-h | --help )
++	    usage
++	    break ;;
++	-d | --dump )
++	    fiptool_args="info $fiptool_args"
++	    shift ;;
++	-u | --unpack )
++	    fiptool_args="unpack $fiptool_args"
++	    shift ;;
++	-f | --force )
++	    fiptool_args="$fiptool_args --force"
++	    shift ;;
++	--scp-fwu-cfg | \
++	    --ap-fwu-cfg | \
++	    --fwu | \
++	    --fwu-cert | \
++	    --tb-fw | \
++	    --scp-fw | \
++	    --soc-fw | \
++	    --tos-fw | \
++	    --tos-fw-extra1 | \
++	    --tos-fw-extra2 | \
++	    --ddr-imem-udimm-1d | \
++	    --ddr-imem-udimm-2d | \
++	    --ddr-imem-rdimm-1d | \
++	    --ddr-imem-rdimm-2d | \
++	    --ddr-dmem-udimm-1d | \
++	    --ddr-dmem-udimm-2d | \
++	    --ddr-dmem-rdimm-1d | \
++	    --ddr-dmem-rdimm-2d | \
++	    --fuse-prov | \
++	    --fuse-upgrade | \
++	    --nt-fw | \
++	    --rot-cert | \
++	    --trusted-key-cert | \
++	    --scp-fw-key-cert | \
++	    --soc-fw-key-cert | \
++	    --tos-fw-key-cert | \
++	    --nt-fw-key-cert | \
++	    --tb-fw-cert | \
++	    --scp-fw-cert | \
++	    --soc-fw-cert | \
++	    --tos-fw-cert | \
++	    --nt-fw-cert )
++	    fiptool_args="$fiptool_args $1"
++	    shift
++	    if test -z $1; then
++		usage
++	    fi
++	    fiptool_args="$fiptool_args $1"
++	    shift ;;
++	* )
++	    break ;;
++    esac
++done
++
++# expect a FIP filename
++if test -z $1; then
++    usage
++fi
++
++is_pack_cmd=1
++for arg in $fiptool_args; do
++    case "$arg" in
++	unpack )
++	    is_pack_cmd=0
++	    break ;;
++	info )
++	    is_pack_cmd=0
++	    break ;;
++	* )
++    esac
++done
++
++# if --unpack and --dump were not specified
++# the default action is to pack
++if test "$is_pack_cmd" -eq 1; then
++    fiptool_args="update $fiptool_args"
++fi
++
++# append FIP filename
++fiptool_args="$fiptool_args $1"
++echo "Invoking fiptool with args: $fiptool_args"
++"$basedir/fiptool" $fiptool_args

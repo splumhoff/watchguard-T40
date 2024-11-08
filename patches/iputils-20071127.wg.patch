@@ -1,0 +1,289 @@
+WatchGuard patches to sources for iputils-20071127 as of
+Mon May  9 13:54:29 PDT 2022
+The patches shown here have been applied to source .tar.gz 
+files supplied with the WatchGuard Open Source Archive.
+
+==========================================================================
+--- iputils-20071127/ping_common.c.orig	2022-05-09 13:54:29.274104801 -0700
++++ iputils-20071127/ping_common.c	2022-05-09 13:54:29.370100906 -0700
+@@ -29,6 +29,9 @@
+ volatile int exiting;
+ volatile int status_snapshot;
+ int confirm = 0;
++int mark = -1;
++char proc[256]; 
++char rtmark[16];
+ 
+ /* Stupid workarounds for bugs/missing functionality in older linuces.
+  * confirm_flag fixes refusing service of kernels without MSG_CONFIRM.
+@@ -362,9 +365,14 @@
+ 		return MININTERVAL;
+ 	} else {
+ 		if ((i=receive_error_msg()) > 0) {
+-			/* An ICMP error arrived. */
+-			tokens += interval;
+-			return MININTERVAL;
++			/* An ICMP error arrived. In this case, we've received
++			 * an error from sendto(), but we've also received an
++			 * ICMP message, which means the packet did in fact
++			 * send in some capacity. So, in this odd case, report
++			 * the more specific errno as the error, and treat this
++			 * as a hard local error. */
++			i = 0;
++			goto hard_local_error;
+ 		}
+ 		/* Compatibility with old linuces. */
+ 		if (i == 0 && confirm_flag && errno == EINVAL) {
+@@ -375,6 +383,7 @@
+ 			goto resend;
+ 	}
+ 
++hard_local_error:
+ 	/* Hard local error. Pretend we sent packet. */
+ 	advance_ntransmitted();
+ 
+@@ -853,3 +862,60 @@
+ 	fprintf(stderr, "\n");
+ }
+ 
++int read_proc_file(char *proc, char *buf, int size)
++{
++	int len = 0;
++	int ret = -1;
++	FILE *fp = NULL;
++	
++	if (!proc || !buf || !size) {
++		goto out;
++	}
++	
++	fp = fopen(proc, "r");
++	if (fp == NULL) {
++		fprintf(stderr, "failed to open file %s", proc);
++		goto out;
++	}
++	
++	memset (buf, 0, size);
++	if (fgets(buf, size, fp) == NULL) {
++		fprintf(stderr, "failed to read file %s", proc);
++		goto out;
++	}
++	
++	len = strlen(buf);
++	if (buf[len - 1] == '\n') {
++		buf[len - 1] = '\0';
++	}
++	
++	ret = 0;
++out:
++	if (fp) {
++		fclose(fp);
++	}
++	
++	return ret;
++}
++
++int parse_mark(char *str)
++{
++	const char *cp;
++	int mark;
++	char *ep;
++
++	/* handle both hex and decimal values */
++	if (str[0] == '0' && (str[1] == 'x' || str[1] == 'X')) {
++		cp = str + 2;
++		mark = (int)strtol(cp, &ep, 16);
++	} else
++		mark = (int)strtol(str, &ep, 10);
++
++	/* doesn't look like decimal or hex, eh? */
++	if (*ep != '\0') {
++		fprintf(stderr, "ping: \"%s\" bad value for mark\n", str);
++		exit(2);
++	} 
++
++	return(mark);
++}
+--- iputils-20071127/ping.c.orig	2022-05-09 13:54:29.274104801 -0700
++++ iputils-20071127/ping.c	2022-05-09 13:54:29.366101068 -0700
+@@ -193,11 +193,21 @@
+ #else
+ 			if (inet_pton(AF_INET, optarg, &source.sin_addr) > 0)
+ 				options |= F_STRICTSOURCE;
+-			else
++			else {
+ 				device = optarg;
++
++				/* read interface rtmark, convert it to integer */
++				snprintf(proc, sizeof(proc), "/sys/class/net/%s/wg_rtmark", device);
++				if (read_proc_file(proc, rtmark, sizeof(rtmark)) == 0) {
++					mark = parse_mark(rtmark);
++				}
++			}
+ #endif
+ 			break;
+ 		}
++		case 'm':
++			mark = parse_mark(optarg);
++			break;
+ 		case 'M':
+ 			if (strcmp(optarg, "do") == 0)
+ 				pmtudisc = IP_PMTUDISC_DO;
+@@ -354,6 +364,14 @@
+ 		cmsg_len = sizeof(cmsg);
+ 	}
+ 
++	/* config mark for socket, hence packet will be set mark  */
++	if (mark > 0) {
++		if (setsockopt(icmp_sock, SOL_SOCKET, SO_MARK, &mark, sizeof(mark)) == -1) {
++			fprintf(stderr, "ping: failed to set mark: %d\n", mark);
++			exit(2);
++		}
++	}
++
+ 	if (broadcast_pings || IN_MULTICAST(ntohl(whereto.sin_addr.s_addr))) {
+ 		if (uid) {
+ 			if (interval < 1000) {
+@@ -1014,7 +1032,7 @@
+ 				i = j;
+ 			i -= IPOPT_MINOFF;
+ 			if (i <= 0)
+-				continue;
++				break;
+ 			if (i == old_rrlen
+ 			    && !strncmp((char *)cp, old_rr, i)
+ 			    && !(options & F_FLOOD)) {
+@@ -1051,7 +1069,7 @@
+ 				i = j;
+ 			i -= 5;
+ 			if (i <= 0)
+-				continue;
++				break;
+ 			flags = *++cp;
+ 			printf("\nTS: ");
+ 			cp++;
+@@ -1216,7 +1234,7 @@
+ 	fprintf(stderr,
+ "Usage: ping [-LRUbdfnqrvVaA] [-c count] [-i interval] [-w deadline]\n"
+ "            [-p pattern] [-s packetsize] [-t ttl] [-I interface or address]\n"
+-"            [-M mtu discovery hint] [-S sndbuf]\n"
++"            [-m packet tag] [-M mtu discovery hint] [-S sndbuf]\n"
+ "            [ -T timestamp option ] [ -Q tos ] [hop1 ...] destination\n");
+ 	exit(2);
+ }
+--- iputils-20071127/rarpd.c.orig	2022-05-09 13:54:29.274104801 -0700
++++ iputils-20071127/rarpd.c	2022-05-09 13:54:29.378100581 -0700
+@@ -29,6 +29,7 @@
+ #include <netinet/in.h>
+ #include <linux/if_packet.h>
+ #include <linux/filter.h>
++#include <linux/if_ether.h>
+ 
+ int do_reload = 1;
+ 
+@@ -42,7 +43,10 @@
+ char *ifname;
+ char *tftp_dir = "/etc/tftpboot";
+ 
++#ifndef __UCLIBC__
+ extern int ether_ntohost(char *name, unsigned char *ea);
++#endif
++
+ void usage(void) __attribute__((noreturn));
+ 
+ struct iflink
+@@ -305,7 +309,11 @@
+ 				6,
+ 			};
+ 
++#ifndef __UCLIBC__
+ 			if (ether_ntohost(ename, lladdr) != 0 ||
++#else
++			if (
++#endif
+ 			    (hp = gethostbyname(ename)) == NULL) {
+ 				if (verbose)
+ 					syslog(LOG_INFO, "not found in /etc/ethers");
+--- iputils-20071127/ping_common.h.orig	2022-05-09 13:54:29.274104801 -0700
++++ iputils-20071127/ping_common.h	2022-05-09 13:54:29.370100906 -0700
+@@ -97,6 +97,9 @@
+ extern int confirm;
+ extern int confirm_flag;
+ extern int working_recverr;
++extern int mark;
++extern char proc[256]; 
++extern char rtmark[16];
+ 
+ #ifndef MSG_CONFIRM
+ #define MSG_CONFIRM 0
+@@ -120,7 +123,7 @@
+ case 'r': case 's': case 'v': case 'L': \
+ case 't': case 'A': case 'W': case 'B':
+ 
+-#define COMMON_OPTSTR "h?VQ:I:M:aUc:dfi:w:l:S:np:qrs:vLt:AW:B"
++#define COMMON_OPTSTR "h?VQ:I:m:M:aUc:dfi:w:l:S:np:qrs:vLt:AW:B"
+ 
+ 
+ /*
+@@ -200,3 +203,5 @@
+ extern void common_options(int ch);
+ extern int gather_statistics(__u8 *ptr, int cc, __u16 seq, int hops,
+ 			     int csfailed, struct timeval *tv, char *from);
++extern int parse_mark(char *str);
++extern int read_proc_file(char *proc, char *buf, int size);
+--- iputils-20071127/rdisc.c.orig	2022-05-09 13:54:29.274104801 -0700
++++ iputils-20071127/rdisc.c	2022-05-09 13:54:29.378100581 -0700
+@@ -48,6 +48,10 @@
+ #include <netinet/ip.h>
+ #include <netinet/ip_icmp.h>
+ 
++#ifndef OPEN_MAX
++#  define OPEN_MAX _POSIX_OPEN_MAX
++#endif
++
+ /*
+  * The next include contains all defs and structures for multicast
+  * that are not in SunOS 4.1.x. On a SunOS 4.1.x system none of this code
+--- iputils-20071127/ping6.c.orig	2022-05-09 13:54:29.274104801 -0700
++++ iputils-20071127/ping6.c	2022-05-09 13:54:29.366101068 -0700
+@@ -243,8 +243,17 @@
+ 				options |= F_STRICTSOURCE;
+ 			} else {
+ 				device = optarg;
++
++				/* read interface rtmark, convert it to integer */
++				snprintf(proc, sizeof(proc), "/sys/class/net/%s/wg_rtmark", device);
++				if (read_proc_file(proc, rtmark, sizeof(rtmark)) == 0) {
++					mark = parse_mark(rtmark);
++				}
+ 			}
+ 			break;
++		case 'm':
++			mark = parse_mark(optarg);
++			break;
+ 		case 'M':
+ 			if (strcmp(optarg, "do") == 0)
+ 				pmtudisc = IPV6_PMTUDISC_DO;
+@@ -425,6 +434,14 @@
+ 		ipi->ipi6_ifindex = ifr.ifr_ifindex;
+ 	}
+ 
++	/* config mark for socket, hence packet will be set mark  */
++	if (mark > 0) {
++		if (setsockopt(icmp_sock, SOL_SOCKET, SO_MARK, &mark, sizeof(mark)) == -1) {
++			fprintf(stderr, "ping: failed to set mark: %d\n", mark);
++			exit(2);
++		}
++	}
++
+ 	if ((whereto.sin6_addr.s6_addr16[0]&htons(0xff00)) == htons (0xff00)) {
+ 		if (uid) {
+ 			if (interval < 1000) {
+@@ -973,7 +990,7 @@
+ 	fprintf(stderr,
+ "Usage: ping6 [-LUdfnqrvVaA] [-c count] [-i interval] [-w deadline]\n"
+ "             [-p pattern] [-s packetsize] [-t ttl] [-I interface]\n"
+-"             [-M mtu discovery hint] [-S sndbuf]\n"
++"             [-m packet tag] [-M mtu discovery hint] [-S sndbuf]\n"
+ "             [-F flow label] [-Q traffic class] [hop1 ...] destination\n");
+ 	exit(2);
+ }

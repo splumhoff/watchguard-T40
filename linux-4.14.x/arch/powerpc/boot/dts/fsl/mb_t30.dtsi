@@ -1,0 +1,174 @@
+/*
+ * P1020 RDB Device Tree Source stub (no addresses or top-level ranges)
+ *
+ * Copyright 2011-2012 Freescale Semiconductor Inc.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *     * Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *     * Redistributions in binary form must reproduce the above copyright
+ *       notice, this list of conditions and the following disclaimer in the
+ *       documentation and/or other materials provided with the distribution.
+ *     * Neither the name of Freescale Semiconductor nor the
+ *       names of its contributors may be used to endorse or promote products
+ *       derived from this software without specific prior written permission.
+ *
+ *
+ * ALTERNATIVELY, this software may be distributed under the terms of the
+ * GNU General Public License ("GPL") as published by the Free Software
+ * Foundation, either version 2 of that License or (at your option) any
+ * later version.
+ *
+ * THIS SOFTWARE IS PROVIDED BY Freescale Semiconductor ``AS IS'' AND ANY
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL Freescale Semiconductor BE LIABLE FOR ANY
+ * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+&board_lbc {
+	/* NOR Flash mapping on Boren */
+	nor@0,0 {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		compatible = "cfi-flash";
+		reg = <0x0 0x0 0x400000>;
+		bank-width = <2>;
+		device-width = <1>;
+
+		partition@00000000 {
+			/*128KB*/
+			reg = <0x00000000 0x00020000>;
+			label = "NOR (RW) WG CFG0";
+		};
+
+		partition@00020000 {
+			/*64KB*/
+			reg = <0x00020000 0x00010000>;
+			label = "NOR (RW) WG CFG1";
+		};
+
+		partition@00030000 {
+			/*128KB*/
+			reg = <0x00030000 0x00020000>;
+			label = "NOR (RW) WG MFG";
+		};
+
+		partition@00050000 {
+			/*768KB*/
+			reg = <0x00050000 0x000C0000>;
+			label = "NOR (RW) WG bootOpt Data & reserved";
+		};
+
+		partition@00110000 {
+			/*768KB*/
+			reg = <0x00110000 0x000C0000>;
+			label = "NOR (RW) WG extra reserved 1";
+		};
+
+		partition@001D0000 {
+			/*768KB*/
+			reg = <0x001D0000 0x000C0000>;
+			label = "NOR (RW) WG extra reserved 2";
+		};
+
+		partition@00290000 {
+			/*896KB*/
+			reg = <0x00290000 0x000E0000>;
+			label = "NOR (RW) Backup";
+		};
+
+		partition@00370000 {
+			/*64KB*/
+			reg = <0x00370000 0x00010000>;
+			label = "NOR (RW) WG U-Boot ENV";
+		};
+
+		partition@00380000 {
+			/*512KB*/
+			reg = <0x00380000 0x00080000>;
+			label = "NOR (RW) WG U-Boot Image";
+		};
+	};
+};
+
+&board_soc {
+	/* Talor Lin added spi@7000/legerity@0 for PoE device driver */
+	spi@7000 {
+		cell-index = <0>;
+		#address-cells = <1>;
+		#size-cells = <0>;
+		compatible = "fsl,mpc8536-espi";
+		reg = <0x7000 0x1000>;
+		interrupts = <59 0x2>;
+		fsl,espi-num-chipselects = <4>;
+		
+		legerity@0{
+			compatible = "zarlink,le88266";
+			reg = <1>;
+			spi-max-frequency = <500000>;
+			mode = <1>;
+		};
+	};
+
+	i2c@3000 {
+		rtc@30 {
+			compatible = "seiko,s35390a";
+			reg = <0x30>;
+		};
+	};
+
+	i2c@3100 {
+		tpm@29 {
+			compatible = "tpm,tpm_i2c_atmel";
+			reg = <0x29>;
+		};
+	};
+
+	usb@22000 {
+		phy_type = "ulpi";
+		dr_mode = "host";
+	};
+
+	/* USB2 is shared with localbus. It is used
+	   only in case of SPI and SD boot after
+	   appropriate device-tree fixup done by uboot */
+	usb@23000 {
+		phy_type = "ulpi";
+		dr_mode = "host";
+	};
+
+	mdio@24000 {
+		phy0: ethernet-phy@0 {
+			interrupt-parent = <&mpic>;
+			interrupts = <3 1>;
+			reg = <0x1>;
+		};
+		phy1: ethernet-phy@1 {
+			interrupt-parent = <&mpic>;
+			interrupts = <2 1>;
+			reg = <0x0>;
+		};
+	};
+
+	mdio@25000 {
+		tbi0: tbi-phy@0 {
+		/* MJ: ????, shold it 0 or 11 or 10? */
+			reg = <0x10>;
+			device_type = "tbi-phy";
+		};
+	};
+
+	enet0: ethernet@b0000 {
+		/* MJ: cell-index = <0>; */
+		fixed-link = <1 1 1000 0 0>;
+		phy-connection-type = "rgmii-id";
+	};
+
+};

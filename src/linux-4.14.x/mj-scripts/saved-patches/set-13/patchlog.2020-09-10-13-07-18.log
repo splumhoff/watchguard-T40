@@ -1,0 +1,70 @@
+2218
+2268
+trying to patch file: patchfile:hello/2218-packets-Always-register-packet-sk-in-the-same-order.patch
+checking file include/net/sock.h
+checking file net/packet/af_packet.c
+Hunk #1 succeeded at 3309 (offset 28 lines).
+patching file include/net/sock.h
+patching file net/packet/af_packet.c
+Hunk #1 succeeded at 3309 (offset 28 lines).
+patch status: 0
+trying to patch file: patchfile:hello/2219-rhashtable-Still-do-rehash-when-we-get-EEXIST.patch
+checking file lib/rhashtable.c
+patching file lib/rhashtable.c
+patch status: 0
+trying to patch file: patchfile:hello/2220-tcp-do-not-use-ipv6-header-for-ipv4-flow.patch
+checking file net/ipv6/tcp_ipv6.c
+patching file net/ipv6/tcp_ipv6.c
+patch status: 0
+trying to patch file: patchfile:hello/2221-thunderx-enable-page-recycling-for-non-XDP-case.patch
+checking file drivers/net/ethernet/cavium/thunder/nicvf_queues.c
+patching file drivers/net/ethernet/cavium/thunder/nicvf_queues.c
+patch status: 0
+trying to patch file: patchfile:hello/2222-thunderx-eliminate-extra-calls-to-put_page-for-pages.patch
+checking file drivers/net/ethernet/cavium/thunder/nicvf_queues.c
+patching file drivers/net/ethernet/cavium/thunder/nicvf_queues.c
+patch status: 0
+trying to patch file: patchfile:hello/2223-vxlan-Don-t-call-gro_cells_destroy-before-device-is-.patch
+checking file drivers/net/vxlan.c
+patching file drivers/net/vxlan.c
+patch status: 0
+trying to patch file: patchfile:hello/2224-sctp-get-sctphdr-by-offset-in-sctp_compute_cksum.patch
+checking file include/net/sctp/checksum.h
+patching file include/net/sctp/checksum.h
+patch status: 0
+trying to patch file: patchfile:hello/2225-net-aquantia-fix-rx-checksum-offload-for-UDP-TCP-ove.patch
+checking file drivers/net/ethernet/aquantia/atlantic/aq_ring.c
+patching file drivers/net/ethernet/aquantia/atlantic/aq_ring.c
+patch status: 0
+trying to patch file: patchfile:hello/2226-mac8390-Fix-mmio-access-size-probe.patch
+checking file drivers/net/ethernet/8390/mac8390.c
+patching file drivers/net/ethernet/8390/mac8390.c
+patch status: 0
+trying to patch file: patchfile:hello/2227-tun-properly-test-for-IFF_UP.patch
+checking file drivers/net/tun.c
+patching file drivers/net/tun.c
+patch status: 0
+trying to patch file: patchfile:hello/2228-tun-add-a-missing-rcu_read_unlock-in-error-path.patch
+checking file drivers/net/tun.c
+patching file drivers/net/tun.c
+patch status: 0
+trying to patch file: patchfile:hello/2229-powerpc-64s-Add-support-for-ori-barrier_nospec-patch.patch
+checking file arch/powerpc/include/asm/barrier.h
+Hunk #1 FAILED at 81.
+1 out of 1 hunk FAILED
+checking file arch/powerpc/include/asm/feature-fixups.h
+Hunk #1 succeeded at 54 with fuzz 2 (offset -157 lines).
+Hunk #2 FAILED at 227.
+1 out of 2 hunks FAILED
+checking file arch/powerpc/include/asm/setup.h
+Hunk #1 FAILED at 52.
+1 out of 1 hunk FAILED
+checking file arch/powerpc/kernel/security.c
+Hunk #1 FAILED at 10.
+1 out of 1 hunk FAILED
+checking file arch/powerpc/kernel/vmlinux.lds.S
+Hunk #1 succeeded at 171 with fuzz 2 (offset 18 lines).
+checking file arch/powerpc/lib/feature-fixups.c
+Hunk #1 FAILED at 277.
+1 out of 1 hunk FAILED
+patch test (--dry-run) failed: 2229, commit all changes so far, try just patch with hello/2229-powerpc-64s-Add-support-for-ori-barrier_nospec-patch.patch

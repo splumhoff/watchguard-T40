@@ -1,0 +1,183 @@
+1933
+1983
+trying to patch file: patchfile:hello/1933-rxrpc-Fix-client-call-queueing-waiting-for-channel.patch
+checking file net/rxrpc/conn_client.c
+patching file net/rxrpc/conn_client.c
+patch status: 0
+trying to patch file: patchfile:hello/1934-tcp-Don-t-access-TCP_SKB_CB-before-initializing-it.patch
+checking file net/ipv4/tcp_ipv4.c
+Hunk #1 succeeded at 1617 (offset 39 lines).
+patching file net/ipv4/tcp_ipv4.c
+Hunk #1 succeeded at 1617 (offset 39 lines).
+patch status: 0
+trying to patch file: patchfile:hello/1935-tcp-handle-inet_csk_reqsk_queue_add-failures.patch
+checking file net/ipv4/syncookies.c
+checking file net/ipv4/tcp_input.c
+Hunk #1 succeeded at 6490 (offset 84 lines).
+patching file net/ipv4/syncookies.c
+patching file net/ipv4/tcp_input.c
+Hunk #1 succeeded at 6490 (offset 84 lines).
+patch status: 0
+trying to patch file: patchfile:hello/1936-vxlan-Fix-GRO-cells-race-condition-between-receive-a.patch
+checking file drivers/net/vxlan.c
+patching file drivers/net/vxlan.c
+patch status: 0
+trying to patch file: patchfile:hello/1937-vxlan-test-dev-flags-IFF_UP-before-calling-gro_cells.patch
+checking file drivers/net/vxlan.c
+patching file drivers/net/vxlan.c
+patch status: 0
+trying to patch file: patchfile:hello/1938-net-mlx4_core-Fix-reset-flow-when-in-command-polling.patch
+checking file drivers/net/ethernet/mellanox/mlx4/cmd.c
+patching file drivers/net/ethernet/mellanox/mlx4/cmd.c
+patch status: 0
+trying to patch file: patchfile:hello/1939-net-mlx4_core-Fix-locking-in-SRIOV-mode-when-switchi.patch
+checking file drivers/net/ethernet/mellanox/mlx4/cmd.c
+patching file drivers/net/ethernet/mellanox/mlx4/cmd.c
+patch status: 0
+trying to patch file: patchfile:hello/1940-net-mlx4_core-Fix-qp-mtt-size-calculation.patch
+checking file drivers/net/ethernet/mellanox/mlx4/resource_tracker.c
+patching file drivers/net/ethernet/mellanox/mlx4/resource_tracker.c
+patch status: 0
+trying to patch file: patchfile:hello/1941-net-x25-fix-a-race-in-x25_bind.patch
+checking file net/x25/af_x25.c
+patching file net/x25/af_x25.c
+patch status: 0
+trying to patch file: patchfile:hello/1942-mdio_bus-Fix-use-after-free-on-device_register-fails.patch
+checking file drivers/net/phy/mdio_bus.c
+patching file drivers/net/phy/mdio_bus.c
+patch status: 0
+trying to patch file: patchfile:hello/1943-net-Set-rtm_table-to-RT_TABLE_COMPAT-for-ipv6-for-ta.patch
+checking file net/ipv6/route.c
+Hunk #1 succeeded at 3507 (offset 12 lines).
+patching file net/ipv6/route.c
+Hunk #1 succeeded at 3507 (offset 12 lines).
+patch status: 0
+trying to patch file: patchfile:hello/1944-bonding-fix-PACKET_ORIGDEV-regression.patch
+checking file drivers/net/bonding/bond_main.c
+Hunk #1 succeeded at 1209 (offset 32 lines).
+patching file drivers/net/bonding/bond_main.c
+Hunk #1 succeeded at 1209 (offset 32 lines).
+patch status: 0
+trying to patch file: patchfile:hello/1945-missing-barriers-in-some-of-unix_sock-addr-and-path-.patch
+checking file net/unix/af_unix.c
+checking file net/unix/diag.c
+checking file security/lsm_audit.c
+patching file net/unix/af_unix.c
+patching file net/unix/diag.c
+patching file security/lsm_audit.c
+patch status: 0
+trying to patch file: patchfile:hello/1946-ipvlan-disallow-userns-cap_net_admin-to-change-globa.patch
+checking file drivers/net/ipvlan/ipvlan_main.c
+patching file drivers/net/ipvlan/ipvlan_main.c
+patch status: 0
+trying to patch file: patchfile:hello/1947-perf-x86-Fixup-typo-in-stub-functions.patch
+checking file arch/x86/events/perf_event.h
+patching file arch/x86/events/perf_event.h
+patch status: 0
+trying to patch file: patchfile:hello/1948-ALSA-bebob-use-more-identical-mod_alias-for-Saffire-.patch
+checking file sound/firewire/bebob/bebob.c
+patching file sound/firewire/bebob/bebob.c
+patch status: 0
+trying to patch file: patchfile:hello/1949-ALSA-firewire-motu-fix-construction-of-PCM-frame-for.patch
+checking file sound/firewire/motu/amdtp-motu.c
+patching file sound/firewire/motu/amdtp-motu.c
+patch status: 0
+trying to patch file: patchfile:hello/1950-perf-x86-intel-Fix-memory-corruption.patch
+checking file arch/x86/events/intel/core.c
+patching file arch/x86/events/intel/core.c
+patch status: 0
+trying to patch file: patchfile:hello/1951-perf-x86-intel-Make-dev_attr_allow_tsx_force_abort-s.patch
+checking file arch/x86/events/intel/core.c
+patching file arch/x86/events/intel/core.c
+patch status: 0
+trying to patch file: patchfile:hello/1952-It-s-wrong-to-add-len-to-sector_nr-in-raid10-reshape.patch
+checking file drivers/md/raid10.c
+patching file drivers/md/raid10.c
+patch status: 0
+trying to patch file: patchfile:hello/1953-vhost-vsock-fix-vhost-vsock-cid-hashing-inconsistent.patch
+checking file drivers/vhost/vsock.c
+patching file drivers/vhost/vsock.c
+patch status: 0
+trying to patch file: patchfile:hello/1954-Linux-4.14.107.patch
+checking file Makefile
+patching file Makefile
+patch status: 0
+trying to patch file: patchfile:hello/1955-dma-direct-reject-too-small-dma-masks.patch
+checking file lib/dma-noop.c
+patching file lib/dma-noop.c
+patch status: 0
+trying to patch file: patchfile:hello/1956-dma-mapping-Generalise-dma_32bit_limit-flag.patch
+checking file include/linux/device.h
+checking file lib/dma-noop.c
+patching file include/linux/device.h
+patching file lib/dma-noop.c
+patch status: 0
+trying to patch file: patchfile:hello/1957-iommu-dma-Respect-bus-DMA-limit-for-IOVAs.patch
+checking file drivers/iommu/dma-iommu.c
+patching file drivers/iommu/dma-iommu.c
+patch status: 0
+trying to patch file: patchfile:hello/1958-of-device-Set-bus-DMA-mask-as-appropriate.patch
+checking file drivers/of/device.c
+patching file drivers/of/device.c
+patch status: 0
+trying to patch file: patchfile:hello/1959-staging-fsl-dpaa2-mac-add-pause-frames-support-for-m.patch
+checking file drivers/staging/fsl-dpaa2/mac/mac.c
+patching file drivers/staging/fsl-dpaa2/mac/mac.c
+patch status: 0
+trying to patch file: patchfile:hello/1960-staging-fsl-dpaa2-mac-Fix-bug-in-pause-frame-adverti.patch
+checking file drivers/staging/fsl-dpaa2/mac/mac.c
+patching file drivers/staging/fsl-dpaa2/mac/mac.c
+patch status: 0
+trying to patch file: patchfile:hello/1961-dpaa2-eth-configure-the-cache-stashing-amount-on-a-q.patch
+checking file drivers/staging/fsl-dpaa2/ethernet/dpaa2-eth.c
+patching file drivers/staging/fsl-dpaa2/ethernet/dpaa2-eth.c
+patch status: 0
+trying to patch file: patchfile:hello/1962-dpaa2-eth-fix-race-condition-with-bql-frame-accounti.patch
+checking file drivers/staging/fsl-dpaa2/ethernet/dpaa2-eth.c
+patching file drivers/staging/fsl-dpaa2/ethernet/dpaa2-eth.c
+patch status: 0
+trying to patch file: patchfile:hello/1963-dpaa2-eth-Update-pause-frames-settings-on-link-up.patch
+checking file drivers/staging/fsl-dpaa2/ethernet/dpaa2-eth.c
+patching file drivers/staging/fsl-dpaa2/ethernet/dpaa2-eth.c
+patch status: 0
+trying to patch file: patchfile:hello/1964-net-phy-aquantia-add-pause-frame-support.patch
+checking file drivers/net/phy/aquantia.c
+patching file drivers/net/phy/aquantia.c
+patch status: 0
+trying to patch file: patchfile:hello/1965-sdk-dts-remove-dma-coherent-from-sdk-dts-for-QE.patch
+checking file arch/arm64/boot/dts/freescale/fsl-ls1043a-rdb-sdk.dts
+patching file arch/arm64/boot/dts/freescale/fsl-ls1043a-rdb-sdk.dts
+patch status: 0
+trying to patch file: patchfile:hello/1966-soc-fsl-bqman-page-align-iommu-mapping-sizes.patch
+checking file drivers/soc/fsl/qbman/bman_ccsr.c
+checking file drivers/soc/fsl/qbman/qman_ccsr.c
+checking file drivers/soc/fsl/qbman/qman_portal.c
+patching file drivers/soc/fsl/qbman/bman_ccsr.c
+patching file drivers/soc/fsl/qbman/qman_ccsr.c
+patching file drivers/soc/fsl/qbman/qman_portal.c
+patch status: 0
+trying to patch file: patchfile:hello/1967-crypto-caam-fix-building-job-ring-as-module.patch
+checking file drivers/crypto/caam/Kconfig
+Hunk #1 succeeded at 3 with fuzz 1 (offset 1 line).
+patching file drivers/crypto/caam/Kconfig
+Hunk #1 succeeded at 3 with fuzz 1 (offset 1 line).
+patch status: 0
+trying to patch file: patchfile:hello/1968-PCI-endpoint-Correcting-nonstandard-NXP-copyright.patch
+checking file drivers/pci/dwc/pci-layerscape-ep.c
+checking file drivers/pci/mobiveil/pci-layerscape-gen4-ep.c
+checking file drivers/pci/mobiveil/pcie-mobiveil-ep.c
+patching file drivers/pci/dwc/pci-layerscape-ep.c
+patching file drivers/pci/mobiveil/pci-layerscape-gen4-ep.c
+patching file drivers/pci/mobiveil/pcie-mobiveil-ep.c
+patch status: 0
+trying to patch file: patchfile:hello/1969-drivers-soc-fsl-fix-problem-of-compiling-qixis-drive.patch
+checking file drivers/soc/fsl/Kconfig
+patching file drivers/soc/fsl/Kconfig
+patch status: 0
+trying to patch file: patchfile:hello/1970-soc-fsl-qbman-avoid-race-in-clearing-QMan-interrupt.patch
+checking file drivers/soc/fsl/qbman/qman.c
+Reversed (or previously applied) patch detected!  Assume -R? [n] 
+Apply anyway? [n] 
+Skipping patch.
+1 out of 1 hunk ignored
+patch test (--dry-run) failed: 1970, commit all changes so far, try just patch with hello/1970-soc-fsl-qbman-avoid-race-in-clearing-QMan-interrupt.patch

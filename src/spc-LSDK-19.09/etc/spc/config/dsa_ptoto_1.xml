@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<netpdl name="DSA" description="Dsa">
+<protocol name="dsa" longname="dsa" prevproto="ethernet">
+	   <format>
+				<fields>
+						<field type="fixed" name="dsa_tag" size="4"/>
+				</fields>
+        </format>
+	
+	<execute-code>
+		<before>
+			<!--Try to define a stronger condition -->
+			<if expr="(ethernet.type != 0x0800) and (ethernet.type != 0x8100)">
+				<if-true>
+					<!--Adjust ipoffset / l4offset ethtype offset /: they are offsetted with 4 bytes-->
+					<assign-variable name="$ipoffset_1" value="0x12"/>
+					<assign-variable name="$l4offset" value="0x26"/>
+					<assign-variable name="$lastetypeoffset" value="0x10"/>
+					<!--Unset unknown protocol field -it's ethernet but because wverything is offsetted due to dsa it's not recognised-->
+					<assign-variable name="$fafflags[4:1]" value="$fafflags[4:1] bitwxor 0x80"/> 
+					<!-- Do not validate L4 checksum. Not sure why in this case parser complains about it-->
+					<assign-variable name="$sperc" value="$sperc bitwxor 0x0004"/>
+
+				</if-true>
+				<if-false>
+								<action type="exit"  nextproto="return"/>
+				</if-false>
+			</if>
+		</before>
+
+		<after>
+			<!-- Set the DSA tag offset -->
+				<assign-variable name="$shimoffset_1" value="0x0C"/>
+				<assign-variable name="$nxtHdrOffset" value="0x18"/>
+				<assign-variable name="$nxtHdr" value="dsa.dsa_tag"/> 
+			 <action type="exit" confirmcustom="shim1" advance="yes" nextproto="after_ethernet"/> 
+		</after>
+
+	</execute-code>
+
+</protocol>
+
+
+</netpdl>

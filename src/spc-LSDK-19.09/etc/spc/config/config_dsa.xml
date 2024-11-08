@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!-- SP configuration file -->
+<spconfig>
+
+        <!-- SoC configuration  -->
+        <soc name="LS2088" rev="1.0" />
+
+        <memorymap>
+                <!-- bytecode section  -->
+                <bytecode offset="0x40" >
+                       
+                        <!-- load this bytecode section on parsers  -->
+                        <load-on-parser name="wriop_ingress" />
+
+                        <!-- protocols to be included in this bytecode
+section  -->
+                        <load-protocol name="dsa" />
+                <!--    <load-protocol name="tcp_c" />  -->
+                </bytecode>
+        </memorymap>
+
+        <device>
+                <parser name="wriop_ingress">
+                        <enable-on-init protocol="dsa" />
+        <!--             <enable-on-init protocol="tcp_c" />-->
+                </parser>
+        </device>
+
+</spconfig>

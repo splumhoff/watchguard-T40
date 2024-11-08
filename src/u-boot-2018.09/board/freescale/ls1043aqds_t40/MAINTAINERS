@@ -1,0 +1,6 @@
+WatchGuard T40 build off the LS1043AQDS reference BOARD
+M:	Mukund Jampala <mukund.jampala@watchguard.com>
+S:	Maintained
+F:	board/freescale/ls1043aqds_t40/
+F:	include/configs/ls1043aqds_t40.h
+F:	configs/ls1043aqds_wg_t40_qspi_defconfig

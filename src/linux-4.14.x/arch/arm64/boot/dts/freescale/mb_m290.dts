@@ -1,0 +1,250 @@
+/*
+ * Device Tree Include file for Freescale Layerscape-1046A family SoC.
+ *
+ * Copyright 2014-2015 Freescale Semiconductor, Inc.
+ *
+ * Mingkai Hu <Mingkai.hu@freescale.com>
+ *
+ * This file is dual-licensed: you can use it either under the terms
+ * of the GPLv2 or the X11 license, at your option. Note that this dual
+ * licensing only applies to this file, and not this project as a
+ * whole.
+ *
+ *  a) This library is free software; you can redistribute it and/or
+ *     modify it under the terms of the GNU General Public License as
+ *     published by the Free Software Foundation; either version 2 of the
+ *     License, or (at your option) any later version.
+ *
+ *     This library is distributed in the hope that it will be useful,
+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *     GNU General Public License for more details.
+ *
+ * Or, alternatively,
+ *
+ *  b) Permission is hereby granted, free of charge, to any person
+ *     obtaining a copy of this software and associated documentation
+ *     files (the "Software"), to deal in the Software without
+ *     restriction, including without limitation the rights to use,
+ *     copy, modify, merge, publish, distribute, sublicense, and/or
+ *     sell copies of the Software, and to permit persons to whom the
+ *     Software is furnished to do so, subject to the following
+ *     conditions:
+ *
+ *     The above copyright notice and this permission notice shall be
+ *     included in all copies or substantial portions of the Software.
+ *
+ *     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ *     EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+ *     OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ *     NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+ *     HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+ *     WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ *     FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+ *     OTHER DEALINGS IN THE SOFTWARE.
+ */
+
+#include "fsl-ls1046a-rdb_m290.dts"
+#include "qoriq-qman-portals-sdk.dtsi"
+#include "qoriq-bman-portals-sdk.dtsi"
+
+&bman_fbpr {
+	compatible = "fsl,bman-fbpr";
+	alloc-ranges = <0 0 0x10000 0>;
+};
+&qman_fqd {
+	compatible = "fsl,qman-fqd";
+	alloc-ranges = <0 0 0x10000 0>;
+};
+&qman_pfdr {
+	compatible = "fsl,qman-pfdr";
+	alloc-ranges = <0 0 0x10000 0>;
+};
+
+&soc {
+#include "qoriq-dpaa-eth_m290.dtsi"
+#include "qoriq-fman3-0-6oh.dtsi"
+};
+
+&fsldpaa {
+	ethernet@0 {
+		status = "disabled";
+	};
+	ethernet@1 {
+		status = "disabled";
+	};
+	ethernet@2 {
+		status = "disabled";
+	};
+	ethernet@3 {
+		status = "disabled";
+	};
+	ethernet@4 {
+		status = "disabled";
+	};
+	ethernet@5 {
+		status = "disabled";
+	};
+	ethernet@6 {
+		status = "disabled";
+	};
+	ethernet@7 {
+		status = "disabled";
+	};
+	ethernet@9 {
+		compatible = "fsl,dpa-ethernet";
+		fsl,fman-mac = <&enet9>;
+		dma-coherent;
+	};
+	ethernet@10 {
+		compatible = "fsl,dpa-ethernet";
+		fsl,fman-mac = <&enet10>;
+		dma-coherent;
+	};
+};
+
+&fman0 {
+	compatible = "fsl,fman", "simple-bus";
+	mdio@fc000 {
+		switch0phy1: switch0phy0@1 {
+			reg = <0x1>;
+		};
+		switch0phy2: switch0phy1@2 {
+			reg = <0x2>;
+		};
+		switch0phy3: switch0phy2@3 {
+			reg = <0x3>;
+		};
+		switch0phy4: switch0phy3@4 {
+			reg = <0x4>;
+		};
+		switch0phy5: switch0phy4@5 {
+			reg = <0x5>;
+		};
+		switch0phy6: switch0phy5@6 {
+			reg = <0x6>;
+		};
+		switch0phy7: switch0phy6@7 {
+			reg = <0x7>;
+		};
+		switch0phy8: switch0phy7@8 {
+			reg = <0x8>;
+		};
+
+		switch0: switch0@0 {
+			compatible = "marvell,mv88e6190";
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <0>;
+//			status = "disabled";
+
+			ports {
+				#address-cells = <1>;
+				#size-cells = <0>;
+
+				cpuport1: port@9 {
+					reg = <9>;
+					label = "cpu";
+					ethernet = <&dpaa_enet9>;
+					phy-mode = "2500base-x";
+	                fixed-link {
+	                    speed = <1000>;
+	                    full-duplex;
+	                };
+				};
+
+				cpuport2: port@10 {
+					reg = <10>;
+					label = "cpu";
+					ethernet = <&dpaa_enet10>;
+					phy-mode = "2500base-x";
+	                fixed-link {
+	                    speed = <1000>;
+	                    full-duplex;
+	                };
+				};
+
+				port@0 {
+					reg = <0>;
+					label = "lan0";
+					status = "disabled";
+				};
+
+				port@1 {
+					reg = <1>;
+					label = "lan1";
+					cpu = <&cpuport1>;
+				};
+
+				port@2 {
+					reg = <2>;
+					label = "lan2";
+					cpu = <&cpuport1>;
+				};
+
+				port@3 {
+					reg = <3>;
+					label = "lan3";
+					cpu = <&cpuport1>;
+				};
+				port@4 {
+					reg = <4>;
+					label = "lan4";
+					cpu = <&cpuport1>;
+				};
+				port@5 {
+					reg = <5>;
+					label = "lan5";
+					cpu = <&cpuport2>;
+				};
+
+				port@6 {
+					reg = <6>;
+					label = "lan6";
+					cpu = <&cpuport2>;
+				};
+				port@7 {
+					reg = <7>;
+					label = "lan7";
+					cpu = <&cpuport2>;
+				};
+
+				port@8 {
+					reg = <8>;
+					label = "lan8";
+					cpu = <&cpuport2>;
+				};
+			};
+		};
+	};
+};
+
+&mdio9 {
+	pcsphy9: ethernet-phy@0 {
+		backplane-mode = "10gbase-kr";
+		compatible = "ethernet-phy-ieee802.3-c45";
+		reg = <0x0>;
+		fsl,lane-handle = <&serdes1>;
+		fsl,lane-reg = <0x8C0 0x40>;   /* lane D */
+	};
+};
+
+&mdio10 {
+	pcsphy10: ethernet-phy@0 {
+		backplane-mode = "10gbase-kr";
+		compatible = "ethernet-phy-ieee802.3-c45";
+		reg = <0x0>;
+		fsl,lane-handle = <&serdes1>;
+		fsl,lane-reg = <0x880 0x40>;   /* lane C */
+	};
+};
+
+/* Update MAC connections to backplane PHYs
+ * &mac9 {
+ *	phy-handle = <&pcsphy6>;
+ *};
+ *
+ *&mac10 {
+ *	phy-handle = <&pcsphy7>;
+ *};
+*/

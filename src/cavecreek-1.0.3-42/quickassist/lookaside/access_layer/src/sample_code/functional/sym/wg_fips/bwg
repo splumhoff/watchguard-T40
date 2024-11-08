@@ -1,0 +1,26 @@
+#
+ICP_ROOT=$(cd ../../../../../../..; pwd)
+echo
+echo ICP_ROOT = $ICP_ROOT
+#
+rm -f wg_fips
+#
+gcc -g -Wall -O1 \
+-I$ICP_ROOT/include/ \
+-I$ICP_ROOT/include/lac \
+-I$ICP_ROOT/include/dc \
+-I$ICP_ROOT/lookaside/access_layer/include \
+-I$ICP_ROOT/lookaside/access_layer/src/sample_code/functional/include \
+-I$ICP_ROOT/utilities/libusdm_drv// \
+-DUSER_SPACE -DDO_CRYPTO -DWITH_UPSTREAM -DWITH_CMDRV \
+../../common/cpa_sample_utils.c wg_fips.c wg_fips_main.c \
+$ICP_ROOT/exports/libqat.a \
+$ICP_ROOT/exports/libosal.a \
+$ICP_ROOT/exports/libadf.a \
+$ICP_ROOT/exports/libusdm_drv.a \
+/usr/lib/x86_64-linux-gnu/libudev.a \
+-lpthread -lcrypto -lrt -o wg_fips
+#
+echo
+ls -l wg_fips
+echo

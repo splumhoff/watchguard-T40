@@ -1,0 +1,168 @@
+// SPDX-License-Identifier: GPL-2.0+ OR X11
+/*
+ * NXP ls2080a RDB board device tree source for QSPI-boot
+ *
+ * Author: Priyanka Jain <priyanka.jain@nxp.com>
+ *
+ * Copyright 2017 NXP
+ */
+
+/dts-v1/;
+
+#include "fsl-ls2080a.dtsi"
+
+/ {
+	model = "Freescale Layerscape 2080a RDB Board";
+	compatible = "fsl,ls2080a-rdb", "fsl,ls2080a";
+
+	aliases {
+		spi0 = &qspi;
+		spi1 = &dspi;
+	};
+};
+
+&dspi {
+	bus-num = <0>;
+	status = "okay";
+
+	dflash0: n25q512a {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		compatible = "jedec,spi-nor";
+		spi-max-frequency = <3000000>;
+		spi-cpol;
+		spi-cpha;
+		reg = <0>;
+	};
+};
+
+&qspi {
+	bus-num = <0>;
+	status = "okay";
+#if 0
+	qflash0: s25fs512s@0 {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		compatible = "jedec,spi-nor";
+		spi-max-frequency = <50000000>;
+		reg = <0>;
+	};
+
+	qflash1: s25fs512s@1 {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		compatible = "jedec,spi-nor";
+		spi-max-frequency = <50000000>;
+		reg = <1>;
+	};
+#endif
+	qflash0: mx25u6435f@0 {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		compatible = "jedec,spi-nor";
+		spi-max-frequency = <50000000>;
+		reg = <0>;
+	};
+
+	qflash1: mx25u6435f@1 {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		compatible = "jedec,spi-nor";
+		spi-max-frequency = <50000000>;
+		reg = <1>;
+	};
+};
+
+&i2c0 {
+	status = "okay";
+	u-boot,dm-pre-reloc;
+#if 1
+	tpm_i2c_ptp@2e {
+        compatible = "tcg,tpm_i2c_ptp";
+        reg = <0x2e>;
+    };
+#else
+	pca9547@75 {
+		compatible = "nxp,pca9547";
+		reg = <0x75>;
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		 i2c@1 {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <0x01>;
+			rtc@68 {
+				compatible = "dallas,ds3232";
+				reg = <0x68>;
+			};
+		};
+	};
+#endif
+};
+
+&i2c1 {
+	status = "okay";
+	max20754@29 {
+        compatible = "maxim,max20754";
+        reg = <0x29>;
+	};
+};
+
+&i2c3 {
+	status = "okay";
+	pca9546@71 {
+		compatible = "nxp,pca9546";
+		reg = <0x71>;
+		#address-cells = <1>;
+		#size-cells = <0>;
+		i2c-mux-never-disable;
+		i2c@0 {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <0x00>;
+			rtc@68 {
+				compatible = "dallas,ds1307";
+				reg = <0x68>;
+			};
+		};
+
+		i2c@1 {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <0x01>;
+			nct7904@2d {
+            	compatible = "nuvoton,nct7904";
+            	reg = <0x2d>;
+			};
+		};
+
+		i2c@2 {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <0x02>;
+			tmp75@4a {
+            	compatible = "ti,tmp75";
+            	reg = <0x4a>;
+			};
+			tmp75@4b {
+            	compatible = "ti,tmp75";
+            	reg = <0x4b>;
+			};
+		};
+
+		i2c@3 {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <0x03>;
+			poe@20 {
+            	compatible = "poe,poe_i2c_microsemi";
+            	reg = <0x20>;
+			};
+		};
+    };
+};
+
+&sata {
+	status = "okay";
+};

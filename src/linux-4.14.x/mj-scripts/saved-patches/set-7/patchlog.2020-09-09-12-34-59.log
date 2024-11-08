@@ -1,0 +1,11 @@
+patching file drivers/crypto/caam/ctrl.c
+Hunk #1 succeeded at 662 (offset 4 lines).
+patching file drivers/crypto/caam/intern.h
+patching file drivers/crypto/caam/qi.c
+Hunk #2 succeeded at 155 (offset 7 lines).
+Hunk #3 FAILED at 157.
+Hunk #4 succeeded at 635 (offset 55 lines).
+Hunk #5 FAILED at 601.
+2 out of 5 hunks FAILED -- saving rejects to file drivers/crypto/caam/qi.c.rej
+patchfile: hello/1909-crypto-caam-qi-fix-address-translations-with-IOMMU-e.patch patch status: 1
+patch failed: 1909, Stop here, resolve this patch:. commit and then move on others

@@ -1,0 +1,43 @@
+WatchGuard patches to sources for e1000e-3.3.4 as of
+Mon May  9 13:50:32 PDT 2022
+The patches shown here have been applied to source .tar.gz 
+files supplied with the WatchGuard Open Source Archive.
+
+==========================================================================
+--- e1000e-3.3.4/src/netdev.c.orig	2022-05-09 13:50:31.927735017 -0700
++++ e1000e-3.3.4/src/netdev.c	2022-05-09 13:50:31.999732095 -0700
+@@ -245,9 +245,11 @@
+ 	/* Print netdevice Info */
+ 	if (netdev) {
+ 		dev_info(pci_dev_to_dev(adapter->pdev), "Net device Info\n");
++#ifndef	CONFIG_WG_KERNEL_4_14
+ 		pr_info("Device Name     state            trans_start      last_rx\n");
+ 		pr_info("%-15s %016lX %016lX %016lX\n", netdev->name,
+ 			netdev->state, netdev->trans_start, netdev->last_rx);
++#endif
+ 	}
+ 
+ 	/* Print Registers */
+@@ -6542,7 +6544,9 @@
+ 		tx_ring->buffer_info[first].time_stamp = 0;
+ 		tx_ring->next_to_use = first;
+ 	}
++#ifndef	CONFIG_WG_KERNEL_4_14
+ 	netdev->trans_start = jiffies;
++#endif
+ 
+ 	return NETDEV_TX_OK;
+ }
+--- e1000e-3.3.4/src/e1000.h.orig	2022-05-09 13:50:31.915735503 -0700
++++ e1000e-3.3.4/src/e1000.h	2022-05-09 13:50:31.991732419 -0700
+@@ -48,6 +48,10 @@
+ #endif
+ #include "hw.h"
+ 
++#ifdef	CONFIG_WG_KERNEL_4_14
++#undef	HAVE_NDO_GET_STATS64
++#endif
++
+ struct e1000_info;
+ 
+ #define e_dbg(format, arg...) \

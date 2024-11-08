@@ -1,0 +1,265 @@
+1114
+1164
+trying to patch file: patchfile:hello/1114-Revert-ARMv8-dts-ls1046a-add-the-property-of-IB-and-.patch
+checking file arch/arm64/boot/dts/freescale/fsl-ls1046a.dtsi
+Hunk #1 succeeded at 651 (offset 2 lines).
+Hunk #2 succeeded at 676 (offset 2 lines).
+Hunk #3 succeeded at 701 (offset 2 lines).
+patching file arch/arm64/boot/dts/freescale/fsl-ls1046a.dtsi
+Hunk #1 succeeded at 651 (offset 2 lines).
+Hunk #2 succeeded at 676 (offset 2 lines).
+Hunk #3 succeeded at 701 (offset 2 lines).
+patch status: 0
+trying to patch file: patchfile:hello/1115-arm64-dts-freescale-lx2160a-add-pcie-EP-mode-DT-node.patch
+checking file arch/arm64/boot/dts/freescale/fsl-lx2160a.dtsi
+patching file arch/arm64/boot/dts/freescale/fsl-lx2160a.dtsi
+patch status: 0
+trying to patch file: patchfile:hello/1116-amd-xgbe-Fix-mdio-access-for-non-zero-ports-and-clau.patch
+checking file drivers/net/ethernet/amd/xgbe/xgbe-common.h
+checking file drivers/net/ethernet/amd/xgbe/xgbe-dev.c
+patching file drivers/net/ethernet/amd/xgbe/xgbe-common.h
+patching file drivers/net/ethernet/amd/xgbe/xgbe-dev.c
+patch status: 0
+trying to patch file: patchfile:hello/1117-net-bridge-Fix-ethernet-header-pointer-before-check-.patch
+checking file net/bridge/br_forward.c
+Hunk #2 succeeded at 116 with fuzz 2 (offset 20 lines).
+patching file net/bridge/br_forward.c
+Hunk #2 succeeded at 116 with fuzz 2 (offset 20 lines).
+patch status: 0
+trying to patch file: patchfile:hello/1118-net-Fix-usage-of-pskb_trim_rcsum.patch
+checking file drivers/net/ppp/pppoe.c
+checking file include/linux/skbuff.h
+Hunk #1 succeeded at 3195 (offset 32 lines).
+checking file net/bridge/br_netfilter_ipv6.c
+checking file net/bridge/netfilter/nft_reject_bridge.c
+checking file net/ipv4/ip_input.c
+Hunk #1 succeeded at 504 (offset 23 lines).
+patching file drivers/net/ppp/pppoe.c
+patching file include/linux/skbuff.h
+Hunk #1 succeeded at 3195 (offset 32 lines).
+patching file net/bridge/br_netfilter_ipv6.c
+patching file net/bridge/netfilter/nft_reject_bridge.c
+patching file net/ipv4/ip_input.c
+Hunk #1 succeeded at 504 (offset 23 lines).
+patch status: 0
+trying to patch file: patchfile:hello/1119-net-phy-mdio_bus-add-missing-device_del-in-mdiobus_r.patch
+checking file drivers/net/phy/mdio_bus.c
+patching file drivers/net/phy/mdio_bus.c
+patch status: 0
+trying to patch file: patchfile:hello/1120-net_sched-refetch-skb-protocol-for-each-filter.patch
+checking file net/sched/cls_api.c
+patching file net/sched/cls_api.c
+patch status: 0
+trying to patch file: patchfile:hello/1121-openvswitch-Avoid-OOB-read-when-parsing-flow-nlattrs.patch
+checking file net/openvswitch/flow_netlink.c
+patching file net/openvswitch/flow_netlink.c
+patch status: 0
+trying to patch file: patchfile:hello/1122-vhost-log-dirty-page-correctly.patch
+checking file drivers/vhost/net.c
+checking file drivers/vhost/vhost.c
+checking file drivers/vhost/vhost.h
+patching file drivers/vhost/net.c
+patching file drivers/vhost/vhost.c
+patching file drivers/vhost/vhost.h
+patch status: 0
+trying to patch file: patchfile:hello/1123-net-ipv4-Fix-memory-leak-in-network-namespace-disman.patch
+checking file include/net/ip_fib.h
+checking file net/ipv4/fib_frontend.c
+checking file net/ipv4/fib_trie.c
+Hunk #1 succeeded at 1851 (offset 15 lines).
+Hunk #2 succeeded at 1899 (offset 15 lines).
+patching file include/net/ip_fib.h
+patching file net/ipv4/fib_frontend.c
+patching file net/ipv4/fib_trie.c
+Hunk #1 succeeded at 1851 (offset 15 lines).
+Hunk #2 succeeded at 1899 (offset 15 lines).
+patch status: 0
+trying to patch file: patchfile:hello/1124-tcp-allow-MSG_ZEROCOPY-transmission-also-in-CLOSE_WA.patch
+checking file net/ipv4/tcp.c
+patching file net/ipv4/tcp.c
+patch status: 0
+trying to patch file: patchfile:hello/1125-ipfrag-really-prevent-allocation-on-netns-exit.patch
+checking file net/ipv4/inet_fragment.c
+patching file net/ipv4/inet_fragment.c
+patch status: 0
+trying to patch file: patchfile:hello/1126-mmc-Kconfig-Enable-CONFIG_MMC_SDHCI_IO_ACCESSORS.patch
+checking file drivers/mmc/host/Kconfig
+patching file drivers/mmc/host/Kconfig
+patch status: 0
+trying to patch file: patchfile:hello/1127-mei-me-add-denverton-innovation-engine-device-IDs.patch
+checking file drivers/misc/mei/hw-me-regs.h
+checking file drivers/misc/mei/pci-me.c
+patching file drivers/misc/mei/hw-me-regs.h
+patching file drivers/misc/mei/pci-me.c
+patch status: 0
+trying to patch file: patchfile:hello/1128-USB-serial-simple-add-Motorola-Tetra-TPG2200-device-.patch
+checking file drivers/usb/serial/usb-serial-simple.c
+patching file drivers/usb/serial/usb-serial-simple.c
+patch status: 0
+trying to patch file: patchfile:hello/1129-USB-serial-pl2303-add-new-PID-to-support-PL2303TB.patch
+checking file drivers/usb/serial/pl2303.c
+checking file drivers/usb/serial/pl2303.h
+patching file drivers/usb/serial/pl2303.c
+patching file drivers/usb/serial/pl2303.h
+patch status: 0
+trying to patch file: patchfile:hello/1130-ASoC-atom-fix-a-missing-check-of-snd_pcm_lib_malloc_.patch
+checking file sound/soc/intel/atom/sst-mfld-platform-pcm.c
+patching file sound/soc/intel/atom/sst-mfld-platform-pcm.c
+patch status: 0
+trying to patch file: patchfile:hello/1131-ASoC-rt5514-spi-Fix-potential-NULL-pointer-dereferen.patch
+checking file sound/soc/codecs/rt5514-spi.c
+patching file sound/soc/codecs/rt5514-spi.c
+patch status: 0
+trying to patch file: patchfile:hello/1132-ALSA-hda-Add-mute-LED-support-for-HP-ProBook-470-G5.patch
+checking file sound/pci/hda/patch_conexant.c
+patching file sound/pci/hda/patch_conexant.c
+patch status: 0
+trying to patch file: patchfile:hello/1133-ARCv2-lib-memeset-fix-doing-prefetchw-outside-of-buf.patch
+checking file arch/arc/lib/memset-archs.S
+patching file arch/arc/lib/memset-archs.S
+patch status: 0
+trying to patch file: patchfile:hello/1134-ARC-adjust-memblock_reserve-of-kernel-memory.patch
+checking file arch/arc/mm/init.c
+patching file arch/arc/mm/init.c
+patch status: 0
+trying to patch file: patchfile:hello/1135-ARC-perf-map-generic-branches-to-correct-hardware-co.patch
+checking file arch/arc/include/asm/perf_event.h
+patching file arch/arc/include/asm/perf_event.h
+patch status: 0
+trying to patch file: patchfile:hello/1136-s390-early-improve-machine-detection.patch
+checking file arch/s390/kernel/early.c
+checking file arch/s390/kernel/setup.c
+patching file arch/s390/kernel/early.c
+patching file arch/s390/kernel/setup.c
+patch status: 0
+trying to patch file: patchfile:hello/1137-s390-smp-fix-CPU-hotplug-deadlock-with-CPU-rescan.patch
+checking file arch/s390/kernel/smp.c
+checking file drivers/s390/char/sclp_config.c
+patching file arch/s390/kernel/smp.c
+patching file drivers/s390/char/sclp_config.c
+patch status: 0
+trying to patch file: patchfile:hello/1138-char-mwave-fix-potential-Spectre-v1-vulnerability.patch
+checking file drivers/char/mwave/mwavedd.c
+patching file drivers/char/mwave/mwavedd.c
+patch status: 0
+trying to patch file: patchfile:hello/1139-staging-rtl8188eu-Add-device-code-for-D-Link-DWA-121.patch
+checking file drivers/staging/rtl8188eu/os_dep/usb_intf.c
+patching file drivers/staging/rtl8188eu/os_dep/usb_intf.c
+patch status: 0
+trying to patch file: patchfile:hello/1140-tty-Handle-problem-if-line-discipline-does-not-have-.patch
+checking file drivers/tty/tty_io.c
+patching file drivers/tty/tty_io.c
+patch status: 0
+trying to patch file: patchfile:hello/1141-uart-Fix-crash-in-uart_write-and-uart_put_char.patch
+checking file drivers/tty/serial/serial_core.c
+patching file drivers/tty/serial/serial_core.c
+patch status: 0
+trying to patch file: patchfile:hello/1142-tty-n_hdlc-fix-__might_sleep-warning.patch
+checking file drivers/tty/n_hdlc.c
+patching file drivers/tty/n_hdlc.c
+patch status: 0
+trying to patch file: patchfile:hello/1143-hv_balloon-avoid-touching-uninitialized-struct-page-.patch
+checking file drivers/hv/hv_balloon.c
+patching file drivers/hv/hv_balloon.c
+patch status: 0
+trying to patch file: patchfile:hello/1144-Drivers-hv-vmbus-Check-for-ring-when-getting-debug-i.patch
+checking file drivers/hv/ring_buffer.c
+checking file drivers/hv/vmbus_drv.c
+checking file include/linux/hyperv.h
+patching file drivers/hv/ring_buffer.c
+patching file drivers/hv/vmbus_drv.c
+patching file include/linux/hyperv.h
+patch status: 0
+trying to patch file: patchfile:hello/1145-CIFS-Fix-possible-hang-during-async-MTU-reads-and-wr.patch
+checking file fs/cifs/smb2ops.c
+patching file fs/cifs/smb2ops.c
+patch status: 0
+trying to patch file: patchfile:hello/1146-CIFS-Fix-credits-calculations-for-reads-with-errors.patch
+checking file fs/cifs/cifssmb.c
+patching file fs/cifs/cifssmb.c
+patch status: 0
+trying to patch file: patchfile:hello/1147-CIFS-Fix-credit-calculation-for-encrypted-reads-with.patch
+checking file fs/cifs/smb2ops.c
+patching file fs/cifs/smb2ops.c
+patch status: 0
+trying to patch file: patchfile:hello/1148-CIFS-Do-not-reconnect-TCP-session-in-add_credits.patch
+checking file fs/cifs/connect.c
+checking file fs/cifs/smb2ops.c
+patching file fs/cifs/connect.c
+patching file fs/cifs/smb2ops.c
+patch status: 0
+trying to patch file: patchfile:hello/1149-Input-xpad-add-support-for-SteelSeries-Stratus-Duo.patch
+checking file drivers/input/joystick/xpad.c
+patching file drivers/input/joystick/xpad.c
+patch status: 0
+trying to patch file: patchfile:hello/1150-compiler.h-enable-builtin-overflow-checkers-and-add-.patch
+checking file include/linux/compiler-clang.h
+checking file include/linux/compiler-gcc.h
+checking file include/linux/compiler-intel.h
+checking file include/linux/overflow.h
+patching file include/linux/compiler-clang.h
+patching file include/linux/compiler-gcc.h
+patching file include/linux/compiler-intel.h
+patching file include/linux/overflow.h
+patch status: 0
+trying to patch file: patchfile:hello/1151-Input-uinput-fix-undefined-behavior-in-uinput_valida.patch
+checking file drivers/input/misc/uinput.c
+patching file drivers/input/misc/uinput.c
+patch status: 0
+trying to patch file: patchfile:hello/1152-acpi-nfit-Block-function-zero-DSMs.patch
+checking file drivers/acpi/nfit/core.c
+patching file drivers/acpi/nfit/core.c
+patch status: 0
+trying to patch file: patchfile:hello/1153-acpi-nfit-Fix-command-supported-detection.patch
+checking file drivers/acpi/nfit/core.c
+patching file drivers/acpi/nfit/core.c
+patch status: 0
+trying to patch file: patchfile:hello/1154-dm-thin-fix-passdown_double_checking_shared_status.patch
+checking file drivers/md/dm-thin-metadata.c
+checking file drivers/md/dm-thin-metadata.h
+checking file drivers/md/dm-thin.c
+patching file drivers/md/dm-thin-metadata.c
+patching file drivers/md/dm-thin-metadata.h
+patching file drivers/md/dm-thin.c
+patch status: 0
+trying to patch file: patchfile:hello/1155-dm-crypt-fix-parsing-of-extended-IV-arguments.patch
+checking file drivers/md/dm-crypt.c
+patching file drivers/md/dm-crypt.c
+patch status: 0
+trying to patch file: patchfile:hello/1156-KVM-x86-Fix-single-step-debugging.patch
+checking file arch/x86/kvm/x86.c
+patching file arch/x86/kvm/x86.c
+patch status: 0
+trying to patch file: patchfile:hello/1157-x86-pkeys-Properly-copy-pkey-state-at-fork.patch
+checking file arch/x86/include/asm/mmu_context.h
+patching file arch/x86/include/asm/mmu_context.h
+patch status: 0
+trying to patch file: patchfile:hello/1158-x86-selftests-pkeys-Fork-to-check-for-state-being-pr.patch
+checking file tools/testing/selftests/x86/protection_keys.c
+patching file tools/testing/selftests/x86/protection_keys.c
+patch status: 0
+trying to patch file: patchfile:hello/1159-x86-kaslr-Fix-incorrect-i8254-outb-parameters.patch
+checking file arch/x86/lib/kaslr.c
+patching file arch/x86/lib/kaslr.c
+patch status: 0
+trying to patch file: patchfile:hello/1160-posix-cpu-timers-Unbreak-timer-rearming.patch
+checking file kernel/time/posix-cpu-timers.c
+patching file kernel/time/posix-cpu-timers.c
+patch status: 0
+trying to patch file: patchfile:hello/1161-irqchip-gic-v3-its-Align-PCI-Multi-MSI-allocation-on.patch
+checking file drivers/irqchip/irq-gic-v3-its.c
+patching file drivers/irqchip/irq-gic-v3-its.c
+patch status: 0
+trying to patch file: patchfile:hello/1162-can-dev-__can_get_echo_skb-fix-bogous-check-for-non-.patch
+checking file drivers/net/can/dev.c
+patching file drivers/net/can/dev.c
+patch status: 0
+trying to patch file: patchfile:hello/1163-can-bcm-check-timer-values-before-ktime-conversion.patch
+checking file net/can/bcm.c
+patching file net/can/bcm.c
+patch status: 0
+trying to patch file: patchfile:hello/1164-vt-invoke-notifier-on-screen-size-change.patch
+checking file drivers/tty/vt/vt.c
+patching file drivers/tty/vt/vt.c
+patch status: 0
+patch end(1164) reached(1164). 				submit these and comeback and proceed: last patched hello/1164-vt-invoke-notifier-on-screen-size-change.patch

@@ -1,0 +1,16 @@
+WatchGuard patches to sources for strace-4.8 as of
+Mon May  9 14:01:46 PDT 2022
+The patches shown here have been applied to source .tar.gz 
+files supplied with the WatchGuard Open Source Archive.
+
+==========================================================================
+--- strace-4.8/defs.h.orig	2022-05-09 14:01:44.568448933 -0700
++++ strace-4.8/defs.h	2022-05-09 14:01:44.692443904 -0700
+@@ -56,6 +56,7 @@
+ #endif
+ #include <stdint.h>
+ #include <inttypes.h>
++#include <sys/sysmacros.h>
+ #include <sys/types.h>
+ #ifdef STDC_HEADERS
+ # include <stddef.h>

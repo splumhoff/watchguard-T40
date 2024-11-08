@@ -1,0 +1,21 @@
+WatchGuard patches to sources for ncurses-6.0 as of
+Mon May  9 13:58:10 PDT 2022
+The patches shown here have been applied to source .tar.gz 
+files supplied with the WatchGuard Open Source Archive.
+
+==========================================================================
+--- ncurses-6.0/ncurses/base/MKlib_gen.sh.orig	2022-05-09 13:58:03.801402704 -0700
++++ ncurses-6.0/ncurses/base/MKlib_gen.sh	2022-05-09 13:58:05.705325481 -0700
+@@ -72,9 +72,9 @@
+ # appears in gcc 5.0 and (with modification) in 5.1, making it necessary to
+ # determine if we are using gcc, and if so, what version because the proposed
+ # solution uses a nonstandard option.
+-PRG=`echo "$1" | $AWK '{ sub(/^[[:space:]]*/,""); sub(/[[:space:]].*$/, ""); print; }' || exit 0`
+-FSF=`"$PRG" --version 2>/dev/null || exit 0 | fgrep "Free Software Foundation" | head -n 1`
+-ALL=`"$PRG" -dumpversion 2>/dev/null || exit 0`
++PRG=`echo "$1" | $AWK '{ print $1; }' || exit 0`
++FSF=`$PRG --version 2>/dev/null || exit 0 | fgrep "Free Software Foundation" | head -n 1`
++ALL=`$PRG -dumpversion 2>/dev/null || exit 0`
+ ONE=`echo "$ALL" | sed -e 's/\..*$//'`
+ if test -n "$FSF" && test -n "$ALL" && test -n "$ONE" ; then
+ 	if test $ONE -ge 5 ; then

@@ -1,0 +1,74 @@
+1879
+1929
+trying to patch file: patchfile:hello/1879-ARM-dts-exynos-Add-minimal-clkout-parameters-to-Exyn.patch
+checking file arch/arm/boot/dts/exynos3250.dtsi
+patching file arch/arm/boot/dts/exynos3250.dtsi
+patch status: 0
+trying to patch file: patchfile:hello/1880-drm-disable-uncached-DMA-optimization-for-ARM-and-ar.patch
+checking file include/drm/drm_cache.h
+patching file include/drm/drm_cache.h
+patch status: 0
+trying to patch file: patchfile:hello/1881-ARM-8781-1-Fix-Thumb-2-syscall-return-for-binutils-2.patch
+checking file arch/arm/kernel/entry-common.S
+patching file arch/arm/kernel/entry-common.S
+patch status: 0
+trying to patch file: patchfile:hello/1882-gfs2-Fix-missed-wakeups-in-find_insert_glock.patch
+checking file fs/gfs2/glock.c
+patching file fs/gfs2/glock.c
+patch status: 0
+trying to patch file: patchfile:hello/1883-ath9k-Avoid-OF-no-EEPROM-quirks-without-qca-no-eepro.patch
+checking file drivers/net/wireless/ath/ath9k/init.c
+patching file drivers/net/wireless/ath/ath9k/init.c
+patch status: 0
+trying to patch file: patchfile:hello/1884-driver-core-Postpone-DMA-tear-down-until-after-devre.patch
+checking file drivers/base/dd.c
+patching file drivers/base/dd.c
+patch status: 0
+trying to patch file: patchfile:hello/1885-perf-x86-intel-Make-cpuc-allocations-consistent.patch
+checking file arch/x86/events/core.c
+Hunk #1 succeeded at 1996 (offset 28 lines).
+Hunk #2 succeeded at 2008 (offset 28 lines).
+checking file arch/x86/events/intel/core.c
+checking file arch/x86/events/perf_event.h
+patching file arch/x86/events/core.c
+Hunk #1 succeeded at 1996 (offset 28 lines).
+Hunk #2 succeeded at 2008 (offset 28 lines).
+patching file arch/x86/events/intel/core.c
+patching file arch/x86/events/perf_event.h
+patch status: 0
+trying to patch file: patchfile:hello/1886-perf-x86-intel-Generalize-dynamic-constraint-creatio.patch
+checking file arch/x86/events/intel/core.c
+patching file arch/x86/events/intel/core.c
+patch status: 0
+trying to patch file: patchfile:hello/1887-x86-Add-TSX-Force-Abort-CPUID-MSR.patch
+checking file arch/x86/include/asm/cpufeatures.h
+checking file arch/x86/include/asm/msr-index.h
+patching file arch/x86/include/asm/cpufeatures.h
+patching file arch/x86/include/asm/msr-index.h
+patch status: 0
+trying to patch file: patchfile:hello/1888-perf-x86-intel-Implement-support-for-TSX-Force-Abort.patch
+checking file arch/x86/events/intel/core.c
+checking file arch/x86/events/perf_event.h
+patching file arch/x86/events/intel/core.c
+patching file arch/x86/events/perf_event.h
+patch status: 0
+trying to patch file: patchfile:hello/1889-Linux-4.14.106.patch
+checking file Makefile
+patching file Makefile
+patch status: 0
+trying to patch file: patchfile:hello/1890-dpaa2-eth-Remove-support-for-Tx-congestion.patch
+checking file drivers/staging/fsl-dpaa2/ethernet/dpaa2-eth-debugfs.c
+checking file drivers/staging/fsl-dpaa2/ethernet/dpaa2-eth.c
+checking file drivers/staging/fsl-dpaa2/ethernet/dpaa2-eth.h
+checking file drivers/staging/fsl-dpaa2/ethernet/dpaa2-ethtool.c
+patching file drivers/staging/fsl-dpaa2/ethernet/dpaa2-eth-debugfs.c
+patching file drivers/staging/fsl-dpaa2/ethernet/dpaa2-eth.c
+patching file drivers/staging/fsl-dpaa2/ethernet/dpaa2-eth.h
+patching file drivers/staging/fsl-dpaa2/ethernet/dpaa2-ethtool.c
+patch status: 0
+trying to patch file: patchfile:hello/1891-Revert-powerpc-mpc85xx-fix-issues-in-clock-node.patch
+checking file arch/powerpc/boot/dts/fsl/t1023si-post.dtsi
+Hunk #1 FAILED at 348.
+Hunk #2 FAILED at 356.
+2 out of 2 hunks FAILED
+patch test (--dry-run) failed: 1891, commit all changes so far, try just patch with hello/1891-Revert-powerpc-mpc85xx-fix-issues-in-clock-node.patch

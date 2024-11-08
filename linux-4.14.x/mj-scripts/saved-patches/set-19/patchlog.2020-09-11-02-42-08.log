@@ -1,0 +1,150 @@
+2601
+2651
+trying to patch file: patchfile:hello/2601-net-bridge-multicast-use-rcu-to-access-port-list-fro.patch
+Checking patch net/bridge/br_multicast.c...
+git apply status: 0
+trying to patch file: patchfile:hello/2602-net-fou-do-not-use-guehdr-after-iptunnel_pull_offloa.patch
+Checking patch net/ipv4/fou.c...
+git apply status: 0
+trying to patch file: patchfile:hello/2603-tcp-tcp_grow_window-needs-to-respect-tcp_space.patch
+Checking patch net/ipv4/tcp_input.c...
+git apply status: 0
+trying to patch file: patchfile:hello/2604-team-set-slave-to-promisc-if-team-is-already-in-prom.patch
+Checking patch drivers/net/team/team.c...
+git apply status: 0
+trying to patch file: patchfile:hello/2605-vhost-reject-zero-size-iova-range.patch
+Checking patch drivers/vhost/vhost.c...
+git apply status: 0
+trying to patch file: patchfile:hello/2606-ipv4-recompile-ip-options-in-ipv4_link_failure.patch
+Checking patch net/ipv4/route.c...
+Hunk #1 succeeded at 1208 (offset 13 lines).
+git apply status: 0
+trying to patch file: patchfile:hello/2607-ipv4-ensure-rcu_read_lock-in-ipv4_link_failure.patch
+Checking patch net/ipv4/route.c...
+Hunk #1 succeeded at 1207 (offset 13 lines).
+git apply status: 0
+trying to patch file: patchfile:hello/2608-net-thunderx-raise-XDP-MTU-to-1508.patch
+Checking patch drivers/net/ethernet/cavium/thunder/nicvf_main.c...
+git apply status: 0
+trying to patch file: patchfile:hello/2609-net-thunderx-don-t-allow-jumbo-frames-with-XDP.patch
+Checking patch drivers/net/ethernet/cavium/thunder/nicvf_main.c...
+git apply status: 0
+trying to patch file: patchfile:hello/2610-CIFS-keep-FileInfo-handle-live-during-oplock-break.patch
+Checking patch fs/cifs/cifsglob.h...
+Checking patch fs/cifs/file.c...
+Checking patch fs/cifs/misc.c...
+Checking patch fs/cifs/smb2misc.c...
+git apply status: 0
+trying to patch file: patchfile:hello/2611-KVM-x86-Don-t-clear-EFER-during-SMM-transitions-for-.patch
+Checking patch arch/x86/kvm/emulate.c...
+git apply status: 0
+trying to patch file: patchfile:hello/2612-KVM-x86-svm-make-sure-NMI-is-injected-after-nmi_sing.patch
+Checking patch arch/x86/kvm/svm.c...
+git apply status: 0
+trying to patch file: patchfile:hello/2613-Staging-iio-meter-fixed-typo.patch
+Checking patch drivers/staging/iio/meter/ade7854.c...
+git apply status: 0
+trying to patch file: patchfile:hello/2614-staging-iio-ad7192-Fix-ad7193-channel-address.patch
+Checking patch drivers/staging/iio/adc/ad7192.c...
+git apply status: 0
+trying to patch file: patchfile:hello/2615-iio-gyro-mpu3050-fix-chip-ID-reading.patch
+Checking patch drivers/iio/gyro/mpu3050-core.c...
+git apply status: 0
+trying to patch file: patchfile:hello/2616-iio-gyro-bmg160-Use-millidegrees-for-temperature-sca.patch
+Checking patch drivers/iio/gyro/bmg160_core.c...
+git apply status: 0
+trying to patch file: patchfile:hello/2617-iio-cros_ec-Fix-the-maths-for-gyro-scale-calculation.patch
+Checking patch drivers/iio/common/cros_ec_sensors/cros_ec_sensors.c...
+git apply status: 0
+trying to patch file: patchfile:hello/2618-iio-ad_sigma_delta-select-channel-when-reading-regis.patch
+Checking patch drivers/iio/adc/ad_sigma_delta.c...
+git apply status: 0
+trying to patch file: patchfile:hello/2619-iio-dac-mcp4725-add-missing-powerdown-bits-in-store-.patch
+Checking patch drivers/iio/dac/mcp4725.c...
+git apply status: 0
+trying to patch file: patchfile:hello/2620-iio-Fix-scan-mask-selection.patch
+Checking patch drivers/iio/industrialio-buffer.c...
+git apply status: 0
+trying to patch file: patchfile:hello/2621-iio-adc-at91-disable-adc-channel-interrupt-in-timeou.patch
+Checking patch drivers/iio/adc/at91_adc.c...
+git apply status: 0
+trying to patch file: patchfile:hello/2622-iio-core-fix-a-possible-circular-locking-dependency.patch
+Checking patch drivers/iio/industrialio-core.c...
+git apply status: 0
+trying to patch file: patchfile:hello/2623-io-accel-kxcjk1013-restore-the-range-after-resume.patch
+Checking patch drivers/iio/accel/kxcjk-1013.c...
+git apply status: 0
+trying to patch file: patchfile:hello/2624-staging-comedi-vmk80xx-Fix-use-of-uninitialized-sema.patch
+Checking patch drivers/staging/comedi/drivers/vmk80xx.c...
+git apply status: 0
+trying to patch file: patchfile:hello/2625-staging-comedi-vmk80xx-Fix-possible-double-free-of-u.patch
+Checking patch drivers/staging/comedi/drivers/vmk80xx.c...
+git apply status: 0
+trying to patch file: patchfile:hello/2626-staging-comedi-ni_usb6501-Fix-use-of-uninitialized-m.patch
+Checking patch drivers/staging/comedi/drivers/ni_usb6501.c...
+git apply status: 0
+trying to patch file: patchfile:hello/2627-staging-comedi-ni_usb6501-Fix-possible-double-free-o.patch
+Checking patch drivers/staging/comedi/drivers/ni_usb6501.c...
+git apply status: 0
+trying to patch file: patchfile:hello/2628-ALSA-hda-realtek-add-two-more-pin-configuration-sets.patch
+Checking patch sound/pci/hda/patch_realtek.c...
+git apply status: 0
+trying to patch file: patchfile:hello/2629-ALSA-core-Fix-card-races-between-register-and-discon.patch
+Checking patch sound/core/init.c...
+git apply status: 0
+trying to patch file: patchfile:hello/2630-scsi-core-set-result-when-the-command-cannot-be-disp.patch
+Checking patch drivers/scsi/scsi_lib.c...
+git apply status: 0
+trying to patch file: patchfile:hello/2631-Revert-scsi-fcoe-clear-FC_RP_STARTED-flags-when-rece.patch
+Checking patch drivers/scsi/libfc/fc_rport.c...
+git apply status: 0
+trying to patch file: patchfile:hello/2632-Revert-svm-Fix-AVIC-incomplete-IPI-emulation.patch
+Checking patch arch/x86/kvm/svm.c...
+git apply status: 0
+trying to patch file: patchfile:hello/2633-coredump-fix-race-condition-between-mmget_not_zero-g.patch
+Checking patch fs/proc/task_mmu.c...
+error: while searching for:
+					count = -EINTR;
+					goto out_mm;
+				}
+				for (vma = mm->mmap; vma; vma = vma->vm_next) {
+					vma->vm_flags &= ~VM_SOFTDIRTY;
+					vma_set_page_prot(vma);
+
+error: patch failed: fs/proc/task_mmu.c:1160
+error: fs/proc/task_mmu.c: patch does not apply
+Checking patch fs/userfaultfd.c...
+error: while searching for:
+
+		/* the various vma->vm_userfaultfd_ctx still points to it */
+		down_write(&mm->mmap_sem);
+		for (vma = mm->mmap; vma; vma = vma->vm_next)
+			if (vma->vm_userfaultfd_ctx.ctx == release_new_ctx) {
+				vma->vm_userfaultfd_ctx = NULL_VM_UFFD_CTX;
+
+error: patch failed: fs/userfaultfd.c:627
+error: fs/userfaultfd.c: patch does not apply
+Checking patch include/linux/sched/mm.h...
+error: while searching for:
+	}
+}
+
+/**
+ * mmget() - Pin the address space associated with a &struct mm_struct.
+ * @mm: The address space to pin.
+
+error: patch failed: include/linux/sched/mm.h:57
+error: include/linux/sched/mm.h: patch does not apply
+Checking patch mm/mmap.c...
+error: while searching for:
+#include <linux/moduleparam.h>
+#include <linux/pkeys.h>
+#include <linux/oom.h>
+
+#include <linux/uaccess.h>
+#include <asm/cacheflush.h>
+
+error: patch failed: mm/mmap.c:45
+error: mm/mmap.c: patch does not apply
+git apply test (--check) failed: 2633, commit all changes so far, try just patch with hello/2633-coredump-fix-race-condition-between-mmget_not_zero-g.patch
+tets it yourself: git apply --check -v hello/2633-coredump-fix-race-condition-between-mmget_not_zero-g.patch

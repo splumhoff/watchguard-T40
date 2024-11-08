@@ -1,0 +1,230 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ * Device Tree file for Freescale LS2088A RDB Board.
+ *
+ * Copyright 2016 Freescale Semiconductor, Inc.
+ * Copyright 2017 NXP
+ *
+ * Abhimanyu Saini <abhimanyu.saini@nxp.com>
+ *
+ */
+
+/dts-v1/;
+
+#include "fsl-ls2088a.dtsi"
+#include "fsl-ls208xa-rdb.dtsi"
+
+/ {
+	model = "Freescale Layerscape 2088A RDB Board";
+	compatible = "fsl,ls2088a-rdb", "fsl,ls2088a";
+
+	chosen {
+		stdout-path = "serial1:115200n8";
+	};
+};
+
+&emdio1 {
+	status = "okay";
+#if 0
+	/* CS4340 PHYs */
+	mdio1_phy1: emdio1_phy@1 {
+		reg = <0x10>;
+		phy-connection-type = "xfi";
+	};
+	mdio1_phy2: emdio1_phy@2 {
+		reg = <0x11>;
+		phy-connection-type = "xfi";
+	};
+	mdio1_phy3: emdio1_phy@3 {
+		reg = <0x12>;
+		phy-connection-type = "xfi";
+	};
+	mdio1_phy4: emdio1_phy@4 {
+		reg = <0x13>;
+		phy-connection-type = "xfi";
+	};
+#endif
+	mdio1_phy1: emdio1_phy@1 {
+		reg = <0xa>;
+		phy-connection-type = "xfi";
+	};
+#if 0
+	switch0phy1: switch0phy0@1 {
+		reg = <0x1>;
+	};
+	switch0phy2: switch0phy1@2 {
+		reg = <0x2>;
+	};
+	switch0phy3: switch0phy2@3 {
+		reg = <0x3>;
+	};
+	switch0phy4: switch0phy3@4 {
+		reg = <0x4>;
+	};
+	switch0phy5: switch0phy4@5 {
+		reg = <0x5>;
+	};
+	switch0phy6: switch0phy5@6 {
+		reg = <0x6>;
+	};
+	switch0phy7: switch0phy6@7 {
+		reg = <0x7>;
+	};
+	switch0phy8: switch0phy7@8 {
+		reg = <0x8>;
+	};
+
+	switch0: switch0@0 {
+		compatible = "marvell,mv88e6191X";
+		#address-cells = <1>;
+		#size-cells = <0>;
+		reg = <0>;
+
+		ports {
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			cpuport1: port@10 {
+				reg = <10>;
+				label = "cpu";
+				ethernet = <&dpmac8>;
+				phy-mode = "10gbase-kr";
+	            fixed-link {
+	                speed = <1000>;
+	                full-duplex;
+	            };
+			};
+
+			port@0 {
+				reg = <0>;
+				label = "lan0";
+				status = "disabled";
+			};
+
+			port@1 {
+				reg = <1>;
+				label = "lan1";
+				cpu = <&cpuport1>;
+			};
+
+			port@2 {
+				reg = <2>;
+				label = "lan2";
+				cpu = <&cpuport1>;
+			};
+
+			port@3 {
+				reg = <3>;
+				label = "lan3";
+				cpu = <&cpuport1>;
+			};
+
+			port@4 {
+				reg = <4>;
+				label = "lan4";
+				cpu = <&cpuport1>;
+			};
+
+			port@5 {
+				reg = <5>;
+				label = "lan5";
+				cpu = <&cpuport1>;
+			};
+
+			port@6 {
+				reg = <6>;
+				label = "lan6";
+				cpu = <&cpuport1>;
+			};
+
+			port@7 {
+				reg = <7>;
+				label = "lan7";
+				cpu = <&cpuport1>;
+			};
+
+			port@8 {
+				reg = <8>;
+				label = "lan8";
+				cpu = <&cpuport1>;
+			};
+		};
+	};
+#endif
+};
+
+&emdio2 {
+	status = "disabled";
+
+	/* AQR405 PHYs */
+	mdio2_phy1: emdio2_phy@1 {
+		compatible = "ethernet-phy-ieee802.3-c45";
+		interrupts = <0 1 0x4>; /* Level high type */
+		reg = <0x0>;
+		phy-connection-type = "xfi";
+	};
+	mdio2_phy2: emdio2_phy@2 {
+		compatible = "ethernet-phy-ieee802.3-c45";
+		interrupts = <0 2 0x4>; /* Level high type */
+		reg = <0x1>;
+		phy-connection-type = "xfi";
+	};
+	mdio2_phy3: emdio2_phy@3 {
+		compatible = "ethernet-phy-ieee802.3-c45";
+		interrupts = <0 4 0x4>; /* Level high type */
+		reg = <0x2>;
+		phy-connection-type = "xfi";
+	};
+	mdio2_phy4: emdio2_phy@4 {
+		compatible = "ethernet-phy-ieee802.3-c45";
+		interrupts = <0 5 0x4>; /* Level high type */
+		reg = <0x3>;
+		phy-connection-type = "xfi";
+	};
+};
+
+&pcs_mdio1 {
+	status = "disabled";
+
+	pcs_phy1: ethernet-phy@0 {
+		backplane-mode = "10gbase-kr";
+		compatible = "ethernet-phy-ieee802.3-c45";
+		reg = <0xa>;
+		fsl,lane-handle = <&serdes1>;
+		fsl,lane-reg = <0x9C0 0x40>;/* lane H */
+	};
+};
+
+/* Update DPMAC connections to external PHYs, under the assumption of
+ * SerDes 0x2a_0x41. This is currently the only SerDes supported on the board.
+ */
+/* Leave Cortina PHYs commented out until proper driver is integrated
+ *&dpmac1 {
+ *	phy-handle = <&mdio1_phy1>;
+ *};
+ *&dpmac2 {
+ *	phy-handle = <&mdio1_phy2>;
+ *};
+ *&dpmac3 {
+ *	phy-handle = <&mdio1_phy3>;
+ *};
+ *&dpmac4 {
+ *	phy-handle = <&mdio1_phy4>;
+ *};
+ */
+
+#if 0
+&dpmac5 {
+	phy-handle = <&mdio2_phy1>;
+};
+&dpmac6 {
+	phy-handle = <&mdio2_phy2>;
+};
+&dpmac7 {
+	phy-handle = <&mdio2_phy3>;
+};
+#endif
+
+&dpmac8 {
+	phy-handle = <&mdio1_phy1>;
+};

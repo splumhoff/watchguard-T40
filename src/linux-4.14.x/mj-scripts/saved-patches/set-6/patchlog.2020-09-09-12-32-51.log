@@ -1,0 +1,47 @@
+1908
+1958
+trying to patch file: patchfile:hello/1908-crypto-caam-qi-don-t-allocate-an-extra-platform-devi.patch
+checking file drivers/crypto/caam/caamalg_qi.c
+Hunk #1 succeeded at 3091 (offset 46 lines).
+Hunk #2 succeeded at 3290 (offset 46 lines).
+Hunk #3 succeeded at 3347 (offset 46 lines).
+checking file drivers/crypto/caam/ctrl.c
+Hunk #1 succeeded at 328 (offset 4 lines).
+Hunk #2 succeeded at 878 (offset 1 line).
+checking file drivers/crypto/caam/intern.h
+checking file drivers/crypto/caam/qi.c
+Hunk #2 succeeded at 548 (offset 55 lines).
+Hunk #3 succeeded at 581 (offset 55 lines).
+Hunk #4 succeeded at 782 (offset 73 lines).
+Hunk #5 succeeded at 797 (offset 73 lines).
+Hunk #6 succeeded at 812 (offset 73 lines).
+Hunk #7 succeeded at 834 (offset 73 lines).
+Hunk #8 succeeded at 848 (offset 73 lines).
+patching file drivers/crypto/caam/caamalg_qi.c
+Hunk #1 succeeded at 3091 (offset 46 lines).
+Hunk #2 succeeded at 3290 (offset 46 lines).
+Hunk #3 succeeded at 3347 (offset 46 lines).
+patching file drivers/crypto/caam/ctrl.c
+Hunk #1 succeeded at 328 (offset 4 lines).
+Hunk #2 succeeded at 878 (offset 1 line).
+patching file drivers/crypto/caam/intern.h
+patching file drivers/crypto/caam/qi.c
+Hunk #2 succeeded at 548 (offset 55 lines).
+Hunk #3 succeeded at 581 (offset 55 lines).
+Hunk #4 succeeded at 782 (offset 73 lines).
+Hunk #5 succeeded at 797 (offset 73 lines).
+Hunk #6 succeeded at 812 (offset 73 lines).
+Hunk #7 succeeded at 834 (offset 73 lines).
+Hunk #8 succeeded at 848 (offset 73 lines).
+patch status: 0
+trying to patch file: patchfile:hello/1909-crypto-caam-qi-fix-address-translations-with-IOMMU-e.patch
+checking file drivers/crypto/caam/ctrl.c
+Hunk #1 succeeded at 662 (offset 4 lines).
+checking file drivers/crypto/caam/intern.h
+checking file drivers/crypto/caam/qi.c
+Hunk #2 succeeded at 155 (offset 7 lines).
+Hunk #3 FAILED at 157.
+Hunk #4 succeeded at 635 (offset 55 lines).
+Hunk #5 FAILED at 601.
+2 out of 5 hunks FAILED
+patch test (--dry-run) failed: 1909, commit all changes so far, try just patch with hello/1909-crypto-caam-qi-fix-address-translations-with-IOMMU-e.patch

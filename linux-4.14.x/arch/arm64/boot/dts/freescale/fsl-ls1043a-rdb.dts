@@ -1,0 +1,168 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ * Device Tree Include file for Freescale Layerscape-1043A family SoC.
+ *
+ * Copyright 2014-2015 Freescale Semiconductor, Inc.
+ *
+ * Mingkai Hu <Mingkai.hu@freescale.com>
+ */
+
+/dts-v1/;
+#include "fsl-ls1043a.dtsi"
+
+/ {
+	model = "LS1043A RDB Board";
+
+	aliases {
+		serial0 = &duart0;
+		serial1 = &duart1;
+		serial2 = &duart2;
+		serial3 = &duart3;
+	};
+
+	chosen {
+		stdout-path = "serial0:115200n8";
+	};
+};
+
+&i2c0 {
+	status = "okay";
+	ina220@40 {
+		compatible = "ti,ina220";
+		reg = <0x40>;
+		shunt-resistor = <1000>;
+	};
+	adt7461a@4c {
+		compatible = "adi,adt7461";
+		reg = <0x4c>;
+	};
+	tpm@29 {
+		compatible = "atmel,at97sc3204t";
+		reg = <0x29>;
+	};
+
+	s35390a@30 {
+		compatible = "sii,s35390a";
+		reg = <0x30>;
+	};
+	eeprom@50 {
+		compatible = "atmel,24c02";
+		reg = <0x50>;
+	};
+};
+
+&ifc {
+	/delete-node/ nor@0,0;
+	/delete-node/ nand@1,0;
+};
+
+&dspi0 {
+	bus-num = <0>;
+	status = "okay";
+
+	flash@0 {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		compatible = "n25q128a13", "jedec,spi-nor";  /* 16MB */
+		reg = <0>;
+		spi-max-frequency = <1000000>; /* input clock */
+	};
+
+	slic@2 {
+		compatible = "maxim,ds26522";
+		reg = <2>;
+		spi-max-frequency = <2000000>;
+		fsl,spi-cs-sck-delay = <100>;
+		fsl,spi-sck-cs-delay = <50>;
+	};
+
+	slic@3 {
+		compatible = "maxim,ds26522";
+		reg = <3>;
+		spi-max-frequency = <2000000>;
+		fsl,spi-cs-sck-delay = <100>;
+		fsl,spi-sck-cs-delay = <50>;
+	};
+};
+
+&uqe {
+	ucc_hdlc: ucc@2000 {
+		compatible = "fsl,ucc-hdlc";
+		rx-clock-name = "clk8";
+		tx-clock-name = "clk9";
+		fsl,rx-sync-clock = "rsync_pin";
+		fsl,tx-sync-clock = "tsync_pin";
+		fsl,tx-timeslot-mask = <0xfffffffe>;
+		fsl,rx-timeslot-mask = <0xfffffffe>;
+		fsl,tdm-framer-type = "e1";
+		fsl,tdm-id = <0>;
+		fsl,siram-entry-id = <0>;
+		fsl,tdm-interface;
+	};
+};
+
+&duart0 {
+	status = "okay";
+};
+
+&duart1 {
+	status = "okay";
+};
+
+#include "fsl-ls1043-post.dtsi"
+
+&fman0 {
+	ethernet@e0000 {
+		phy-handle = <&vsc8514_0>;
+	};
+
+	ethernet@e2000 {
+		phy-handle = <&vsc8514_1>;
+	};
+
+	ethernet@e4000 {
+		phy-handle = <&ar8035_phy>;
+	};
+
+        ethernet@e6000 {
+		/delete-property/ phy-handle;
+	};
+
+	ethernet@e8000 {
+		phy-handle = <&vsc8514_2>;
+	};
+
+	ethernet@ea000 {
+		phy-handle = <&vsc8514_3>;
+	};
+
+	ethernet@f0000 {
+		/delete-property/ phy-handle;
+	};
+
+	mdio@fc000 {
+		vsc8514_0: ethernet-phy@1 {
+			reg = <0x0>;
+		};
+
+		vsc8514_1: ethernet-phy@2 {
+			reg = <0x1>;
+		};
+
+		vsc8514_2: ethernet-phy@3 {
+			reg = <0x2>;
+		};
+
+		vsc8514_3: ethernet-phy@4 {
+			reg = <0x3>;
+		};
+	};
+
+	mdio@fd000 {
+		ar8035_phy: ethernet-phy@1 {
+			reg = <0x1>;
+			/delete-property/ compatible;
+			/delete-property/ interrupts;
+		};
+	};
+};

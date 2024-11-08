@@ -1,0 +1,381 @@
+1613
+1663
+trying to patch file: patchfile:hello/1613-ipv6-propagate-genlmsg_reply-return-code.patch
+checking file net/ipv6/seg6.c
+patching file net/ipv6/seg6.c
+patch status: 0
+trying to patch file: patchfile:hello/1614-net-mlx5e-Don-t-overwrite-pedit-action-when-multiple.patch
+checking file drivers/net/ethernet/mellanox/mlx5/core/en_tc.c
+patching file drivers/net/ethernet/mellanox/mlx5/core/en_tc.c
+patch status: 0
+trying to patch file: patchfile:hello/1615-net-packet-fix-4gb-buffer-limit-due-to-overflow-chec.patch
+checking file net/packet/af_packet.c
+Hunk #1 succeeded at 4363 (offset 50 lines).
+patching file net/packet/af_packet.c
+Hunk #1 succeeded at 4363 (offset 50 lines).
+patch status: 0
+trying to patch file: patchfile:hello/1616-net-sfp-do-not-probe-SFP-module-before-we-re-attache.patch
+checking file drivers/net/phy/sfp-bus.c
+checking file drivers/net/phy/sfp.c
+checking file drivers/net/phy/sfp.h
+patching file drivers/net/phy/sfp-bus.c
+patching file drivers/net/phy/sfp.c
+patching file drivers/net/phy/sfp.h
+patch status: 0
+trying to patch file: patchfile:hello/1617-sctp-call-gso_reset_checksum-when-computing-checksum.patch
+checking file net/sctp/offload.c
+patching file net/sctp/offload.c
+patch status: 0
+trying to patch file: patchfile:hello/1618-team-avoid-complex-list-operations-in-team_nl_cmd_op.patch
+checking file drivers/net/team/team.c
+Hunk #2 succeeded at 2447 (offset 1 line).
+Hunk #3 succeeded at 2466 (offset 1 line).
+Hunk #4 succeeded at 2571 (offset 1 line).
+patching file drivers/net/team/team.c
+Hunk #2 succeeded at 2447 (offset 1 line).
+Hunk #3 succeeded at 2466 (offset 1 line).
+Hunk #4 succeeded at 2571 (offset 1 line).
+patch status: 0
+trying to patch file: patchfile:hello/1619-sit-check-if-IPv6-enabled-before-calling-ip6_err_gen.patch
+checking file net/ipv6/sit.c
+patching file net/ipv6/sit.c
+patch status: 0
+trying to patch file: patchfile:hello/1620-net-mlx4_en-Force-CHECKSUM_NONE-for-short-ethernet-f.patch
+checking file drivers/net/ethernet/mellanox/mlx4/en_rx.c
+patching file drivers/net/ethernet/mellanox/mlx4/en_rx.c
+patch status: 0
+trying to patch file: patchfile:hello/1621-inet_diag-fix-reporting-cgroup-classid-and-fallback-.patch
+checking file include/uapi/linux/inet_diag.h
+checking file net/ipv4/inet_diag.c
+checking file net/sctp/sctp_diag.c
+patching file include/uapi/linux/inet_diag.h
+patching file net/ipv4/inet_diag.c
+patching file net/sctp/sctp_diag.c
+patch status: 0
+trying to patch file: patchfile:hello/1622-RDMA-srp-Rework-SCSI-device-reset-handling.patch
+checking file drivers/infiniband/ulp/srp/ib_srp.c
+patching file drivers/infiniband/ulp/srp/ib_srp.c
+patch status: 0
+trying to patch file: patchfile:hello/1623-KEYS-user-Align-the-payload-buffer.patch
+checking file include/keys/user-type.h
+patching file include/keys/user-type.h
+patch status: 0
+trying to patch file: patchfile:hello/1624-KEYS-always-initialize-keyring_index_key-desc_len.patch
+checking file security/keys/keyring.c
+checking file security/keys/proc.c
+checking file security/keys/request_key.c
+checking file security/keys/request_key_auth.c
+patching file security/keys/keyring.c
+patching file security/keys/proc.c
+patching file security/keys/request_key.c
+patching file security/keys/request_key_auth.c
+patch status: 0
+trying to patch file: patchfile:hello/1625-parisc-Fix-ptrace-syscall-number-modification.patch
+checking file arch/parisc/kernel/ptrace.c
+patching file arch/parisc/kernel/ptrace.c
+patch status: 0
+trying to patch file: patchfile:hello/1626-ARCv2-Enable-unaligned-access-in-early-ASM-code.patch
+checking file arch/arc/kernel/head.S
+patching file arch/arc/kernel/head.S
+patch status: 0
+trying to patch file: patchfile:hello/1627-ARC-U-boot-check-arguments-paranoidly.patch
+checking file arch/arc/kernel/head.S
+checking file arch/arc/kernel/setup.c
+patching file arch/arc/kernel/head.S
+patching file arch/arc/kernel/setup.c
+patch status: 0
+trying to patch file: patchfile:hello/1628-ARC-define-ARCH_SLAB_MINALIGN-8.patch
+checking file arch/arc/include/asm/cache.h
+patching file arch/arc/include/asm/cache.h
+patch status: 0
+trying to patch file: patchfile:hello/1629-drm-i915-fbdev-Actually-configure-untiled-displays.patch
+checking file drivers/gpu/drm/i915/intel_fbdev.c
+patching file drivers/gpu/drm/i915/intel_fbdev.c
+patch status: 0
+trying to patch file: patchfile:hello/1630-net-validate-untrusted-gso-packets-without-csum-offl.patch
+checking file include/linux/skbuff.h
+Hunk #1 succeeded at 2405 (offset 28 lines).
+checking file include/linux/virtio_net.h
+patching file include/linux/skbuff.h
+Hunk #1 succeeded at 2405 (offset 28 lines).
+patching file include/linux/virtio_net.h
+patch status: 0
+trying to patch file: patchfile:hello/1631-net-avoid-false-positives-in-untrusted-gso-validatio.patch
+checking file include/linux/virtio_net.h
+patching file include/linux/virtio_net.h
+patch status: 0
+trying to patch file: patchfile:hello/1632-Revert-bridge-do-not-add-port-to-router-list-when-re.patch
+checking file net/bridge/br_multicast.c
+patching file net/bridge/br_multicast.c
+patch status: 0
+trying to patch file: patchfile:hello/1633-netfilter-nf_tables-fix-flush-after-rule-deletion-in.patch
+checking file net/netfilter/nf_tables_api.c
+patching file net/netfilter/nf_tables_api.c
+patch status: 0
+trying to patch file: patchfile:hello/1634-netfilter-nft_compat-use-after-free-when-deleting-ta.patch
+checking file net/netfilter/nft_compat.c
+patching file net/netfilter/nft_compat.c
+patch status: 0
+trying to patch file: patchfile:hello/1635-netfilter-ipv6-Don-t-preserve-original-oif-for-loopb.patch
+checking file net/ipv6/netfilter.c
+patching file net/ipv6/netfilter.c
+patch status: 0
+trying to patch file: patchfile:hello/1636-pinctrl-max77620-Use-define-directive-for-max77620_p.patch
+checking file drivers/pinctrl/pinctrl-max77620.c
+patching file drivers/pinctrl/pinctrl-max77620.c
+patch status: 0
+trying to patch file: patchfile:hello/1637-phy-tegra-remove-redundant-self-assignment-of-map.patch
+checking file drivers/phy/tegra/xusb.c
+patching file drivers/phy/tegra/xusb.c
+patch status: 0
+trying to patch file: patchfile:hello/1638-sched-sysctl-Fix-attributes-of-some-extern-declarati.patch
+checking file include/linux/sched/sysctl.h
+patching file include/linux/sched/sysctl.h
+patch status: 0
+trying to patch file: patchfile:hello/1639-net-phylink-avoid-resolving-link-state-too-early.patch
+checking file drivers/net/phy/phylink.c
+patching file drivers/net/phy/phylink.c
+patch status: 0
+trying to patch file: patchfile:hello/1640-Linux-4.14.104.patch
+checking file Makefile
+patching file Makefile
+patch status: 0
+trying to patch file: patchfile:hello/1641-arm64-dts-fix-the-LS104x-QDS-mdio-mux-support.patch
+checking file arch/arm64/boot/dts/freescale/fsl-ls1043a-qds.dts
+checking file arch/arm64/boot/dts/freescale/fsl-ls1046a-qds.dts
+Hunk #1 succeeded at 172 (offset 7 lines).
+patching file arch/arm64/boot/dts/freescale/fsl-ls1043a-qds.dts
+patching file arch/arm64/boot/dts/freescale/fsl-ls1046a-qds.dts
+Hunk #1 succeeded at 172 (offset 7 lines).
+patch status: 0
+trying to patch file: patchfile:hello/1642-arm64-dts-ls1012a-use-phy-handle-to-handle-phy-param.patch
+checking file arch/arm64/boot/dts/freescale/fsl-ls1012a-2g5rdb.dts
+checking file arch/arm64/boot/dts/freescale/fsl-ls1012a-frdm.dts
+checking file arch/arm64/boot/dts/freescale/fsl-ls1012a-frwy.dts
+checking file arch/arm64/boot/dts/freescale/fsl-ls1012a-qds.dts
+checking file arch/arm64/boot/dts/freescale/fsl-ls1012a-rdb.dts
+patching file arch/arm64/boot/dts/freescale/fsl-ls1012a-2g5rdb.dts
+patching file arch/arm64/boot/dts/freescale/fsl-ls1012a-frdm.dts
+patching file arch/arm64/boot/dts/freescale/fsl-ls1012a-frwy.dts
+patching file arch/arm64/boot/dts/freescale/fsl-ls1012a-qds.dts
+patching file arch/arm64/boot/dts/freescale/fsl-ls1012a-rdb.dts
+patch status: 0
+trying to patch file: patchfile:hello/1643-arm64-dts-ls1012a-remove-unused-gemac-bus-id.patch
+checking file arch/arm64/boot/dts/freescale/fsl-ls1012a-2g5rdb.dts
+checking file arch/arm64/boot/dts/freescale/fsl-ls1012a-frdm.dts
+checking file arch/arm64/boot/dts/freescale/fsl-ls1012a-frwy.dts
+checking file arch/arm64/boot/dts/freescale/fsl-ls1012a-qds.dts
+checking file arch/arm64/boot/dts/freescale/fsl-ls1012a-rdb.dts
+patching file arch/arm64/boot/dts/freescale/fsl-ls1012a-2g5rdb.dts
+patching file arch/arm64/boot/dts/freescale/fsl-ls1012a-frdm.dts
+patching file arch/arm64/boot/dts/freescale/fsl-ls1012a-frwy.dts
+patching file arch/arm64/boot/dts/freescale/fsl-ls1012a-qds.dts
+patching file arch/arm64/boot/dts/freescale/fsl-ls1012a-rdb.dts
+patch status: 0
+trying to patch file: patchfile:hello/1644-arm64-dts-ls1012a-reorganize-pfe_mac-nodes.patch
+checking file arch/arm64/boot/dts/freescale/fsl-ls1012a-2g5rdb.dts
+checking file arch/arm64/boot/dts/freescale/fsl-ls1012a-frdm.dts
+checking file arch/arm64/boot/dts/freescale/fsl-ls1012a-frwy.dts
+checking file arch/arm64/boot/dts/freescale/fsl-ls1012a-qds.dts
+checking file arch/arm64/boot/dts/freescale/fsl-ls1012a-rdb.dts
+checking file arch/arm64/boot/dts/freescale/fsl-ls1012a.dtsi
+patching file arch/arm64/boot/dts/freescale/fsl-ls1012a-2g5rdb.dts
+patching file arch/arm64/boot/dts/freescale/fsl-ls1012a-frdm.dts
+patching file arch/arm64/boot/dts/freescale/fsl-ls1012a-frwy.dts
+patching file arch/arm64/boot/dts/freescale/fsl-ls1012a-qds.dts
+patching file arch/arm64/boot/dts/freescale/fsl-ls1012a-rdb.dts
+patching file arch/arm64/boot/dts/freescale/fsl-ls1012a.dtsi
+patch status: 0
+trying to patch file: patchfile:hello/1645-sdk-dts-ls104x-drop-smmu-from-the-qds-and-usdpaa-sdk.patch
+checking file arch/arm64/boot/dts/freescale/fsl-ls1043a-qds-sdk.dts
+checking file arch/arm64/boot/dts/freescale/fsl-ls1043a-rdb-usdpaa.dts
+checking file arch/arm64/boot/dts/freescale/fsl-ls1046a-qds-sdk.dts
+checking file arch/arm64/boot/dts/freescale/fsl-ls1046a-rdb-usdpaa.dts
+patching file arch/arm64/boot/dts/freescale/fsl-ls1043a-qds-sdk.dts
+patching file arch/arm64/boot/dts/freescale/fsl-ls1043a-rdb-usdpaa.dts
+patching file arch/arm64/boot/dts/freescale/fsl-ls1046a-qds-sdk.dts
+patching file arch/arm64/boot/dts/freescale/fsl-ls1046a-rdb-usdpaa.dts
+patch status: 0
+trying to patch file: patchfile:hello/1646-arm64-dts-Fix-DWC3-IP-VBUS-glitch-issue-on-Layerscap.patch
+checking file arch/arm64/boot/dts/freescale/fsl-ls1012a.dtsi
+checking file arch/arm64/boot/dts/freescale/fsl-ls1043a.dtsi
+checking file arch/arm64/boot/dts/freescale/fsl-ls1046a.dtsi
+Hunk #1 succeeded at 552 (offset 2 lines).
+Hunk #2 succeeded at 565 (offset 2 lines).
+Hunk #3 succeeded at 578 (offset 2 lines).
+checking file arch/arm64/boot/dts/freescale/fsl-ls1088a.dtsi
+checking file arch/arm64/boot/dts/freescale/fsl-ls208xa.dtsi
+checking file arch/arm64/boot/dts/freescale/fsl-lx2160a.dtsi
+patching file arch/arm64/boot/dts/freescale/fsl-ls1012a.dtsi
+patching file arch/arm64/boot/dts/freescale/fsl-ls1043a.dtsi
+patching file arch/arm64/boot/dts/freescale/fsl-ls1046a.dtsi
+Hunk #1 succeeded at 552 (offset 2 lines).
+Hunk #2 succeeded at 565 (offset 2 lines).
+Hunk #3 succeeded at 578 (offset 2 lines).
+patching file arch/arm64/boot/dts/freescale/fsl-ls1088a.dtsi
+patching file arch/arm64/boot/dts/freescale/fsl-ls208xa.dtsi
+patching file arch/arm64/boot/dts/freescale/fsl-lx2160a.dtsi
+patch status: 0
+trying to patch file: patchfile:hello/1647-arm-dts-Fix-DWC3-IP-VBUS-glitch-issue-on-LS1021A.patch
+checking file arch/arm/boot/dts/ls1021a.dtsi
+Hunk #1 succeeded at 735 (offset 1 line).
+patching file arch/arm/boot/dts/ls1021a.dtsi
+Hunk #1 succeeded at 735 (offset 1 line).
+patch status: 0
+trying to patch file: patchfile:hello/1648-staging-fsl_ppfe-add-support-for-a-char-dev-for-link.patch
+checking file drivers/staging/fsl_ppfe/Makefile
+checking file drivers/staging/fsl_ppfe/pfe_cdev.c
+checking file drivers/staging/fsl_ppfe/pfe_cdev.h
+checking file drivers/staging/fsl_ppfe/pfe_eth.c
+checking file drivers/staging/fsl_ppfe/pfe_mod.c
+patching file drivers/staging/fsl_ppfe/Makefile
+patching file drivers/staging/fsl_ppfe/pfe_cdev.c
+patching file drivers/staging/fsl_ppfe/pfe_cdev.h
+patching file drivers/staging/fsl_ppfe/pfe_eth.c
+patching file drivers/staging/fsl_ppfe/pfe_mod.c
+patch status: 0
+trying to patch file: patchfile:hello/1649-staging-fsl_ppfe-enable-hif-event-from-userspace.patch
+checking file drivers/staging/fsl_ppfe/pfe_cdev.c
+checking file drivers/staging/fsl_ppfe/pfe_cdev.h
+patching file drivers/staging/fsl_ppfe/pfe_cdev.c
+patching file drivers/staging/fsl_ppfe/pfe_cdev.h
+patch status: 0
+trying to patch file: patchfile:hello/1650-staging-fsl_ppfe-performance-tuning-for-user-space.patch
+checking file drivers/staging/fsl_ppfe/pfe_cdev.c
+patching file drivers/staging/fsl_ppfe/pfe_cdev.c
+patch status: 0
+trying to patch file: patchfile:hello/1651-staging-fsl_ppfe-eth-Update-to-use-SPDX-identifiers.patch
+checking file drivers/staging/fsl_ppfe/pfe_cdev.c
+checking file drivers/staging/fsl_ppfe/pfe_cdev.h
+checking file drivers/staging/fsl_ppfe/pfe_ctrl.c
+checking file drivers/staging/fsl_ppfe/pfe_ctrl.h
+checking file drivers/staging/fsl_ppfe/pfe_debugfs.c
+checking file drivers/staging/fsl_ppfe/pfe_debugfs.h
+checking file drivers/staging/fsl_ppfe/pfe_eth.c
+checking file drivers/staging/fsl_ppfe/pfe_eth.h
+checking file drivers/staging/fsl_ppfe/pfe_firmware.c
+checking file drivers/staging/fsl_ppfe/pfe_firmware.h
+checking file drivers/staging/fsl_ppfe/pfe_hal.c
+checking file drivers/staging/fsl_ppfe/pfe_hif.c
+checking file drivers/staging/fsl_ppfe/pfe_hif.h
+checking file drivers/staging/fsl_ppfe/pfe_hif_lib.c
+checking file drivers/staging/fsl_ppfe/pfe_hif_lib.h
+checking file drivers/staging/fsl_ppfe/pfe_hw.c
+checking file drivers/staging/fsl_ppfe/pfe_hw.h
+checking file drivers/staging/fsl_ppfe/pfe_ls1012a_platform.c
+checking file drivers/staging/fsl_ppfe/pfe_mod.c
+checking file drivers/staging/fsl_ppfe/pfe_mod.h
+checking file drivers/staging/fsl_ppfe/pfe_perfmon.h
+checking file drivers/staging/fsl_ppfe/pfe_sysfs.c
+checking file drivers/staging/fsl_ppfe/pfe_sysfs.h
+patching file drivers/staging/fsl_ppfe/pfe_cdev.c
+patching file drivers/staging/fsl_ppfe/pfe_cdev.h
+patching file drivers/staging/fsl_ppfe/pfe_ctrl.c
+patching file drivers/staging/fsl_ppfe/pfe_ctrl.h
+patching file drivers/staging/fsl_ppfe/pfe_debugfs.c
+patching file drivers/staging/fsl_ppfe/pfe_debugfs.h
+patching file drivers/staging/fsl_ppfe/pfe_eth.c
+patching file drivers/staging/fsl_ppfe/pfe_eth.h
+patching file drivers/staging/fsl_ppfe/pfe_firmware.c
+patching file drivers/staging/fsl_ppfe/pfe_firmware.h
+patching file drivers/staging/fsl_ppfe/pfe_hal.c
+patching file drivers/staging/fsl_ppfe/pfe_hif.c
+patching file drivers/staging/fsl_ppfe/pfe_hif.h
+patching file drivers/staging/fsl_ppfe/pfe_hif_lib.c
+patching file drivers/staging/fsl_ppfe/pfe_hif_lib.h
+patching file drivers/staging/fsl_ppfe/pfe_hw.c
+patching file drivers/staging/fsl_ppfe/pfe_hw.h
+patching file drivers/staging/fsl_ppfe/pfe_ls1012a_platform.c
+patching file drivers/staging/fsl_ppfe/pfe_mod.c
+patching file drivers/staging/fsl_ppfe/pfe_mod.h
+patching file drivers/staging/fsl_ppfe/pfe_perfmon.h
+patching file drivers/staging/fsl_ppfe/pfe_sysfs.c
+patching file drivers/staging/fsl_ppfe/pfe_sysfs.h
+patch status: 0
+trying to patch file: patchfile:hello/1652-staging-fsl_ppfe-eth-misc-clean-up.patch
+checking file drivers/staging/fsl_ppfe/Kconfig
+Hunk #1 succeeded at 3 with fuzz 2.
+checking file drivers/staging/fsl_ppfe/pfe_eth.c
+checking file drivers/staging/fsl_ppfe/pfe_eth.h
+patching file drivers/staging/fsl_ppfe/Kconfig
+Hunk #1 succeeded at 3 with fuzz 2.
+patching file drivers/staging/fsl_ppfe/pfe_eth.c
+patching file drivers/staging/fsl_ppfe/pfe_eth.h
+patch status: 0
+trying to patch file: patchfile:hello/1653-staging-fsl_ppfe-eth-reorganize-platform-phy-paramet.patch
+checking file drivers/staging/fsl_ppfe/pfe_ls1012a_platform.c
+patching file drivers/staging/fsl_ppfe/pfe_ls1012a_platform.c
+patch status: 0
+trying to patch file: patchfile:hello/1654-staging-fsl_ppfe-eth-support-single-interface-initia.patch
+checking file drivers/staging/fsl_ppfe/pfe_eth.c
+checking file drivers/staging/fsl_ppfe/pfe_ls1012a_platform.c
+patching file drivers/staging/fsl_ppfe/pfe_eth.c
+patching file drivers/staging/fsl_ppfe/pfe_ls1012a_platform.c
+patch status: 0
+trying to patch file: patchfile:hello/1655-net-fsl_ppfe-update-dts-properties-for-phy.patch
+checking file Documentation/devicetree/bindings/net/fsl_ppfe/pfe.txt
+patching file Documentation/devicetree/bindings/net/fsl_ppfe/pfe.txt
+patch status: 0
+trying to patch file: patchfile:hello/1656-staging-fsl_ppfe-eth-remove-unused-code.patch
+checking file drivers/staging/fsl_ppfe/include/pfe/pfe.h
+checking file drivers/staging/fsl_ppfe/pfe_eth.h
+checking file drivers/staging/fsl_ppfe/pfe_ls1012a_platform.c
+patching file drivers/staging/fsl_ppfe/include/pfe/pfe.h
+patching file drivers/staging/fsl_ppfe/pfe_eth.h
+patching file drivers/staging/fsl_ppfe/pfe_ls1012a_platform.c
+patch status: 0
+trying to patch file: patchfile:hello/1657-staging-fsl_ppfe-eth-separate-mdio-init-from-mac-ini.patch
+checking file drivers/staging/fsl_ppfe/pfe_eth.c
+checking file drivers/staging/fsl_ppfe/pfe_eth.h
+checking file drivers/staging/fsl_ppfe/pfe_ls1012a_platform.c
+checking file drivers/staging/fsl_ppfe/pfe_mod.h
+patching file drivers/staging/fsl_ppfe/pfe_eth.c
+patching file drivers/staging/fsl_ppfe/pfe_eth.h
+patching file drivers/staging/fsl_ppfe/pfe_ls1012a_platform.c
+patching file drivers/staging/fsl_ppfe/pfe_mod.h
+patch status: 0
+trying to patch file: patchfile:hello/1658-usb-dwc3-Add-workaround-for-host-mode-VBUS-glitch-wh.patch
+checking file drivers/usb/dwc3/core.c
+Hunk #3 succeeded at 1278 (offset 71 lines).
+checking file drivers/usb/dwc3/core.h
+Hunk #1 succeeded at 506 (offset 4 lines).
+Hunk #2 succeeded at 913 (offset 6 lines).
+Hunk #3 succeeded at 1081 (offset 9 lines).
+patching file drivers/usb/dwc3/core.c
+Hunk #3 succeeded at 1278 (offset 71 lines).
+patching file drivers/usb/dwc3/core.h
+Hunk #1 succeeded at 506 (offset 4 lines).
+Hunk #2 succeeded at 913 (offset 6 lines).
+Hunk #3 succeeded at 1081 (offset 9 lines).
+patch status: 0
+trying to patch file: patchfile:hello/1659-vfio-fsl-mc-Improve-send-mc-command-and-read-respons.patch
+checking file drivers/vfio/fsl-mc/vfio_fsl_mc.c
+patching file drivers/vfio/fsl-mc/vfio_fsl_mc.c
+patch status: 0
+trying to patch file: patchfile:hello/1660-sdk_fman-avoid-array-overflow-error-in-fman-port-ini.patch
+checking file drivers/net/ethernet/freescale/sdk_fman/Peripherals/FM/Port/fm_port.c
+patching file drivers/net/ethernet/freescale/sdk_fman/Peripherals/FM/Port/fm_port.c
+patch status: 0
+trying to patch file: patchfile:hello/1661-fsl_qbman-Adjust-platform-device-creation-for-QMan-p.patch
+checking file drivers/staging/fsl_qbman/qman_high.c
+patching file drivers/staging/fsl_qbman/qman_high.c
+patch status: 0
+trying to patch file: patchfile:hello/1662-dpaa_eth-NETIF_F_LLTX-requires-to-do-our-own-update-.patch
+checking file drivers/net/ethernet/freescale/dpaa/dpaa_eth.c
+Hunk #1 succeeded at 2203 (offset -1 lines).
+Hunk #2 succeeded at 2262 (offset -1 lines).
+patching file drivers/net/ethernet/freescale/dpaa/dpaa_eth.c
+Hunk #1 succeeded at 2203 (offset -1 lines).
+Hunk #2 succeeded at 2262 (offset -1 lines).
+patch status: 0
+trying to patch file: patchfile:hello/1663-powerpc-fsl-Add-infrastructure-to-fixup-branch-predi.patch
+checking file arch/powerpc/include/asm/feature-fixups.h
+checking file arch/powerpc/include/asm/setup.h
+checking file arch/powerpc/kernel/vmlinux.lds.S
+checking file arch/powerpc/lib/feature-fixups.c
+patching file arch/powerpc/include/asm/feature-fixups.h
+patching file arch/powerpc/include/asm/setup.h
+patching file arch/powerpc/kernel/vmlinux.lds.S
+patching file arch/powerpc/lib/feature-fixups.c
+patch status: 0
+patch end(1663) reached(1663). 				submit these and comeback and proceed: last patched hello/1663-powerpc-fsl-Add-infrastructure-to-fixup-branch-predi.patch

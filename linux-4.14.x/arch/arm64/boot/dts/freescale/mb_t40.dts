@@ -1,0 +1,191 @@
+#include "fsl-ls1043a-rdb-sdk.dts"
+
+/ {
+	model = "LS1043A RDB Board - T40";
+
+	firmware {
+		/delete-node/ optee;
+	};
+};
+
+&i2c0 {
+	/delete-node/ ina220@40;
+	/delete-node/ adt7461a@4c;
+	/delete-node/ eeprom@52;
+	/delete-node/ eeprom@53;
+	/delete-node/ rtc@68;
+	/delete-node/ rtc@51;
+
+	tpm@29 {
+		compatible = "atmel,at97sc3204t";
+		reg = <0x29>;
+	};
+
+	s35390a@30 {
+		compatible = "sii,s35390a";
+		reg = <0x30>;
+	};
+
+	eeprom@50 {
+		compatible = "atmel,24c02";
+		reg = <0x50>;
+	};
+};
+
+&ifc {
+	/delete-node/ nor@0,0;
+	/delete-node/ nand@1,0;
+};
+
+/*
+so far know layouts: Get rid of me later
+T40 layout
+dev:    size   erasesize  name
+mtd0: 00100000 00001000 "rcw"
+mtd1: 00100000 00001000 "u-boot"
+mtd2: 00100000 00001000 "env"
+mtd3: 00100000 00001000 "fman"
+T80 layout
+dev:    size   erasesize  name
+mtd0: 00100000 00001000 "rcw"
+mtd1: 00200000 00001000 "u-boot"
+mtd2: 00040000 00001000 "env"
+mtd3: 00040000 00001000 "reserved"
+mtd4: 00040000 00001000 "fman"
+mtd5: 00040000 00001000 "ppa"
+*/
+
+&qspi {
+        bus-num = <0>;
+        status = "okay";
+
+        flash@0 {
+                compatible = "fsl,mx25u3235f", "jedec,spi-nor";
+                #address-cells = <1>;
+                #size-cells = <1>;
+                spi-max-frequency = <50000000>;
+                reg = <0>;
+                linux,modalias = "fsl_m25p80";
+                modal = "mx25u3235f";
+                spi-rx-bus-width = <4>;
+                spi-tx-bus-width = <4>;
+                mode = <0>;
+                /*LSDK-KC-REV1812 p141:
+		 * This layout is try of T40, maybe T20.
+		  And is trying to to complaint with T80 so that things fit. 
+		  These changes warrent location changes of ENV/FMAN/PPA though
+		  More u-boot level changes will be needed */
+                partition@00000000 {
+                         /*2MB: RCW (64K + ~960K hole + u-boot bin */
+                         reg = <0x00000000 0x00200000>;
+                         label = "NOR (RO) RCW + E-Hole + U-boot Image";
+                };
+                partition@00200000 {
+                         /*64KB: u-boot ENV */
+                         reg = <0x00200000 0x00010000>;
+                         label = "NOR (RW) U-Boot ENV";
+                };
+                partition@00210000 {
+                         /*64KB: EMPTY-hole TODO:FIXME or leave me (precaution: incase we have to u-boot down */
+                         reg = <0x00210000 0x00010000>;
+                         label = "NOR (RO) EMPTY Hole 1";
+               };
+               partition@00220000 {
+                         /*128KB: Current fman ucode */
+                         reg = <0x00220000 0x00020000>;
+                         label = "NOR (RW) FMAN UCODE";
+               };
+               partition@00240000 {
+                         /*256KB: E-hole 2 (make it T80 compatible) storing PPA */
+                         reg = <0x00240000 0x00040000>;
+                         label = "NOR (RW) E-HOLE 2 or PPA";
+               };
+               partition@00280000 {
+                         /*128KB: WG CFG0 */
+                         reg = <0x00280000 0x00020000>;
+                         label = "NOR (RW) WG CFG0";
+               };
+               partition@002A0000 {
+                         /*128KB: WG CFG1 */
+                         reg = <0x002A0000 0x00020000>;
+                         label = "NOR (RW) WG CFG1";
+               };
+               partition@002C0000 {
+                         /*128KB: WG MFG */
+                         reg = <0x002C0000 0x00020000>;
+                         label = "NOR (RW) WG MFG";
+               };
+               partition@002E0000 {
+                         /*1024KB: E-hole 3 */
+                         reg = <0x002E0000 0x00020000>;
+                         label = "NOR (RW) E-HOLE 3";
+               };
+               partition@00300000 {
+                         /*128KB: ODM(T40/T20) fman ucode old loc */
+                         reg = <0x00300000 0x00020000>;
+                         label = "NOR (RW) FMAN UCODE Old";
+               };
+               partition@00320000 {
+                         /*896KB: WG bootOpt Data & reserved (end of Flash) */
+                         reg = <0x00320000 0x000E0000>;
+                         label = "NOR (RW) WG bootOpt Data & reserved";
+               };
+        };
+};
+
+
+&fman0 {
+	ethernet@e0000 {
+		phy-handle = <&marvell_88E1545_0>;
+	};
+
+	ethernet@e2000 {
+		phy-handle = <&marvell_88E1545_1>;
+	};
+
+	ethernet@e4000 {
+		phy-handle = <&ar8035_phy>;
+	};
+
+        ethernet@e6000 {
+		/delete-property/ phy-handle;
+	};
+
+	ethernet@e8000 {
+		phy-handle = <&marvell_88E1545_2>;
+	};
+
+	ethernet@ea000 {
+		phy-handle = <&marvell_88E1545_3>;
+	};
+
+	ethernet@f0000 {
+		/delete-property/ phy-handle;
+	};
+
+	mdio@fc000 {
+		marvell_88E1545_0: ethernet-phy@1 {
+			reg = <0x4>;
+		};
+
+		marvell_88E1545_1: ethernet-phy@2 {
+			reg = <0x5>;
+		};
+
+		marvell_88E1545_2: ethernet-phy@3 {
+			reg = <0x6>;
+		};
+
+		marvell_88E1545_3: ethernet-phy@4 {
+			reg = <0x7>;
+		};
+	};
+
+	mdio@fd000 {
+		ar8035_phy: ethernet-phy@1 {
+			reg = <0x1>;
+			/delete-property/ compatible;
+			/delete-property/ interrupts;
+		};
+	};
+};

@@ -1,0 +1,502 @@
+// SPDX-License-Identifier: (GPL-2.0 OR MIT)
+//
+// Device Tree file for LX2160ARDB
+//
+// Copyright 2018-2019 NXP
+
+/dts-v1/;
+
+#include "fsl-lx2160a.dtsi"
+
+/ {
+	model = "NXP Layerscape LX2160ARDB";
+	compatible = "fsl,lx2160a-rdb", "fsl,lx2160a";
+
+	aliases {
+		crypto = &crypto;
+		serial0 = &uart0;
+	};
+
+	chosen {
+		stdout-path = "serial0:115200n8";
+	};
+
+	sb_3v3: regulator-sb3v3 {
+		compatible = "regulator-fixed";
+		regulator-name = "MC34717-3.3VSB";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+		regulator-boot-on;
+		regulator-always-on;
+	};
+};
+
+&can0 {
+	status = "okay";
+
+	can-transceiver {
+		max-bitrate = <5000000>;
+	};
+};
+
+&can1 {
+	status = "okay";
+
+	can-transceiver {
+		max-bitrate = <5000000>;
+	};
+};
+
+&crypto {
+	status = "okay";
+};
+
+&emdio1 {
+	status = "okay";
+};
+
+&emdio2 {
+	status = "okay";
+};
+
+&esdhc0 {
+	sd-uhs-sdr104;
+	sd-uhs-sdr50;
+	sd-uhs-sdr25;
+	sd-uhs-sdr12;
+	status = "okay";
+};
+
+&esdhc1 {
+	mmc-hs200-1_8v;
+	mmc-hs400-1_8v;
+	bus-width = <8>;
+	status = "okay";
+};
+
+&i2c0 {
+	status = "okay";
+#if 1
+	tpm_i2c_ptp@2e {
+		compatible = "tcg,tpm_i2c_ptp";
+		reg = <0x2e>;
+	};
+#else
+	i2c-mux@77 {
+		compatible = "nxp,pca9547";
+		reg = <0x77>;
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		i2c@2 {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <0x2>;
+
+			power-monitor@40 {
+				compatible = "ti,ina220";
+				reg = <0x40>;
+				shunt-resistor = <1000>;
+			};
+		};
+
+		i2c@3 {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <0x3>;
+
+			temperature-sensor@4c {
+				compatible = "nxp,sa56004";
+				reg = <0x4c>;
+				vcc-supply = <&sb_3v3>;
+			};
+
+			temperature-sensor@4d {
+				compatible = "nxp,sa56004";
+				reg = <0x4d>;
+				vcc-supply = <&sb_3v3>;
+			};
+		};
+	};
+#endif
+};
+
+&i2c1 {
+	status = "okay";
+	i2c-mux@70 {
+		compatible = "nxp,pca9548";
+		reg = <0x70>;
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		i2c@0 {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <0x00>;
+			rtc@68 {
+				compatible = "dallas,ds1307";
+				reg = <0x68>;
+			};
+		};
+
+		i2c@1 {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <0x01>;
+			nct7904@2d {
+				compatible = "nuvoton,nct7904";
+				reg = <0x2d>;
+			};
+		};
+
+		i2c@2 {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <0x02>;
+			max20754@5c {
+				compatible = "maxim,max20754";
+				reg = <0x5c>;
+			};
+		};
+
+		i2c@3 {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <0x03>;
+			tmp75@4a {
+				compatible = "ti,tmp75";
+				reg = <0x4a>;
+			};
+			tmp75@4b {
+				compatible = "ti,tmp75";
+				reg = <0x4b>;
+			};
+		};
+
+		i2c@6 {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <0x06>;
+			poe@20 {
+				compatible = "poe,poe_i2c_microsemi";
+				reg = <0x20>;
+			};
+		};
+    };
+};
+
+&i2c2 {
+	status = "okay";
+};
+
+&i2c3 {
+	status = "okay";
+};
+
+#if 0
+&i2c4 {
+	status = "okay";
+#if 0
+	rtc@51 {
+		compatible = "nxp,pcf2129";
+		reg = <0x51>;
+		// IRQ10_B
+		interrupts = <0 150 0x4>;
+	};
+#endif
+};
+#endif
+
+&fspi {
+	status = "okay";
+#if 0
+	nxp,fspi-has-second-chip;
+	flash0: mt35xu512aba@0 {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		compatible = "micron,m25p80";
+		m25p,fast-read;
+		spi-max-frequency = <50000000>;
+		reg = <0>;
+		/* The following setting enables 1-1-8 (CMD-ADDR-DATA) mode */
+		spi-rx-bus-width = <8>;
+		spi-tx-bus-width = <1>;
+	};
+
+	flash1: mt35xu512aba@1 {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		compatible = "micron,m25p80";
+		m25p,fast-read;
+		spi-max-frequency = <50000000>;
+		reg = <1>;
+		/* The following setting enables 1-1-8 (CMD-ADDR-DATA) mode */
+		spi-rx-bus-width = <8>;
+		spi-tx-bus-width = <1>;
+	};
+
+	mx25u6435f0: flash@0 {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		compatible = "jedec,spi-nor";
+		spi-max-frequency = <50000000>;
+		reg = <0>;
+		#spi-rx-bus-width = <8>;
+		#spi-tx-bus-width = <8>;
+	};
+#endif
+};
+
+&uart0 {
+	status = "okay";
+};
+
+&uart1 {
+	status = "okay";
+};
+
+&usb0 {
+	status = "okay";
+};
+
+&usb1 {
+	status = "okay";
+};
+
+&emdio1 {
+#if 0
+	rgmii_phy1: ethernet-phy@1 {
+		/* AR8035 PHY - "compatible" property not strictly needed */
+		compatible = "ethernet-phy-id004d.d072";
+		reg = <0x1>;
+		/* Poll mode - no "interrupts" property defined */
+	};
+	rgmii_phy2: ethernet-phy@2 {
+		/* AR8035 PHY - "compatible" property not strictly needed */
+		compatible = "ethernet-phy-id004d.d072";
+		reg = <0x2>;
+		/* Poll mode - no "interrupts" property defined */
+	};
+	aquantia_phy1: ethernet-phy@4 {
+		/* AQR107 PHY - "compatible" property not strictly needed */
+		compatible = "ethernet-phy-ieee802.3-c45";
+		interrupts = <GIC_SPI 2 IRQ_TYPE_LEVEL_HIGH>;
+		reg = <0x4>;
+	};
+	aquantia_phy2: ethernet-phy@5 {
+		/* AQR107 PHY - "compatible" property not strictly needed */
+		compatible = "ethernet-phy-ieee802.3-c45";
+		interrupts = <GIC_SPI 3 IRQ_TYPE_LEVEL_HIGH>;
+		reg = <0x5>;
+	};
+#endif
+	mdio1_phy: ethernet-phy@3 {
+		reg = <0xa>;
+		phy-connection-type = "xfi";
+	};
+#if 1
+	switch0phy1: switch0phy0@1 {
+		reg = <0x1>;
+	};
+	switch0phy2: switch0phy1@2 {
+		reg = <0x2>;
+	};
+	switch0phy3: switch0phy2@3 {
+		reg = <0x3>;
+	};
+	switch0phy4: switch0phy3@4 {
+		reg = <0x4>;
+	};
+	switch0phy5: switch0phy4@5 {
+		reg = <0x5>;
+	};
+	switch0phy6: switch0phy5@6 {
+		reg = <0x6>;
+	};
+	switch0phy7: switch0phy6@7 {
+		reg = <0x7>;
+	};
+	switch0phy8: switch0phy7@8 {
+		reg = <0x8>;
+	};
+
+	switch0: switch0@0 {
+		compatible = "marvell,mv88e6191X";
+		#address-cells = <1>;
+		#size-cells = <0>;
+		reg = <0>;
+
+		ports {
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			cpuport1: port@10 {
+				reg = <10>;
+				label = "cpu";
+				ethernet = <&dpmac8>;
+				phy-mode = "10gbase-kr";
+	            fixed-link {
+	                speed = <1000>;
+	                full-duplex;
+	            };
+			};
+
+			port@0 {
+				reg = <0>;
+				label = "lan0";
+				status = "disabled";
+			};
+
+			port@1 {
+				reg = <1>;
+				label = "lan1";
+				cpu = <&cpuport1>;
+			};
+
+			port@2 {
+				reg = <2>;
+				label = "lan2";
+				cpu = <&cpuport1>;
+			};
+
+			port@3 {
+				reg = <3>;
+				label = "lan3";
+				cpu = <&cpuport1>;
+			};
+
+			port@4 {
+				reg = <4>;
+				label = "lan4";
+				cpu = <&cpuport1>;
+			};
+
+			port@5 {
+				reg = <5>;
+				label = "lan5";
+				cpu = <&cpuport1>;
+			};
+
+			port@6 {
+				reg = <6>;
+				label = "lan6";
+				cpu = <&cpuport1>;
+			};
+
+			port@7 {
+				reg = <7>;
+				label = "lan7";
+				cpu = <&cpuport1>;
+			};
+
+			port@8 {
+				reg = <8>;
+				label = "lan8";
+				cpu = <&cpuport1>;
+			};
+		};
+	};
+#endif
+};
+
+&emdio2 {
+#if 0
+	inphi_phy: ethernet-phy@0 {
+		compatible = "ethernet-phy-id0210.7440";
+		reg = <0x0>;
+	};
+#endif
+	aquantia_phy1: ethernet-phy@9 {
+		/* AQR113C PHY - "compatible" property not strictly needed */
+		compatible = "ethernet-phy-ieee802.3-c45";
+		reg = <0x0>;
+	};
+	aquantia_phy2: ethernet-phy@10 {
+		/* AQR113C PHY - "compatible" property not strictly needed */
+		compatible = "ethernet-phy-ieee802.3-c45";
+		reg = <0x8>;
+	};
+};
+#if 0
+&dpmac8 {
+	phy-handle = <&usxgmii_phy>;
+	phy-connection-type = "usxgmii";
+};
+
+
+&dpmac9 {
+	phy-handle = <&sfp_phy1>;
+	phy-connection-type = "sfi";
+};
+
+&dpmac10 {
+	phy-handle = <&sfp_phy2>;
+	phy-connection-type = "sfi";
+};
+
+&dpmac3 {
+	phy-handle = <&usxgmii_phy1>;
+	phy-connection-type = "xfi";
+};
+#endif
+
+&dpmac3 {
+	phy-handle = <&mdio1_phy>;
+	phy-connection-type = "xfi";
+};
+
+&dpmac9 {
+	phy-handle = <&aquantia_phy1>;
+	phy-connection-type = "xfi";
+};
+
+&dpmac10 {
+	phy-handle = <&aquantia_phy2>;
+	phy-connection-type = "xfi";
+};
+
+#if 0
+&dpmac3 {
+	phy-handle = <&aquantia_phy1>;
+	phy-connection-type = "xgmii";
+};
+
+&dpmac4 {
+	phy-handle = <&aquantia_phy2>;
+	phy-connection-type = "xgmii";
+};
+
+&dpmac5 {
+	phy-handle = <&inphi_phy>;
+};
+
+&dpmac6 {
+	phy-handle = <&inphi_phy>;
+};
+
+&dpmac17 {
+	phy-handle = <&rgmii_phy1>;
+	phy-connection-type = "rgmii-id";
+};
+
+&dpmac18 {
+	phy-handle = <&rgmii_phy2>;
+	phy-connection-type = "rgmii-id";
+};
+#endif
+
+&sata0 {
+	status = "okay";
+};
+
+&sata1 {
+	status = "okay";
+};
+
+&sata2 {
+	status = "okay";
+};
+
+&sata3 {
+	status = "okay";
+};

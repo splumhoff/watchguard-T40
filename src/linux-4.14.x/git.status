@@ -1,0 +1,53 @@
+On branch pending-changes-before-t80
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git checkout -- <file>..." to discard changes in working directory)
+
+	modified:   arch/arm64/boot/dts/freescale/Makefile
+	modified:   arch/arm64/boot/dts/freescale/fsl-ls1046-post.dtsi
+	modified:   arch/arm64/boot/dts/freescale/fsl-ls1046a-qds.dts
+	modified:   arch/arm64/boot/dts/freescale/fsl-ls1046a-rdb.dts
+	modified:   arch/arm64/boot/dts/freescale/fsl-ls1046a.dtsi
+	modified:   arch/arm64/boot/dts/freescale/mb_t40.dts
+	modified:   arch/arm64/configs/lsdk.config
+	modified:   arch/arm64/configs/lsk_defconfig
+	modified:   config/arm64/kernel.config
+	modified:   drivers/mtd/spi-nor/spi-nor.c
+	modified:   drivers/net/dsa/mv88e6xxx/chip.c
+	modified:   drivers/net/dsa/mv88e6xxx/port.c
+	modified:   drivers/net/ethernet/intel/ixgbe/ixgbe_main.c
+	modified:   drivers/rtc/interface.c
+	modified:   include/linux/wg_kernel.h
+	modified:   include/net/dsa.h
+	modified:   net/dsa/dsa2.c
+	modified:   net/dsa/dsa_priv.h
+	modified:   net/dsa/legacy.c
+	modified:   net/dsa/slave.c
+	modified:   net/dsa/tag_dsa.c
+	modified:   net/dsa/tag_edsa.c
+	modified:   net/dsa/tag_ksz.c
+	modified:   net/dsa/tag_qca.c
+	modified:   net/dsa/tag_trailer.c
+	modified:   net/dsa/wg_dsa.c
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+
+	arch/arm64/boot/dts/freescale/fsl-ls1043-post.dtsi.orig
+	arch/arm64/boot/dts/freescale/fsl-ls1043-post.dtsi.rej
+	arch/arm64/boot/dts/freescale/fsl-ls1043-post2.dtsi
+	arch/arm64/boot/dts/freescale/fsl-ls1046a-rdb-sdk-modified.dts
+	arch/arm64/boot/dts/freescale/fsl-ls1046a-rdb.dts.orig
+	arch/arm64/boot/dts/freescale/fsl-ls1046a-rdb.dts.rej
+	arch/arm64/boot/dts/freescale/mb_t80.dts
+	arch/arm64/boot/dts/freescale/qoriq-dpaa-eth_t80.dtsi
+	arch/arm64/configs/lsdk.config.orig
+	arch/arm64/configs/lsdk.config.rej
+	git.status
+	include/net/dsa.h.orig
+	net/dsa/dsa_priv.h.orig
+	net/dsa/dsa_priv.h.rej
+	net/dsa/legacy.c.orig
+	net/dsa/slave.c.orig
+
+no changes added to commit (use "git add" and/or "git commit -a")

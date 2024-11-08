@@ -1,0 +1,435 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
+/*
+ * Copyright 2015 Freescale Semiconductor, Inc.
+ */
+
+#ifndef __LS1043AQDS_H__
+#define __LS1043AQDS_H__
+
+#include "ls1043a_common.h"
+
+#ifndef __ASSEMBLY__
+unsigned long get_board_sys_clk(void);
+unsigned long get_board_ddr_clk(void);
+#endif
+
+#define CONFIG_SYS_CLK_FREQ		100000000
+#define CONFIG_DDR_CLK_FREQ		100000000
+
+#define CONFIG_SKIP_LOWLEVEL_INIT
+
+#define CONFIG_LAYERSCAPE_NS_ACCESS
+
+#define CONFIG_DIMM_SLOTS_PER_CTLR	1
+/* Physical Memory Map */
+#define CONFIG_CHIP_SELECTS_PER_CTRL	4
+
+#define CONFIG_SYS_DDR_RAW_TIMING
+
+#ifndef CONFIG_SPL
+#define CONFIG_FSL_DDR_INTERACTIVE	/* Interactive debugging */
+#endif
+
+#define CONFIG_DDR_ECC
+#ifdef CONFIG_DDR_ECC
+#define CONFIG_ECC_INIT_VIA_DDRCONTROLLER
+#define CONFIG_MEM_INIT_VALUE           0xdeadbeef
+#endif
+
+#ifdef CONFIG_SYS_DPAA_FMAN
+#define CONFIG_FMAN_ENET
+#define CONFIG_PHY_VITESSE
+#define CONFIG_PHY_ATHEROS
+#define RGMII_PHY1_ADDR		0x1
+#define QSGMII_CARD_PORT1_PHY_ADDR_S1 0x4
+#define QSGMII_CARD_PORT2_PHY_ADDR_S1 0x5
+#define QSGMII_CARD_PORT3_PHY_ADDR_S1 0x6
+#define QSGMII_CARD_PORT4_PHY_ADDR_S1 0x7
+
+#define CONFIG_IPADDR		192.168.1.1
+#define CONFIG_SERVERIP		192.168.1.100
+#define CONFIG_NETMASK		255.255.255.0
+
+#define CONFIG_HAS_ETH1
+#define CONFIG_HAS_ETH2
+#define CONFIG_HAS_ETH3
+#define CONFIG_HAS_ETH4
+#define CONFIG_HAS_ETH5
+
+#define CONFIG_ETHADDR		00:0B:6B:01:01:01
+#define CONFIG_ETH1ADDR		00:0B:6B:01:01:02
+#define CONFIG_ETH2ADDR		00:0B:6B:01:01:03
+#define CONFIG_ETH3ADDR		00:0B:6B:01:01:04
+#define CONFIG_ETH4ADDR		00:0B:6B:01:01:05
+#define CONFIG_ETH5ADDR		00:0B:6B:01:01:06
+#define CONFIG_ETHPRIME         "FM1@DTSEC1"
+#endif
+
+#ifdef CONFIG_RAMBOOT_PBL
+#define CONFIG_SYS_FSL_PBL_PBI board/freescale/ls1043aqds/ls1043aqds_pbi.cfg
+#endif
+
+#ifdef CONFIG_NAND_BOOT
+#define CONFIG_SYS_FSL_PBL_RCW board/freescale/ls1043aqds/ls1043aqds_rcw_nand.cfg
+#endif
+
+#ifdef CONFIG_SD_BOOT
+#ifdef CONFIG_SD_BOOT_QSPI
+#define CONFIG_SYS_FSL_PBL_RCW \
+	board/freescale/ls1043aqds/ls1043aqds_rcw_sd_qspi.cfg
+#else
+#define CONFIG_SYS_FSL_PBL_RCW board/freescale/ls1043aqds/ls1043aqds_rcw_sd_ifc.cfg
+#endif
+#endif
+
+/* LPUART */
+#ifdef CONFIG_LPUART
+#define CONFIG_LPUART_32B_REG
+#endif
+
+/* SATA */
+#define CONFIG_SCSI_AHCI_PLAT
+
+#define CONFIG_SYS_SATA				AHCI_BASE_ADDR
+
+#define CONFIG_SYS_SCSI_MAX_SCSI_ID		1
+#define CONFIG_SYS_SCSI_MAX_LUN			1
+#define CONFIG_SYS_SCSI_MAX_DEVICE		(CONFIG_SYS_SCSI_MAX_SCSI_ID * \
+						CONFIG_SYS_SCSI_MAX_LUN)
+
+#ifdef CONFIG_NAND_BOOT
+#define CONFIG_SPL_PAD_TO		0x20000		/* block aligned */
+#define CONFIG_SYS_NAND_U_BOOT_OFFS	CONFIG_SPL_PAD_TO
+#define CONFIG_SYS_NAND_U_BOOT_SIZE	(640 << 10)
+#endif
+
+#if defined(CONFIG_TFABOOT) || \
+	defined(CONFIG_QSPI_BOOT) || defined(CONFIG_SD_BOOT_QSPI)
+#define CONFIG_QIXIS_I2C_ACCESS
+#define CONFIG_SYS_I2C_EARLY_INIT
+#endif
+
+/*
+ * QIXIS Definitions
+ */
+#define CONFIG_FSL_QIXIS
+
+#ifdef CONFIG_FSL_QIXIS
+#define QIXIS_BASE			0x7fb00000
+#define QIXIS_BASE_PHYS			QIXIS_BASE
+#define CONFIG_SYS_I2C_FPGA_ADDR	0x66
+#define QIXIS_LBMAP_SWITCH		6
+#define QIXIS_LBMAP_MASK		0x0f
+#define QIXIS_LBMAP_SHIFT		0
+#define QIXIS_LBMAP_DFLTBANK		0x00
+#define QIXIS_LBMAP_ALTBANK		0x04
+#define QIXIS_LBMAP_NAND		0x09
+#define QIXIS_LBMAP_SD			0x00
+#define QIXIS_LBMAP_SD_QSPI		0xff
+#define QIXIS_LBMAP_QSPI		0xff
+#define QIXIS_RCW_SRC_NAND		0x106
+#define QIXIS_RCW_SRC_SD		0x040
+#define QIXIS_RCW_SRC_QSPI		0x045
+#define QIXIS_RST_CTL_RESET		0x41
+#define QIXIS_RCFG_CTL_RECONFIG_IDLE	0x20
+#define QIXIS_RCFG_CTL_RECONFIG_START	0x21
+#define QIXIS_RCFG_CTL_WATCHDOG_ENBLE	0x08
+
+#define CONFIG_SYS_FPGA_CSPR_EXT	(0x0)
+#define CONFIG_SYS_FPGA_CSPR		(CSPR_PHYS_ADDR(QIXIS_BASE_PHYS) | \
+					CSPR_PORT_SIZE_8 | \
+					CSPR_MSEL_GPCM | \
+					CSPR_V)
+#define CONFIG_SYS_FPGA_AMASK		IFC_AMASK(64 * 1024)
+#define CONFIG_SYS_FPGA_CSOR		(CSOR_NOR_ADM_SHIFT(4) | \
+					CSOR_NOR_NOR_MODE_AVD_NOR | \
+					CSOR_NOR_TRHZ_80)
+
+/*
+ * QIXIS Timing parameters for IFC GPCM
+ */
+#define CONFIG_SYS_FPGA_FTIM0		(FTIM0_GPCM_TACSE(0xc) | \
+					FTIM0_GPCM_TEADC(0x20) | \
+					FTIM0_GPCM_TEAHC(0x10))
+#define CONFIG_SYS_FPGA_FTIM1		(FTIM1_GPCM_TACO(0x50) | \
+					FTIM1_GPCM_TRAD(0x1f))
+#define CONFIG_SYS_FPGA_FTIM2		(FTIM2_GPCM_TCS(0x8) | \
+					FTIM2_GPCM_TCH(0x8) | \
+					FTIM2_GPCM_TWP(0xf0))
+#define CONFIG_SYS_FPGA_FTIM3		0x0
+#endif
+
+#ifdef CONFIG_TFABOOT
+#define CONFIG_SYS_CSPR0_EXT		CONFIG_SYS_NOR0_CSPR_EXT
+#define CONFIG_SYS_CSPR0		CONFIG_SYS_NOR0_CSPR
+#define CONFIG_SYS_AMASK0		CONFIG_SYS_NOR_AMASK
+#define CONFIG_SYS_CSOR0		CONFIG_SYS_NOR_CSOR
+#define CONFIG_SYS_CS0_FTIM0		CONFIG_SYS_NOR_FTIM0
+#define CONFIG_SYS_CS0_FTIM1		CONFIG_SYS_NOR_FTIM1
+#define CONFIG_SYS_CS0_FTIM2		CONFIG_SYS_NOR_FTIM2
+#define CONFIG_SYS_CS0_FTIM3		CONFIG_SYS_NOR_FTIM3
+#define CONFIG_SYS_CSPR1_EXT		CONFIG_SYS_NOR1_CSPR_EXT
+#define CONFIG_SYS_CSPR1		CONFIG_SYS_NOR1_CSPR
+#define CONFIG_SYS_AMASK1		CONFIG_SYS_NOR_AMASK
+#define CONFIG_SYS_CSOR1		CONFIG_SYS_NOR_CSOR
+#define CONFIG_SYS_CS1_FTIM0		CONFIG_SYS_NOR_FTIM0
+#define CONFIG_SYS_CS1_FTIM1		CONFIG_SYS_NOR_FTIM1
+#define CONFIG_SYS_CS1_FTIM2		CONFIG_SYS_NOR_FTIM2
+#define CONFIG_SYS_CS1_FTIM3		CONFIG_SYS_NOR_FTIM3
+#define CONFIG_SYS_CSPR2_EXT		CONFIG_SYS_NAND_CSPR_EXT
+#define CONFIG_SYS_CSPR2		CONFIG_SYS_NAND_CSPR
+#define CONFIG_SYS_AMASK2		CONFIG_SYS_NAND_AMASK
+#define CONFIG_SYS_CSOR2		CONFIG_SYS_NAND_CSOR
+#define CONFIG_SYS_CS2_FTIM0		CONFIG_SYS_NAND_FTIM0
+#define CONFIG_SYS_CS2_FTIM1		CONFIG_SYS_NAND_FTIM1
+#define CONFIG_SYS_CS2_FTIM2		CONFIG_SYS_NAND_FTIM2
+#define CONFIG_SYS_CS2_FTIM3		CONFIG_SYS_NAND_FTIM3
+#define CONFIG_SYS_CSPR3_EXT		CONFIG_SYS_FPGA_CSPR_EXT
+#define CONFIG_SYS_CSPR3		CONFIG_SYS_FPGA_CSPR
+#define CONFIG_SYS_AMASK3		CONFIG_SYS_FPGA_AMASK
+#define CONFIG_SYS_CSOR3		CONFIG_SYS_FPGA_CSOR
+#define CONFIG_SYS_CS3_FTIM0		CONFIG_SYS_FPGA_FTIM0
+#define CONFIG_SYS_CS3_FTIM1		CONFIG_SYS_FPGA_FTIM1
+#define CONFIG_SYS_CS3_FTIM2		CONFIG_SYS_FPGA_FTIM2
+#define CONFIG_SYS_CS3_FTIM3		CONFIG_SYS_FPGA_FTIM3
+#else
+#ifdef CONFIG_NAND_BOOT
+#define CONFIG_SYS_CSPR0_EXT		CONFIG_SYS_NAND_CSPR_EXT
+#define CONFIG_SYS_CSPR0		CONFIG_SYS_NAND_CSPR
+#define CONFIG_SYS_AMASK0		CONFIG_SYS_NAND_AMASK
+#define CONFIG_SYS_CSOR0		CONFIG_SYS_NAND_CSOR
+#define CONFIG_SYS_CS0_FTIM0		CONFIG_SYS_NAND_FTIM0
+#define CONFIG_SYS_CS0_FTIM1		CONFIG_SYS_NAND_FTIM1
+#define CONFIG_SYS_CS0_FTIM2		CONFIG_SYS_NAND_FTIM2
+#define CONFIG_SYS_CS0_FTIM3		CONFIG_SYS_NAND_FTIM3
+#define CONFIG_SYS_CSPR1_EXT		CONFIG_SYS_NOR0_CSPR_EXT
+#define CONFIG_SYS_CSPR1		CONFIG_SYS_NOR0_CSPR
+#define CONFIG_SYS_AMASK1		CONFIG_SYS_NOR_AMASK
+#define CONFIG_SYS_CSOR1		CONFIG_SYS_NOR_CSOR
+#define CONFIG_SYS_CS1_FTIM0		CONFIG_SYS_NOR_FTIM0
+#define CONFIG_SYS_CS1_FTIM1		CONFIG_SYS_NOR_FTIM1
+#define CONFIG_SYS_CS1_FTIM2		CONFIG_SYS_NOR_FTIM2
+#define CONFIG_SYS_CS1_FTIM3		CONFIG_SYS_NOR_FTIM3
+#define CONFIG_SYS_CSPR2_EXT		CONFIG_SYS_NOR1_CSPR_EXT
+#define CONFIG_SYS_CSPR2		CONFIG_SYS_NOR1_CSPR
+#define CONFIG_SYS_AMASK2		CONFIG_SYS_NOR_AMASK
+#define CONFIG_SYS_CSOR2		CONFIG_SYS_NOR_CSOR
+#define CONFIG_SYS_CS2_FTIM0		CONFIG_SYS_NOR_FTIM0
+#define CONFIG_SYS_CS2_FTIM1		CONFIG_SYS_NOR_FTIM1
+#define CONFIG_SYS_CS2_FTIM2		CONFIG_SYS_NOR_FTIM2
+#define CONFIG_SYS_CS2_FTIM3		CONFIG_SYS_NOR_FTIM3
+#define CONFIG_SYS_CSPR3_EXT		CONFIG_SYS_FPGA_CSPR_EXT
+#define CONFIG_SYS_CSPR3		CONFIG_SYS_FPGA_CSPR
+#define CONFIG_SYS_AMASK3		CONFIG_SYS_FPGA_AMASK
+#define CONFIG_SYS_CSOR3		CONFIG_SYS_FPGA_CSOR
+#define CONFIG_SYS_CS3_FTIM0		CONFIG_SYS_FPGA_FTIM0
+#define CONFIG_SYS_CS3_FTIM1		CONFIG_SYS_FPGA_FTIM1
+#define CONFIG_SYS_CS3_FTIM2		CONFIG_SYS_FPGA_FTIM2
+#define CONFIG_SYS_CS3_FTIM3		CONFIG_SYS_FPGA_FTIM3
+#else
+#define CONFIG_SYS_CSPR0_EXT		CONFIG_SYS_NOR0_CSPR_EXT
+#define CONFIG_SYS_CSPR0		CONFIG_SYS_NOR0_CSPR
+#define CONFIG_SYS_AMASK0		CONFIG_SYS_NOR_AMASK
+#define CONFIG_SYS_CSOR0		CONFIG_SYS_NOR_CSOR
+#define CONFIG_SYS_CS0_FTIM0		CONFIG_SYS_NOR_FTIM0
+#define CONFIG_SYS_CS0_FTIM1		CONFIG_SYS_NOR_FTIM1
+#define CONFIG_SYS_CS0_FTIM2		CONFIG_SYS_NOR_FTIM2
+#define CONFIG_SYS_CS0_FTIM3		CONFIG_SYS_NOR_FTIM3
+#define CONFIG_SYS_CSPR1_EXT		CONFIG_SYS_NOR1_CSPR_EXT
+#define CONFIG_SYS_CSPR1		CONFIG_SYS_NOR1_CSPR
+#define CONFIG_SYS_AMASK1		CONFIG_SYS_NOR_AMASK
+#define CONFIG_SYS_CSOR1		CONFIG_SYS_NOR_CSOR
+#define CONFIG_SYS_CS1_FTIM0		CONFIG_SYS_NOR_FTIM0
+#define CONFIG_SYS_CS1_FTIM1		CONFIG_SYS_NOR_FTIM1
+#define CONFIG_SYS_CS1_FTIM2		CONFIG_SYS_NOR_FTIM2
+#define CONFIG_SYS_CS1_FTIM3		CONFIG_SYS_NOR_FTIM3
+#define CONFIG_SYS_CSPR2_EXT		CONFIG_SYS_NAND_CSPR_EXT
+#define CONFIG_SYS_CSPR2		CONFIG_SYS_NAND_CSPR
+#define CONFIG_SYS_AMASK2		CONFIG_SYS_NAND_AMASK
+#define CONFIG_SYS_CSOR2		CONFIG_SYS_NAND_CSOR
+#define CONFIG_SYS_CS2_FTIM0		CONFIG_SYS_NAND_FTIM0
+#define CONFIG_SYS_CS2_FTIM1		CONFIG_SYS_NAND_FTIM1
+#define CONFIG_SYS_CS2_FTIM2		CONFIG_SYS_NAND_FTIM2
+#define CONFIG_SYS_CS2_FTIM3		CONFIG_SYS_NAND_FTIM3
+#define CONFIG_SYS_CSPR3_EXT		CONFIG_SYS_FPGA_CSPR_EXT
+#define CONFIG_SYS_CSPR3		CONFIG_SYS_FPGA_CSPR
+#define CONFIG_SYS_AMASK3		CONFIG_SYS_FPGA_AMASK
+#define CONFIG_SYS_CSOR3		CONFIG_SYS_FPGA_CSOR
+#define CONFIG_SYS_CS3_FTIM0		CONFIG_SYS_FPGA_FTIM0
+#define CONFIG_SYS_CS3_FTIM1		CONFIG_SYS_FPGA_FTIM1
+#define CONFIG_SYS_CS3_FTIM2		CONFIG_SYS_FPGA_FTIM2
+#define CONFIG_SYS_CS3_FTIM3		CONFIG_SYS_FPGA_FTIM3
+#endif
+#endif
+
+/*
+ * I2C bus multiplexer
+ */
+#define I2C_MUX_PCA_ADDR_PRI		0x77
+#define I2C_MUX_PCA_ADDR_SEC		0x76 /* Secondary multiplexer */
+#define I2C_RETIMER_ADDR		0x18
+#define I2C_MUX_CH_DEFAULT		0x8
+#define I2C_MUX_CH_CH7301		0xC
+#define I2C_MUX_CH5			0xD
+#define I2C_MUX_CH7			0xF
+
+#define I2C_MUX_CH_VOL_MONITOR 0xa
+
+/* Voltage monitor on channel 2*/
+#define I2C_VOL_MONITOR_ADDR           0x40
+#define I2C_VOL_MONITOR_BUS_V_OFFSET   0x2
+#define I2C_VOL_MONITOR_BUS_V_OVF      0x1
+#define I2C_VOL_MONITOR_BUS_V_SHIFT    3
+
+#define CONFIG_VID_FLS_ENV		"ls1043aqds_vdd_mv"
+#ifndef CONFIG_SPL_BUILD
+#define CONFIG_VID
+#endif
+#define CONFIG_VOL_MONITOR_IR36021_SET
+#define CONFIG_VOL_MONITOR_INA220
+/* The lowest and highest voltage allowed for LS1043AQDS */
+#define VDD_MV_MIN			819
+#define VDD_MV_MAX			1212
+
+/* QSPI device */
+#if defined(CONFIG_TFABOOT) || \
+	(defined(CONFIG_QSPI_BOOT) || defined(CONFIG_SD_BOOT_QSPI))
+#define CONFIG_FSL_QSPI
+#ifdef CONFIG_FSL_QSPI
+#define CONFIG_SPI_FLASH_SPANSION
+#define CONFIG_SPI_FLASH_MACRONIX
+#define FSL_QSPI_FLASH_SIZE		(1 << 24)
+#define FSL_QSPI_FLASH_NUM		2
+#endif
+#endif
+
+/*
+ * Miscellaneous configurable options
+ */
+
+#define CONFIG_SYS_MEMTEST_START	0x80000000
+#define CONFIG_SYS_MEMTEST_END		0x9fffffff
+
+#define CONFIG_SYS_HZ			1000
+
+#define CONFIG_SYS_INIT_SP_OFFSET \
+	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
+
+#ifdef CONFIG_SPL_BUILD
+#define CONFIG_SYS_MONITOR_BASE CONFIG_SPL_TEXT_BASE
+#else
+#define CONFIG_SYS_MONITOR_BASE CONFIG_SYS_TEXT_BASE    /* start of monitor */
+#endif
+
+/*
+ * Environment
+ */
+#define CONFIG_ENV_OVERWRITE
+
+#ifdef CONFIG_TFABOOT
+#define CONFIG_SYS_MMC_ENV_DEV		0
+
+#define CONFIG_ENV_SIZE			0x2000
+#define CONFIG_ENV_OFFSET		0x500000        /* 5MB */
+#define CONFIG_ENV_ADDR			(CONFIG_SYS_FLASH_BASE + 0x500000)
+#define CONFIG_ENV_SECT_SIZE		0x20000
+#else
+#ifdef CONFIG_NAND_BOOT
+#define CONFIG_ENV_SIZE			0x2000
+#define CONFIG_ENV_OFFSET		(24 * CONFIG_SYS_NAND_BLOCK_SIZE)
+#elif defined(CONFIG_SD_BOOT)
+#define CONFIG_ENV_OFFSET		(3 * 1024 * 1024)
+#define CONFIG_SYS_MMC_ENV_DEV		0
+#define CONFIG_ENV_SIZE			0x2000
+#elif defined(CONFIG_QSPI_BOOT)
+#define CONFIG_ENV_SIZE			0x2000          /* 8KB */
+#define CONFIG_ENV_OFFSET		0x200000        /* 2MB */
+#define CONFIG_ENV_SECT_SIZE		0x10000
+#else
+#define CONFIG_ENV_ADDR			(CONFIG_SYS_FLASH_BASE + 0x300000)
+#define CONFIG_ENV_SECT_SIZE		0x20000
+#define CONFIG_ENV_SIZE			0x20000
+#endif
+#endif
+
+#define CONFIG_CMDLINE_TAG
+
+#undef	CONFIG_EXTRA_ENV_SETTINGS
+#define CONFIG_EXTRA_ENV_SETTINGS		\
+	"hwconfig=fsl_ddr:bank_intlv=auto\0"	\
+	"fdt_high=0xffffffffffffffff\0"		\
+	"initrd_high=0xffffffffffffffff\0"	\
+	"fdt_addr=0x64f00000\0"		 	\
+	"kernel_addr=0x61000000\0"		\
+	"scriptaddr=0x80000000\0"		\
+	"scripthdraddr=0x80080000\0"		\
+	"fdtheader_addr_r=0x80100000\0"		\
+	"kernelheader_addr_r=0x80200000\0"	\
+	"kernel_addr_r=0x81000000\0"		\
+	"kernel_start=0x1000000\0"		\
+	"kernelheader_start=0x800000\0"		\
+	"fdt_addr_r=0x90000000\0"		\
+	"load_addr=0xa0000000\0"		\
+	"kernelheader_addr=0x60800000\0"	\
+	"kernel_size=0x2800000\0"		\
+	"kernelheader_size=0x40000\0"		\
+	"kernel_addr_sd=0x8000\0"		\
+	"kernel_size_sd=0x14000\0"		\
+	"kernelhdr_addr_sd=0x4000\0"		\
+	"kernelhdr_size_sd=0x10\0"		\
+	"boot_os=y\0"				\
+	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0"	\
+	BOOTENV					\
+	"boot_scripts=ls1043ardb_boot.scr\0"	\
+	"boot_script_hdr=hdr_ls1043ardb_bs.out\0"	\
+	"consoledev=ttyS0\0"					\
+	"loadaddr=82000000\0"					\
+	"WGKernelfile=kernel_T20_T40_prod.itb\0"                \
+	"SysARoot=sda3\0"	\
+	"SysBRoot=sda2\0"	\
+	"wgBootSysA=setenv bootargs root=/dev/$SysARoot rw " \
+	"console=$consoledev,$baudrate $othbootargs "	\
+	"earlycon=uart8250,mmio,0x21c0500; "	\
+	"scsi scan; " \
+	"ext2load scsi 0:3 $loadaddr $WGKernelfile; " \
+	"bootm $loadaddr;\0"             \
+	"wgBootSysB=setenv bootargs root=/dev/$SysBRoot rw " \
+	"console=$consoledev,$baudrate $othbootargs "	\
+	"earlycon=uart8250,mmio,0x21c0500; "	\
+	"scsi scan; " \
+	"ext2load scsi 0:2 $loadaddr $WGKernelfile; " \
+	"bootm $loadaddr;\0"             \
+	"wgBootRecovery=setenv bootargs wgmode=safe root=/dev/$SysARoot rw " \
+	"console=$consoledev,$baudrate $othbootargs "	\
+	"earlycon=uart8250,mmio,0x21c0500; "	\
+	"scsi scan; " \
+	"ext2load scsi 0:3 $loadaddr $WGKernelfile; " \
+	"bootm $loadaddr;\0"  \
+	"nuke_env=sf probe 0;sf erase 0x200000 10000;\0"  \
+	"ipaddr=10.0.1.1;\0" \
+	"serveraddr=10.0.1.13;\0" \
+	"netmask=255.255.255.0;\0" \
+	"flash_bootloader=tftp 0x82000000 u-boot_ls1043aqds_wg_t40_qspi.bin;" \
+	"sf probe 0; sf erase 0 0x100000; sf write 0x82000000 0 $filesize;" \
+	"sf read 0x80000000 0 $filesize; cmp.b 0x82000000 0x80000000 $filesize;\0"
+
+#undef CONFIG_BOOTCOMMAND
+#define CONFIG_BOOTCOMMAND		"run wgBootSysA"
+
+/* GPIO1[13:14, 23:31] */
+#define GPIO1_SUPPORT			((0x3 << 13) | (0x1ff << 23))
+/* GPIO2[0:9][11:15] */
+#define GPIO2_SUPPORT                  ((0x1ff << 0))| (0x1f << 11)
+/* GPIO3[15:27] */
+#define GPIO3_SUPPORT			(0x1fff << 15)
+/* GPIO4[2:3, 12:13, 29:30] */
+#define GPIO4_SUPPORT			((0x3 << 2) | (0x3 << 12) | (0x3 << 29))
+
+#define CONFIG_SN74LV164A
+#define SN74LV164A_CLR_GPIO		205
+#define SN74LV164A_CLK_GPIO		127
+#define SN74LV164A_INA_GPIO		128
+
+#include <asm/fsl_secure_boot.h>
+
+#endif /* __LS1043AQDS_H__ */

@@ -1,0 +1,34 @@
+WatchGuard patches to sources for openssh-8.1p1 as of
+Mon May  9 13:58:23 PDT 2022
+The patches shown here have been applied to source .tar.gz 
+files supplied with the WatchGuard Open Source Archive.
+
+==========================================================================
+--- openssh-8.1p1/progressmeter.c.orig	2022-05-09 13:58:19.524764962 -0700
++++ openssh-8.1p1/progressmeter.c	2022-05-09 13:58:19.792754093 -0700
+@@ -85,9 +85,13 @@
+ }
+ 
+ static void
+-format_rate(char *buf, int size, off_t bytes)
++format_rate(char *buf, int size, off_t wg_bytes)
+ {
+ 	int i;
++	/* WG:XD BUG90294 - use "unsigned long long" to avoid possible
++	 * overflow when doing the math at "btyes *= 100;"
++	 */
++	unsigned long long bytes = (unsigned long long) wg_bytes;
+ 
+ 	bytes *= 100;
+ 	for (i = 0; bytes >= 100*1000 && unit[i] != 'T'; i++)
+--- openssh-8.1p1/ssh_api.c.orig	2022-05-09 13:58:19.616761231 -0700
++++ openssh-8.1p1/ssh_api.c	2022-05-09 13:58:19.844751983 -0700
+@@ -412,7 +412,7 @@
+ 	char *cp;
+ 	int r;
+ 
+-	if ((r = sshbuf_putf(banner, "SSH-2.0-%.100s\r\n", SSH_VERSION)) != 0)
++	if ((r = sshbuf_putf(banner, "SSH-2.0-%.100s\r\n", "WatchGuard")) != 0)
+ 		return r;
+ 	if ((r = sshbuf_putb(ssh_packet_get_output(ssh), banner)) != 0)
+ 		return r;

@@ -1,0 +1,37 @@
+#
+# Network configuration
+#
+
+menuconfig NET
+	bool "Networking support"
+	default y
+
+if NET
+
+config NET_RANDOM_ETHADDR
+	bool "Random ethaddr if unset"
+	help
+	  Selecting this will allow the Ethernet interface to function
+	  even when the ethaddr variable for that interface is unset.
+	  A new MAC address will be generated on every boot and it will
+	  not be added to the environment.
+
+config NETCONSOLE
+	bool "NetConsole support"
+	help
+	  Support the 'nc' input/output device for networked console.
+	  See README.NetConsole for details.
+
+config MV88E6190_SWITCH
+    default 0
+config MV88E6190_SWITCH_CPU_ATTACHED
+	depends on MV88E6190_SWITCH && WG1008_PX1
+    default 1
+
+config MV88E6191X_SWITCH
+	default 0
+config MV88E6191X_SWITCH_CPU_ATTACHED
+		depends on MV88E6191X_SWITCH && WG1008_PX2
+	default 1
+
+endif   # if NET

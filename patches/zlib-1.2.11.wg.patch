@@ -1,0 +1,237 @@
+WatchGuard patches to sources for zlib-1.2.11 as of
+Mon May  9 14:21:50 PDT 2022
+The patches shown here have been applied to source .tar.gz 
+files supplied with the WatchGuard Open Source Archive.
+
+==========================================================================
+--- zlib-1.2.11/zlib.h.orig	2022-05-09 14:21:48.503683732 -0700
++++ zlib-1.2.11/zlib.h	2022-05-09 14:21:48.643678059 -0700
+@@ -1893,6 +1893,7 @@
+ ZEXTERN unsigned long  ZEXPORT inflateCodesUsed OF ((z_streamp));
+ ZEXTERN int            ZEXPORT inflateResetKeep OF((z_streamp));
+ ZEXTERN int            ZEXPORT deflateResetKeep OF((z_streamp));
++ZEXTERN int            ZEXPORT wg_gunzip OF((const char *, const char *));
+ #if (defined(_WIN32) || defined(__CYGWIN__)) && !defined(Z_SOLO)
+ ZEXTERN gzFile         ZEXPORT gzopen_w OF((const wchar_t *path,
+                                             const char *mode));
+--- zlib-1.2.11/Makefile.in.orig	2022-05-09 14:21:47.779713065 -0700
++++ zlib-1.2.11/Makefile.in	2022-05-09 14:21:48.587680329 -0700
+@@ -58,11 +58,11 @@
+ ZINCOUT=-I.
+ 
+ OBJZ = adler32.o crc32.o deflate.o infback.o inffast.o inflate.o inftrees.o trees.o zutil.o
+-OBJG = compress.o uncompr.o gzclose.o gzlib.o gzread.o gzwrite.o
++OBJG = compress.o uncompr.o gzclose.o gzlib.o gzread.o gzwrite.o wg_gunzip.o
+ OBJC = $(OBJZ) $(OBJG)
+ 
+ PIC_OBJZ = adler32.lo crc32.lo deflate.lo infback.lo inffast.lo inflate.lo inftrees.lo trees.lo zutil.lo
+-PIC_OBJG = compress.lo uncompr.lo gzclose.lo gzlib.lo gzread.lo gzwrite.lo
++PIC_OBJG = compress.lo uncompr.lo gzclose.lo gzlib.lo gzread.lo gzwrite.lo wg_gunzip.lo
+ PIC_OBJC = $(PIC_OBJZ) $(PIC_OBJG)
+ 
+ # to use the asm code: make OBJA=match.o, PIC_OBJA=match.lo
+@@ -201,6 +201,8 @@
+ gzwrite.o: $(SRCDIR)gzwrite.c
+ 	$(CC) $(CFLAGS) $(ZINC) -c -o $@ $(SRCDIR)gzwrite.c
+ 
++wg_gunzip.o: $(SRCDIR)wg_gunzip.c
++	$(CC) $(CFLAGS) $(ZINC) -c -o $@ $(SRCDIR)wg_gunzip.c
+ 
+ adler32.lo: $(SRCDIR)adler32.c
+ 	-@mkdir objs 2>/dev/null || test -d objs
+@@ -277,6 +279,10 @@
+ 	$(CC) $(SFLAGS) $(ZINC) -DPIC -c -o objs/gzwrite.o $(SRCDIR)gzwrite.c
+ 	-@mv objs/gzwrite.o $@
+ 
++wg_gunzip.lo: $(SRCDIR)wg_gunzip.c
++	-@mkdir objs 2>/dev/null || test -d objs
++	$(CC) $(SFLAGS) $(ZINC) -DPIC -c -o objs/wg_gunzip.o $(SRCDIR)wg_gunzip.c
++	-@mv objs/wg_gunzip.o $@
+ 
+ placebo $(SHAREDLIBV): $(PIC_OBJS) libz.a
+ 	$(LDSHARED) $(SFLAGS) -o $@ $(PIC_OBJS) $(LDSHAREDLIBC) $(LDFLAGS)
+--- zlib-1.2.11/wg_gunzip.c.orig	1969-12-31 16:00:00.000000000 -0800
++++ zlib-1.2.11/wg_gunzip.c	2022-05-09 14:21:48.639678222 -0700
+@@ -0,0 +1,182 @@
++/*!
++ * \brief wrapper to gunzip one file to another.
++ *
++ * Copyright 2011 WatchGuard Technologies Inc. 
++ * For conditions of distribution and use, see copyright notice in zlib.h
++ */
++
++#include <sys/types.h>
++#include <sys/stat.h>
++#include <fcntl.h>
++#include <stdio.h>
++#include <stdlib.h>
++#include <string.h>
++#include <errno.h>
++#include "zlib.h"
++
++/* 2 ** 20 bytes, nothing magic here.  must be smaller than
++ * biggest ssize_t. */
++#define WG_GZ_BUFLEN 1048576
++
++/*!
++ * \func wg_gunzip
++ * \brief Unpack a gzipped input file into an output file.
++ * \param infile    [IN]    path to input file
++ * \param outfile   [IN]    path to output file
++ *
++ * infile = path to input file
++ * outfile = path to output file or NULL for standard output
++ *
++ * Return: 0 = OK, -1 = error
++ * May write error message to standard error
++ */
++
++int wg_gunzip(const char const * infile, const char const *outfile)
++{
++	int ifd = -1;               /* input file descriptor  */
++	int ofd = -1;               /* output file descriptor */
++	void * buffer = NULL;       /* read buffer            */
++	const char * pickup = NULL; /* pickup from buffer     */
++	gzFile input = NULL;        /* input handle           */
++	ssize_t readlen = 0;        /* bytes read             */
++	ssize_t writelen = 0;       /* bytes written or -1    */
++	int result = -1;            /* main() result          */
++	int errnum = 0;             /* error number           */
++	const char * errmsg = NULL; /* error message          */
++
++	if (infile == NULL) {
++		errno = EINVAL;
++		goto outtahere;
++	}
++
++
++	buffer = malloc(WG_GZ_BUFLEN);
++	if (buffer == NULL) {
++		errmsg = strerror(errno);
++		if (errmsg == NULL) errmsg = "(unknown error)";
++		fprintf(stderr, "Error allocating input buffer: %s\n", errmsg);
++		goto outtahere;
++	}
++
++	ifd = open(infile, O_RDONLY);
++	if (ifd == -1) {
++		errmsg = strerror(errno);
++		if (errmsg == NULL) errmsg = "(unknown error)";
++		fprintf(stderr, "Error opening %s: %s\n", infile, errmsg);
++		goto outtahere;
++	}
++
++	if (outfile == NULL) {
++		ofd = fileno(stdout);
++	}
++	else {
++		ofd = open(outfile, O_WRONLY);
++		if (ofd == -1) {
++			errmsg = strerror(errno);
++			if (errmsg == NULL) errmsg = "(unknown error)";
++			fprintf(stderr, "Error opening %s: %s\n", outfile, errmsg);
++			goto outtahere;
++		}
++	}
++
++	input = gzdopen(ifd, "rb");
++	if (input == NULL) {
++		errmsg = gzerror(input, &errnum);
++		if (errnum == Z_ERRNO) {
++			errmsg = strerror(errno);
++		}
++		if (errmsg == NULL) errmsg = "(unknown error)";
++		fprintf(stderr, "gzdopen %s failed: %s\n", infile, errmsg);
++		goto outtahere;
++	}
++
++	for (;;) {
++		readlen = gzread(input, buffer, WG_GZ_BUFLEN);
++		if (readlen == -1) {
++			errmsg = gzerror(input, &errnum);
++			if (errnum == Z_ERRNO) {
++				errmsg = strerror(errno);
++			}
++			if (errmsg == NULL) errmsg = "(unknown error)";
++			fprintf(stderr, "read %s failed: %s\n", infile, errmsg);
++			goto outtahere;
++		}
++		if (readlen == 0) {
++			result = 0;
++			break;
++		}
++		pickup = (const char *)buffer;
++		while (readlen > 0) {
++			writelen = write(ofd, pickup, readlen);
++			if (writelen == -1) {
++				errmsg = strerror(errno);
++				if (errmsg == NULL) errmsg = "(unknown error)";
++				fprintf(stderr, "write %s failed: %s\n", outfile, errmsg);
++				goto outtahere;
++			}
++			readlen -= writelen;
++			pickup += writelen;
++		}
++	}
++
++outtahere:
++
++	if (input != NULL) {
++		gzclose(input); /* also closes ifd */
++	}
++
++	if (ofd != -1 && ofd != fileno(stdout)) {
++		close(ofd);
++	}
++
++	if (buffer != NULL) {
++		free(buffer);
++	}
++
++	return result;
++}
++
++#ifdef WG_TEST_STUB
++
++/*!
++ * \brief Test stub for wg_gunzip().
++ * \param argc    [IN]    Argument count
++ * \param argv    [IN]    Argument vector
++ *
++ * \return 0 on success, <0> otherwise
++ *
++ * Usage: <name> infile [outfile]
++ *
++ * Expects gzipped inputfile which it unpacks to optional
++ * outfile, standard output if not given.
++ *
++ * Compile with -DWG_TEST_STUB to enable this mainline.
++ */
++int main(int argc, char **argv)
++{
++	const char *myname = NULL;
++	int result = -1;
++	const char *infile = NULL;
++	const char *outfile = NULL;
++
++	for (myname = argv[0]; *myname; ++myname) ;
++	for (; myname != argv[0] && *myname != '/'; --myname);
++	++myname;
++
++	if (argc < 2) {
++		fprintf(stderr, "Usage: %s infile [outfile]\n", myname);
++		goto outtahere;
++	}
++
++	infile = argv[1];
++
++	if (argc > 2) {
++		outfile = argv[2];
++	}
++
++	result = wg_gunzip(infile, outfile);
++
++outtahere:
++	return result;
++}
++#endif

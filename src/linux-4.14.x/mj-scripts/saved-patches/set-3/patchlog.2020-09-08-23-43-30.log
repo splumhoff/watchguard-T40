@@ -1,0 +1,251 @@
+1777
+1827
+trying to patch file: patchfile:hello/1777-net-socket-set-sock-sk-to-NULL-after-calling-proto_o.patch
+checking file net/socket.c
+patching file net/socket.c
+patch status: 0
+trying to patch file: patchfile:hello/1778-xen-netback-don-t-populate-the-hash-cache-on-XenBus-.patch
+checking file drivers/net/xen-netback/hash.c
+checking file drivers/net/xen-netback/interface.c
+patching file drivers/net/xen-netback/hash.c
+patching file drivers/net/xen-netback/interface.c
+patch status: 0
+trying to patch file: patchfile:hello/1779-xen-netback-fix-occasional-leak-of-grant-ref-mapping.patch
+checking file drivers/net/xen-netback/netback.c
+patching file drivers/net/xen-netback/netback.c
+patch status: 0
+trying to patch file: patchfile:hello/1780-net-Add-__icmp_send-helper.patch
+checking file include/net/icmp.h
+checking file net/ipv4/icmp.c
+patching file include/net/icmp.h
+patching file net/ipv4/icmp.c
+patch status: 0
+trying to patch file: patchfile:hello/1781-net-avoid-use-IPCB-in-cipso_v4_error.patch
+checking file include/net/ip.h
+Hunk #1 succeeded at 597 (offset 4 lines).
+checking file net/ipv4/cipso_ipv4.c
+checking file net/ipv4/ip_options.c
+patching file include/net/ip.h
+Hunk #1 succeeded at 597 (offset 4 lines).
+patching file net/ipv4/cipso_ipv4.c
+patching file net/ipv4/ip_options.c
+patch status: 0
+trying to patch file: patchfile:hello/1782-ipv4-Return-error-for-RTA_VIA-attribute.patch
+checking file net/ipv4/fib_frontend.c
+patching file net/ipv4/fib_frontend.c
+patch status: 0
+trying to patch file: patchfile:hello/1783-ipv6-Return-error-for-RTA_VIA-attribute.patch
+checking file net/ipv6/route.c
+Hunk #1 succeeded at 3036 (offset 12 lines).
+patching file net/ipv6/route.c
+Hunk #1 succeeded at 3036 (offset 12 lines).
+patch status: 0
+trying to patch file: patchfile:hello/1784-mpls-Return-error-for-RTA_GATEWAY-attribute.patch
+checking file net/mpls/af_mpls.c
+patching file net/mpls/af_mpls.c
+patch status: 0
+trying to patch file: patchfile:hello/1785-tun-fix-blocking-read.patch
+checking file drivers/net/tun.c
+patching file drivers/net/tun.c
+patch status: 0
+trying to patch file: patchfile:hello/1786-tun-remove-unnecessary-memory-barrier.patch
+checking file drivers/net/tun.c
+patching file drivers/net/tun.c
+patch status: 0
+trying to patch file: patchfile:hello/1787-net-phy-Micrel-KSZ8061-link-failure-after-cable-conn.patch
+checking file drivers/net/phy/micrel.c
+patching file drivers/net/phy/micrel.c
+patch status: 0
+trying to patch file: patchfile:hello/1788-net-dsa-mv88e6xxx-Fix-statistics-on-mv88e6161.patch
+checking file drivers/net/dsa/mv88e6xxx/chip.c
+Hunk #1 succeeded at 3097 (offset 528 lines).
+patching file drivers/net/dsa/mv88e6xxx/chip.c
+Hunk #1 succeeded at 3097 (offset 528 lines).
+patch status: 0
+trying to patch file: patchfile:hello/1789-x86-CPU-AMD-Set-the-CPB-bit-unconditionally-on-F17h.patch
+checking file arch/x86/kernel/cpu/amd.c
+patching file arch/x86/kernel/cpu/amd.c
+patch status: 0
+trying to patch file: patchfile:hello/1790-applicom-Fix-potential-Spectre-v1-vulnerabilities.patch
+checking file drivers/char/applicom.c
+patching file drivers/char/applicom.c
+patch status: 0
+trying to patch file: patchfile:hello/1791-MIPS-irq-Allocate-accurate-order-pages-for-irq-stack.patch
+checking file arch/mips/kernel/irq.c
+patching file arch/mips/kernel/irq.c
+patch status: 0
+trying to patch file: patchfile:hello/1792-hugetlbfs-fix-races-and-page-leaks-during-migration.patch
+checking file fs/hugetlbfs/inode.c
+checking file mm/hugetlb.c
+checking file mm/migrate.c
+patching file fs/hugetlbfs/inode.c
+patching file mm/hugetlb.c
+patching file mm/migrate.c
+patch status: 0
+trying to patch file: patchfile:hello/1793-xtensa-fix-get_wchan.patch
+checking file arch/xtensa/kernel/process.c
+patching file arch/xtensa/kernel/process.c
+patch status: 0
+trying to patch file: patchfile:hello/1794-Bluetooth-Fix-locking-in-bt_accept_enqueue-for-BH-co.patch
+checking file include/net/bluetooth/bluetooth.h
+checking file net/bluetooth/af_bluetooth.c
+checking file net/bluetooth/l2cap_sock.c
+checking file net/bluetooth/rfcomm/sock.c
+checking file net/bluetooth/sco.c
+patching file include/net/bluetooth/bluetooth.h
+patching file net/bluetooth/af_bluetooth.c
+patching file net/bluetooth/l2cap_sock.c
+patching file net/bluetooth/rfcomm/sock.c
+patching file net/bluetooth/sco.c
+patch status: 0
+trying to patch file: patchfile:hello/1795-exec-Fix-mem-leak-in-kernel_read_file.patch
+checking file fs/exec.c
+patching file fs/exec.c
+patch status: 0
+trying to patch file: patchfile:hello/1796-scsi-core-reset-host-byte-in-DID_NEXUS_FAILURE-case.patch
+checking file drivers/scsi/scsi_lib.c
+patching file drivers/scsi/scsi_lib.c
+patch status: 0
+trying to patch file: patchfile:hello/1797-media-uvcvideo-Fix-type-check-leading-to-overflow.patch
+checking file drivers/media/usb/uvc/uvc_driver.c
+patching file drivers/media/usb/uvc/uvc_driver.c
+patch status: 0
+trying to patch file: patchfile:hello/1798-vti4-Fix-a-ipip-packet-processing-bug-in-IPCOMP-virt.patch
+checking file net/ipv4/ip_vti.c
+Hunk #1 succeeded at 79 (offset 5 lines).
+Hunk #2 succeeded at 115 with fuzz 2 (offset 6 lines).
+Hunk #3 succeeded at 732 with fuzz 2 (offset 258 lines).
+Hunk #4 succeeded at 906 (offset 258 lines).
+Hunk #5 succeeded at 922 (offset 258 lines).
+patching file net/ipv4/ip_vti.c
+Hunk #1 succeeded at 79 (offset 5 lines).
+Hunk #2 succeeded at 115 with fuzz 2 (offset 6 lines).
+Hunk #3 succeeded at 732 with fuzz 2 (offset 258 lines).
+Hunk #4 succeeded at 906 (offset 258 lines).
+Hunk #5 succeeded at 922 (offset 258 lines).
+patch status: 0
+trying to patch file: patchfile:hello/1799-perf-core-Fix-perf_proc_update_handler-bug.patch
+checking file kernel/events/core.c
+patching file kernel/events/core.c
+patch status: 0
+trying to patch file: patchfile:hello/1800-perf-tools-Handle-TOPOLOGY-headers-with-no-CPU.patch
+checking file tools/perf/util/cpumap.c
+patching file tools/perf/util/cpumap.c
+patch status: 0
+trying to patch file: patchfile:hello/1801-IB-hfi1-qib-Fix-WC.byte_len-calculation-for-UD_SEND_.patch
+checking file drivers/infiniband/hw/hfi1/ud.c
+checking file drivers/infiniband/hw/qib/qib_ud.c
+patching file drivers/infiniband/hw/hfi1/ud.c
+patching file drivers/infiniband/hw/qib/qib_ud.c
+patch status: 0
+trying to patch file: patchfile:hello/1802-iommu-amd-Call-free_iova_fast-with-pfn-in-map_sg.patch
+checking file drivers/iommu/amd_iommu.c
+patching file drivers/iommu/amd_iommu.c
+patch status: 0
+trying to patch file: patchfile:hello/1803-iommu-amd-Unmap-all-mapped-pages-in-error-path-of-ma.patch
+checking file drivers/iommu/amd_iommu.c
+patching file drivers/iommu/amd_iommu.c
+patch status: 0
+trying to patch file: patchfile:hello/1804-ipvs-Fix-signed-integer-overflow-when-setsockopt-tim.patch
+checking file net/netfilter/ipvs/ip_vs_ctl.c
+patching file net/netfilter/ipvs/ip_vs_ctl.c
+patch status: 0
+trying to patch file: patchfile:hello/1805-iommu-amd-Fix-IOMMU-page-flush-when-detach-device-fr.patch
+checking file drivers/iommu/amd_iommu.c
+patching file drivers/iommu/amd_iommu.c
+patch status: 0
+trying to patch file: patchfile:hello/1806-xtensa-SMP-fix-ccount_timer_shutdown.patch
+checking file arch/xtensa/kernel/time.c
+patching file arch/xtensa/kernel/time.c
+patch status: 0
+trying to patch file: patchfile:hello/1807-selftests-cpu-hotplug-fix-case-where-CPUs-offline-CP.patch
+checking file tools/testing/selftests/cpu-hotplug/cpu-on-off-test.sh
+patching file tools/testing/selftests/cpu-hotplug/cpu-on-off-test.sh
+patch status: 0
+trying to patch file: patchfile:hello/1808-xtensa-SMP-fix-secondary-CPU-initialization.patch
+checking file arch/xtensa/kernel/head.S
+checking file arch/xtensa/kernel/smp.c
+patching file arch/xtensa/kernel/head.S
+patching file arch/xtensa/kernel/smp.c
+patch status: 0
+trying to patch file: patchfile:hello/1809-xtensa-smp_lx200_defconfig-fix-vectors-clash.patch
+checking file arch/xtensa/configs/smp_lx200_defconfig
+patching file arch/xtensa/configs/smp_lx200_defconfig
+patch status: 0
+trying to patch file: patchfile:hello/1810-xtensa-SMP-mark-each-possible-CPU-as-present.patch
+checking file arch/xtensa/kernel/smp.c
+patching file arch/xtensa/kernel/smp.c
+patch status: 0
+trying to patch file: patchfile:hello/1811-xtensa-SMP-limit-number-of-possible-CPUs-by-NR_CPUS.patch
+checking file arch/xtensa/kernel/smp.c
+patching file arch/xtensa/kernel/smp.c
+patch status: 0
+trying to patch file: patchfile:hello/1812-net-altera_tse-fix-msgdma_tx_completion-on-non-zero-.patch
+checking file drivers/net/ethernet/altera/altera_msgdma.c
+patching file drivers/net/ethernet/altera/altera_msgdma.c
+patch status: 0
+trying to patch file: patchfile:hello/1813-net-hns-Fix-for-missing-of_node_put-after-of_parse_p.patch
+checking file drivers/net/ethernet/hisilicon/hns/hns_enet.c
+patching file drivers/net/ethernet/hisilicon/hns/hns_enet.c
+patch status: 0
+trying to patch file: patchfile:hello/1814-net-hns-Restart-autoneg-need-return-failed-when-auto.patch
+checking file drivers/net/ethernet/hisilicon/hns/hns_ethtool.c
+patching file drivers/net/ethernet/hisilicon/hns/hns_ethtool.c
+patch status: 0
+trying to patch file: patchfile:hello/1815-net-hns-Fix-wrong-read-accesses-via-Clause-45-MDIO-p.patch
+checking file drivers/net/ethernet/hisilicon/hns_mdio.c
+patching file drivers/net/ethernet/hisilicon/hns_mdio.c
+patch status: 0
+trying to patch file: patchfile:hello/1816-net-stmmac-dwmac-rk-fix-error-handling-in-rk_gmac_po.patch
+checking file drivers/net/ethernet/stmicro/stmmac/dwmac-rk.c
+patching file drivers/net/ethernet/stmicro/stmmac/dwmac-rk.c
+patch status: 0
+trying to patch file: patchfile:hello/1817-netfilter-ebtables-compat-un-break-32bit-setsockopt-.patch
+checking file net/bridge/netfilter/ebtables.c
+patching file net/bridge/netfilter/ebtables.c
+patch status: 0
+trying to patch file: patchfile:hello/1818-gpio-vf610-Mask-all-GPIO-interrupts.patch
+checking file drivers/gpio/gpio-vf610.c
+patching file drivers/gpio/gpio-vf610.c
+patch status: 0
+trying to patch file: patchfile:hello/1819-selftests-timers-use-LDLIBS-instead-of-LDFLAGS.patch
+checking file tools/testing/selftests/timers/Makefile
+patching file tools/testing/selftests/timers/Makefile
+patch status: 0
+trying to patch file: patchfile:hello/1820-nfs-Fix-NULL-pointer-dereference-of-dev_name.patch
+checking file fs/nfs/super.c
+patching file fs/nfs/super.c
+patch status: 0
+trying to patch file: patchfile:hello/1821-qed-Fix-bug-in-tx-promiscuous-mode-settings.patch
+checking file drivers/net/ethernet/qlogic/qed/qed_l2.c
+patching file drivers/net/ethernet/qlogic/qed/qed_l2.c
+patch status: 0
+trying to patch file: patchfile:hello/1822-qed-Fix-LACP-pdu-drops-for-VFs.patch
+checking file drivers/net/ethernet/qlogic/qed/qed_l2.c
+checking file drivers/net/ethernet/qlogic/qed/qed_l2.h
+checking file drivers/net/ethernet/qlogic/qed/qed_sriov.c
+patching file drivers/net/ethernet/qlogic/qed/qed_l2.c
+patching file drivers/net/ethernet/qlogic/qed/qed_l2.h
+patching file drivers/net/ethernet/qlogic/qed/qed_sriov.c
+patch status: 0
+trying to patch file: patchfile:hello/1823-qed-Fix-VF-probe-failure-while-FLR.patch
+checking file drivers/net/ethernet/qlogic/qed/qed_vf.c
+patching file drivers/net/ethernet/qlogic/qed/qed_vf.c
+patch status: 0
+trying to patch file: patchfile:hello/1824-qed-Fix-system-crash-in-ll2-xmit.patch
+checking file drivers/net/ethernet/qlogic/qed/qed_ll2.c
+patching file drivers/net/ethernet/qlogic/qed/qed_ll2.c
+patch status: 0
+trying to patch file: patchfile:hello/1825-qed-Fix-stack-out-of-bounds-bug.patch
+checking file drivers/net/ethernet/qlogic/qed/qed_dev.c
+patching file drivers/net/ethernet/qlogic/qed/qed_dev.c
+patch status: 0
+trying to patch file: patchfile:hello/1826-scsi-libfc-free-skb-when-receiving-invalid-flogi-res.patch
+checking file drivers/scsi/libfc/fc_lport.c
+patching file drivers/scsi/libfc/fc_lport.c
+patch status: 0
+trying to patch file: patchfile:hello/1827-scsi-53c700-pass-correct-dev-to-dma_alloc_attrs.patch
+checking file drivers/scsi/53c700.c
+patching file drivers/scsi/53c700.c
+patch status: 0
+patch end(1827) reached(1827). 				submit these and comeback and proceed: last patched hello/1827-scsi-53c700-pass-correct-dev-to-dma_alloc_attrs.patch

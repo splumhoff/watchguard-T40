@@ -1,0 +1,17 @@
+WatchGuard patches to sources for memtester-4.1.2 as of
+Mon May  9 13:57:55 PDT 2022
+The patches shown here have been applied to source .tar.gz 
+files supplied with the WatchGuard Open Source Archive.
+
+==========================================================================
+--- memtester-4.1.2/memtester.c.orig	2022-05-09 13:57:55.325746481 -0700
++++ memtester-4.1.2/memtester.c	2022-05-09 13:57:55.537737883 -0700
+@@ -198,7 +198,7 @@
+         exit(EXIT_FAIL_NONSTARTER);
+     }
+     if (wantbytes < pagesize) {
+-        fprintf(stderr, "bytes %d < pagesize %d -- memory argument too large?\n",
++        fprintf(stderr, "bytes %zd < pagesize %zd -- memory argument too large?\n",
+                 wantbytes, pagesize);
+         exit(EXIT_FAIL_NONSTARTER);
+     }

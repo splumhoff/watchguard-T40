@@ -1,0 +1,20 @@
+WatchGuard patches to sources for ixgbevf-2.16.4 as of
+Mon May  9 13:54:34 PDT 2022
+The patches shown here have been applied to source .tar.gz 
+files supplied with the WatchGuard Open Source Archive.
+
+==========================================================================
+--- ixgbevf-2.16.4/src/ixgbevf_main.c.orig	2022-05-09 13:54:33.761922738 -0700
++++ ixgbevf-2.16.4/src/ixgbevf_main.c	2022-05-09 13:54:33.829919979 -0700
+@@ -52,6 +52,11 @@
+ 
+ #include "ixgbevf.h"
+ 
++#ifdef	CONFIG_WG_KERNEL_4_14
++#undef	CONFIG_NET_RX_BUSY_POLL
++#undef	HAVE_NDO_GET_STATS64
++#endif
++
+ char ixgbevf_driver_name[] = "ixgbevf";
+ static const char ixgbevf_driver_string[] =
+ 	"Intel(R) 10 Gigabit PCI Express Virtual Function Network Driver";

@@ -1,0 +1,225 @@
+1828
+1878
+trying to patch file: patchfile:hello/1828-platform-x86-Fix-unmet-dependency-warning-for-SAMSUN.patch
+checking file drivers/platform/x86/Kconfig
+patching file drivers/platform/x86/Kconfig
+patch status: 0
+trying to patch file: patchfile:hello/1829-cifs-fix-computation-for-MAX_SMB2_HDR_SIZE.patch
+checking file fs/cifs/smb2pdu.h
+patching file fs/cifs/smb2pdu.h
+patch status: 0
+trying to patch file: patchfile:hello/1830-x86-microcode-amd-Don-t-falsely-trick-the-late-loadi.patch
+checking file arch/x86/kernel/cpu/microcode/amd.c
+patching file arch/x86/kernel/cpu/microcode/amd.c
+patch status: 0
+trying to patch file: patchfile:hello/1831-arm64-kprobe-Always-blacklist-the-KVM-world-switch-c.patch
+checking file arch/arm64/kernel/probes/kprobes.c
+patching file arch/arm64/kernel/probes/kprobes.c
+patch status: 0
+trying to patch file: patchfile:hello/1832-apparmor-Fix-aa_label_build-error-handling-for-faile.patch
+checking file security/apparmor/domain.c
+patching file security/apparmor/domain.c
+patch status: 0
+trying to patch file: patchfile:hello/1833-x86-kexec-Don-t-setup-EFI-info-if-EFI-runtime-is-not.patch
+checking file arch/x86/kernel/kexec-bzimage64.c
+patching file arch/x86/kernel/kexec-bzimage64.c
+patch status: 0
+trying to patch file: patchfile:hello/1834-x86_64-increase-stack-size-for-KASAN_EXTRA.patch
+checking file arch/x86/include/asm/page_64_types.h
+patching file arch/x86/include/asm/page_64_types.h
+patch status: 0
+trying to patch file: patchfile:hello/1835-mm-memory_hotplug-is_mem_section_removable-do-not-pa.patch
+checking file mm/memory_hotplug.c
+patching file mm/memory_hotplug.c
+patch status: 0
+trying to patch file: patchfile:hello/1836-mm-memory_hotplug-test_pages_in_a_zone-do-not-pass-t.patch
+checking file mm/memory_hotplug.c
+patching file mm/memory_hotplug.c
+patch status: 0
+trying to patch file: patchfile:hello/1837-lib-test_kmod.c-potential-double-free-in-error-handl.patch
+checking file lib/test_kmod.c
+patching file lib/test_kmod.c
+patch status: 0
+trying to patch file: patchfile:hello/1838-fs-drop_caches.c-avoid-softlockups-in-drop_pagecache.patch
+checking file fs/drop_caches.c
+Hunk #1 succeeded at 24 (offset 3 lines).
+Hunk #2 succeeded at 38 (offset 3 lines).
+patching file fs/drop_caches.c
+Hunk #1 succeeded at 24 (offset 3 lines).
+Hunk #2 succeeded at 38 (offset 3 lines).
+patch status: 0
+trying to patch file: patchfile:hello/1839-autofs-drop-dentry-reference-only-when-it-is-never-u.patch
+checking file fs/autofs4/expire.c
+patching file fs/autofs4/expire.c
+patch status: 0
+trying to patch file: patchfile:hello/1840-autofs-fix-error-return-in-autofs_fill_super.patch
+checking file fs/autofs4/inode.c
+patching file fs/autofs4/inode.c
+patch status: 0
+trying to patch file: patchfile:hello/1841-ARM-dts-omap4-droid4-Fix-typo-in-cpcap-IRQ-flags.patch
+checking file arch/arm/boot/dts/motorola-cpcap-mapphone.dtsi
+patching file arch/arm/boot/dts/motorola-cpcap-mapphone.dtsi
+patch status: 0
+trying to patch file: patchfile:hello/1842-arm64-dts-renesas-r8a7796-Enable-DMA-for-SCIF2.patch
+checking file arch/arm64/boot/dts/renesas/r8a7796.dtsi
+patching file arch/arm64/boot/dts/renesas/r8a7796.dtsi
+patch status: 0
+trying to patch file: patchfile:hello/1843-soc-fsl-qbman-avoid-race-in-clearing-QMan-interrupt.patch
+checking file drivers/soc/fsl/qbman/qman.c
+Hunk #1 succeeded at 1086 (offset 38 lines).
+patching file drivers/soc/fsl/qbman/qman.c
+Hunk #1 succeeded at 1086 (offset 38 lines).
+patch status: 0
+trying to patch file: patchfile:hello/1844-bpf-sock-recvbuff-must-be-limited-by-rmem_max-in-bpf.patch
+checking file net/core/filter.c
+patching file net/core/filter.c
+patch status: 0
+trying to patch file: patchfile:hello/1845-ARM-pxa-ssp-unneeded-to-free-devm_-allocated-data.patch
+checking file arch/arm/plat-pxa/ssp.c
+patching file arch/arm/plat-pxa/ssp.c
+patch status: 0
+trying to patch file: patchfile:hello/1846-arm64-dts-add-msm8996-compatible-to-gicv3.patch
+checking file arch/arm64/boot/dts/qcom/msm8996.dtsi
+patching file arch/arm64/boot/dts/qcom/msm8996.dtsi
+patch status: 0
+trying to patch file: patchfile:hello/1847-DTS-CI20-Fix-bugs-in-ci20-s-device-tree.patch
+checking file arch/mips/boot/dts/ingenic/ci20.dts
+patching file arch/mips/boot/dts/ingenic/ci20.dts
+patch status: 0
+trying to patch file: patchfile:hello/1848-usb-phy-fix-link-errors.patch
+checking file drivers/usb/phy/Kconfig
+patching file drivers/usb/phy/Kconfig
+patch status: 0
+trying to patch file: patchfile:hello/1849-irqchip-mmp-Only-touch-the-PJ4-IRQ-FIQ-bits-on-enabl.patch
+checking file drivers/irqchip/irq-mmp.c
+patching file drivers/irqchip/irq-mmp.c
+patch status: 0
+trying to patch file: patchfile:hello/1850-net-stmmac-Fallback-to-Platform-Data-clock-in-Watchd.patch
+checking file drivers/net/ethernet/stmicro/stmmac/stmmac_ethtool.c
+checking file include/linux/stmmac.h
+patching file drivers/net/ethernet/stmicro/stmmac/stmmac_ethtool.c
+patching file include/linux/stmmac.h
+patch status: 0
+trying to patch file: patchfile:hello/1851-net-stmmac-Send-TSO-packets-always-from-Queue-0.patch
+checking file drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+patching file drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+patch status: 0
+trying to patch file: patchfile:hello/1852-net-stmmac-Disable-EEE-mode-earlier-in-XMIT-callback.patch
+checking file drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+patching file drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+patch status: 0
+trying to patch file: patchfile:hello/1853-irqchip-gic-v3-its-Fix-ITT_entry_size-accessor.patch
+checking file include/linux/irqchip/arm-gic-v3.h
+patching file include/linux/irqchip/arm-gic-v3.h
+patch status: 0
+trying to patch file: patchfile:hello/1854-relay-check-return-of-create_buf_file-properly.patch
+checking file kernel/relay.c
+patching file kernel/relay.c
+patch status: 0
+trying to patch file: patchfile:hello/1855-bpf-selftests-fix-handling-of-sparse-CPU-allocations.patch
+checking file tools/testing/selftests/bpf/bpf_util.h
+patching file tools/testing/selftests/bpf/bpf_util.h
+patch status: 0
+trying to patch file: patchfile:hello/1856-bpf-fix-lockdep-false-positive-in-percpu_freelist.patch
+checking file kernel/bpf/hashtab.c
+checking file kernel/bpf/percpu_freelist.c
+checking file kernel/bpf/percpu_freelist.h
+patching file kernel/bpf/hashtab.c
+patching file kernel/bpf/percpu_freelist.c
+patching file kernel/bpf/percpu_freelist.h
+patch status: 0
+trying to patch file: patchfile:hello/1857-drm-sun4i-tcon-Prepare-and-enable-TCON-channel-0-clo.patch
+checking file drivers/gpu/drm/sun4i/sun4i_tcon.c
+patching file drivers/gpu/drm/sun4i/sun4i_tcon.c
+patch status: 0
+trying to patch file: patchfile:hello/1858-dmaengine-at_xdmac-Fix-wrongfull-report-of-a-channel.patch
+checking file drivers/dma/at_xdmac.c
+patching file drivers/dma/at_xdmac.c
+patch status: 0
+trying to patch file: patchfile:hello/1859-vsock-virtio-fix-kernel-panic-after-device-hot-unplu.patch
+checking file net/vmw_vsock/virtio_transport.c
+patching file net/vmw_vsock/virtio_transport.c
+patch status: 0
+trying to patch file: patchfile:hello/1860-vsock-virtio-reset-connected-sockets-on-device-remov.patch
+checking file net/vmw_vsock/virtio_transport.c
+patching file net/vmw_vsock/virtio_transport.c
+patch status: 0
+trying to patch file: patchfile:hello/1861-dmaengine-dmatest-Abort-test-in-case-of-mapping-erro.patch
+checking file drivers/dma/dmatest.c
+patching file drivers/dma/dmatest.c
+patch status: 0
+trying to patch file: patchfile:hello/1862-selftests-netfilter-fix-config-fragment-CONFIG_NF_TA.patch
+checking file tools/testing/selftests/netfilter/config
+patching file tools/testing/selftests/netfilter/config
+patch status: 0
+trying to patch file: patchfile:hello/1863-selftests-netfilter-add-simple-masq-redirect-test-ca.patch
+checking file tools/testing/selftests/netfilter/Makefile
+checking file tools/testing/selftests/netfilter/nft_nat.sh
+patching file tools/testing/selftests/netfilter/Makefile
+patching file tools/testing/selftests/netfilter/nft_nat.sh
+patch status: 0
+trying to patch file: patchfile:hello/1864-netfilter-nf_nat-skip-nat-clash-resolution-for-same-.patch
+checking file net/netfilter/nf_conntrack_core.c
+Hunk #1 succeeded at 1124 (offset 255 lines).
+patching file net/netfilter/nf_conntrack_core.c
+Hunk #1 succeeded at 1124 (offset 255 lines).
+patch status: 0
+trying to patch file: patchfile:hello/1865-s390-qeth-fix-use-after-free-in-error-path.patch
+checking file drivers/s390/net/qeth_core_main.c
+patching file drivers/s390/net/qeth_core_main.c
+patch status: 0
+trying to patch file: patchfile:hello/1866-perf-symbols-Filter-out-hidden-symbols-from-labels.patch
+checking file tools/perf/util/symbol-elf.c
+patching file tools/perf/util/symbol-elf.c
+patch status: 0
+trying to patch file: patchfile:hello/1867-perf-trace-Support-multiple-vfs_getname-probes.patch
+checking file tools/perf/builtin-trace.c
+patching file tools/perf/builtin-trace.c
+patch status: 0
+trying to patch file: patchfile:hello/1868-MIPS-Remove-function-size-check-in-get_frame_info.patch
+checking file arch/mips/kernel/process.c
+patching file arch/mips/kernel/process.c
+patch status: 0
+trying to patch file: patchfile:hello/1869-i2c-omap-Use-noirq-system-sleep-pm-ops-to-idle-devic.patch
+checking file drivers/i2c/busses/i2c-omap.c
+patching file drivers/i2c/busses/i2c-omap.c
+patch status: 0
+trying to patch file: patchfile:hello/1870-fs-ratelimit-__find_get_block_slow-failure-message.patch
+checking file fs/buffer.c
+patching file fs/buffer.c
+patch status: 0
+trying to patch file: patchfile:hello/1871-qed-Fix-EQ-full-firmware-assert.patch
+checking file drivers/net/ethernet/qlogic/qed/qed_sp.h
+checking file drivers/net/ethernet/qlogic/qed/qed_spq.c
+patching file drivers/net/ethernet/qlogic/qed/qed_sp.h
+patching file drivers/net/ethernet/qlogic/qed/qed_spq.c
+patch status: 0
+trying to patch file: patchfile:hello/1872-qed-Consider-TX-tcs-while-deriving-the-max-num_queue.patch
+checking file drivers/net/ethernet/qlogic/qed/qed_l2.c
+patching file drivers/net/ethernet/qlogic/qed/qed_l2.c
+patch status: 0
+trying to patch file: patchfile:hello/1873-Input-wacom_serial4-add-support-for-Wacom-ArtPad-II-.patch
+checking file drivers/input/tablet/wacom_serial4.c
+patching file drivers/input/tablet/wacom_serial4.c
+patch status: 0
+trying to patch file: patchfile:hello/1874-Input-elan_i2c-add-id-for-touchpad-found-in-Lenovo-s.patch
+checking file drivers/input/mouse/elan_i2c_core.c
+patching file drivers/input/mouse/elan_i2c_core.c
+patch status: 0
+trying to patch file: patchfile:hello/1875-iscsi_ibft-Fix-missing-break-in-switch-statement.patch
+checking file drivers/firmware/iscsi_ibft.c
+patching file drivers/firmware/iscsi_ibft.c
+patch status: 0
+trying to patch file: patchfile:hello/1876-scsi-aacraid-Fix-missing-break-in-switch-statement.patch
+checking file drivers/scsi/aacraid/commsup.c
+patching file drivers/scsi/aacraid/commsup.c
+patch status: 0
+trying to patch file: patchfile:hello/1877-arm64-dts-hikey-Give-wifi-some-time-after-power-on.patch
+checking file arch/arm64/boot/dts/hisilicon/hi6220-hikey.dts
+patching file arch/arm64/boot/dts/hisilicon/hi6220-hikey.dts
+patch status: 0
+trying to patch file: patchfile:hello/1878-ARM-dts-exynos-Fix-pinctrl-definition-for-eMMC-RTSN-.patch
+checking file arch/arm/boot/dts/exynos4412-odroid-common.dtsi
+patching file arch/arm/boot/dts/exynos4412-odroid-common.dtsi
+patch status: 0
+patch end(1878) reached(1878). 				submit these and comeback and proceed: last patched hello/1878-ARM-dts-exynos-Fix-pinctrl-definition-for-eMMC-RTSN-.patch

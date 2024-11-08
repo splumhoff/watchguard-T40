@@ -1,0 +1,16 @@
+WatchGuard patches to sources for jsonschema-2.6.0 as of
+Mon May  9 13:54:40 PDT 2022
+The patches shown here have been applied to source .tar.gz 
+files supplied with the WatchGuard Open Source Archive.
+
+==========================================================================
+Binary files jsonschema-2.6.0/.eggs/vcversioner-2.16.0.0-py2.7.egg.orig and jsonschema-2.6.0/.eggs/vcversioner-2.16.0.0-py2.7.egg differ
+--- jsonschema-2.6.0/.eggs/README.txt.orig	1969-12-31 16:00:00.000000000 -0800
++++ jsonschema-2.6.0/.eggs/README.txt	2022-05-09 13:54:39.677682747 -0700
+@@ -0,0 +1,6 @@
++This directory contains eggs that were downloaded by setuptools to build, test, and run plug-ins.
++
++This directory caches those eggs to prevent repeated downloads.
++
++However, it is safe to delete this directory.
++

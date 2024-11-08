@@ -1,0 +1,5915 @@
+WatchGuard patches to sources for atf-LSDK-19.09-update-311219-M590 as of
+Mon May  9 13:30:04 PDT 2022
+The patches shown here have been applied to source .tar.gz 
+files supplied with the WatchGuard Open Source Archive.
+
+==========================================================================
+--- atf-LSDK-19.09-update-311219-M590/plat/nxp/soc-lx2160/soc.c.orig	2022-05-09 13:29:57.277931840 -0700
++++ atf-LSDK-19.09-update-311219-M590/plat/nxp/soc-lx2160/soc.c	2022-05-09 13:29:57.725913701 -0700
+@@ -1,5 +1,5 @@
+ /*
+- * Copyright 2018-2019 NXP
++ * Copyright 2018-2020 NXP
+  *
+  * SPDX-License-Identifier: BSD-3-Clause
+  *
+@@ -25,6 +25,7 @@
+ 	SOC_ENTRY(LX2160A, LX2160A, 8, 2),
+ 	SOC_ENTRY(LX2080A, LX2080A, 8, 1),
+ 	SOC_ENTRY(LX2120A, LX2120A, 6, 2),
++	SOC_ENTRY(LX2120A, LX2120A_PX3, 6, 2),
+ };
+ 
+ static const unsigned char master_to_6rn_id_map[] = {
+@@ -92,7 +93,6 @@
+ 			break;
+ 		}
+ 	}
+-
+ 	return num_clusters;
+ }
+ 
+@@ -221,6 +221,9 @@
+ 		bypass_smmu();
+ 	}
+ 
++#ifdef ERRATA_PLAT_A050426
++	erratum_a050426();
++#endif
+ }
+ 
+ /*******************************************************************************
+--- atf-LSDK-19.09-update-311219-M590/plat/nxp/soc-lx2160/soc.def.orig	2022-05-09 13:29:57.277931840 -0700
++++ atf-LSDK-19.09-update-311219-M590/plat/nxp/soc-lx2160/soc.def	2022-05-09 13:29:57.725913701 -0700
+@@ -1,6 +1,6 @@
+ #
+ # Copyright (c) 2015, 2016 Freescale Semiconductor, Inc.
+-# Copyright 2017-2019 NXP Semiconductors
++# Copyright 2017-2020 NXP Semiconductors
+ #
+ # SPDX-License-Identifier: BSD-3-Clause
+ #
+@@ -32,6 +32,7 @@
+ 
+  # Platform ERRATAS to be enabled
+ ERRATA_A72_859971 := 1
++ERRATA_PLAT_A050426 := 1
+ 
+  # Select the DDR PHY generation to be used
+ PLAT_DDR_PHY=phy-gen2
+--- atf-LSDK-19.09-update-311219-M590/plat/nxp/soc-lx2160/lx2160ardb/platform_def.h.orig	2022-05-09 13:29:57.277931840 -0700
++++ atf-LSDK-19.09-update-311219-M590/plat/nxp/soc-lx2160/lx2160ardb/platform_def.h	2022-05-09 13:29:57.725913701 -0700
+@@ -45,7 +45,7 @@
+ #define NXP_CONSOLE_ADDR	NXP_UART_ADDR
+ #define NXP_CONSOLE_BAUDRATE	115200
+ 
+-#define NXP_SPD_EEPROM0		0x51
++#define NXP_SPD_EEPROM0		0x50
+ 
+ #define DDRC_NUM_DIMM		2	
+ #define CONFIG_DDR_ECC_EN
+--- atf-LSDK-19.09-update-311219-M590/plat/nxp/soc-lx2160/lx2160ardb/ddr_init.c.orig	2022-05-09 13:29:57.277931840 -0700
++++ atf-LSDK-19.09-update-311219-M590/plat/nxp/soc-lx2160/lx2160ardb/ddr_init.c	2022-05-09 13:29:57.725913701 -0700
+@@ -59,7 +59,7 @@
+ 	ddr_board_options(priv);
+ 	compute_ddr_phy(priv);
+ 
+-	return ULL(0x400000000);
++	return ULL(0x400000000); //16G
+ }
+ 
+ #elif defined(CONFIG_DDR_NODIMM)
+@@ -162,7 +162,7 @@
+ 
+ long long _init_ddr(void)
+ {
+-	int spd_addr[] = { 0x51, 0x52, 0x53, 0x54 };
++	int spd_addr[] = { NXP_SPD_EEPROM0 };
+ 	struct ddr_info info;
+ 	struct sysinfo sys;
+ 	long long dram_size;
+--- atf-LSDK-19.09-update-311219-M590/plat/nxp/soc-lx2160/include/soc.h.orig	2022-05-09 13:29:57.277931840 -0700
++++ atf-LSDK-19.09-update-311219-M590/plat/nxp/soc-lx2160/include/soc.h	2022-05-09 13:29:57.725913701 -0700
+@@ -68,6 +68,7 @@
+ #define NXP_SNVS_ADDR			0x01E90000
+ #define NXP_SCFG_ADDR			0x01FC0000
+ #define NXP_I2C_ADDR			0x02000000
++#define NXP_I2C_5_ADDR		0x02040000
+ #define NXP_FLEXSPI_ADDR		0x020C0000
+ #define NXP_ESDHC_ADDR			0x02140000
+ #define NXP_ESDHC2_ADDR			0x02150000
+@@ -126,6 +127,7 @@
+ #define SVR_WO_E		0xFFFFFE
+ #define SVR_LX2160A		0x873601
+ #define SVR_LX2120A		0x873621
++#define SVR_LX2120A_PX3	0x873631
+ #define SVR_LX2080A		0x873603
+ 
+ /*
+@@ -139,6 +141,7 @@
+ 
+ /* Errata */
+ #define NXP_ERRATUM_A011396
++#define DDR_PLL_FIX
+ 
+ #define NXP_DDR_PHY_GEN2
+ #define NUM_OF_DDRC				2
+--- atf-LSDK-19.09-update-311219-M590/plat/nxp/drivers/ddr/phy-gen2/csr.h.orig	2022-05-09 13:29:57.241933298 -0700
++++ atf-LSDK-19.09-update-311219-M590/plat/nxp/drivers/ddr/phy-gen2/csr.h	2022-05-09 13:29:57.677915645 -0700
+@@ -1,5 +1,5 @@
+ /*
+- * Copyright 2018-2019 NXP
++ * Copyright 2018-2020 NXP
+  * SPDX-License-Identifier: BSD-3-Clause
+  *
+  * Author York Sun <york.sun@nxp.com>
+@@ -33,6 +33,7 @@
+ #define csr_seq0bdisable_flag7_addr		0x13
+ #define csr_dfi_mode_addr			0x18
+ #define csr_tristate_mode_ca_addr		0x19
++#define csr_dfiphyupd_addr			0x21
+ #define csr_dqs_preamble_control_addr		0x24
+ #define csr_master_x4config_addr		0x25
+ #define csr_enable_cs_multicast_addr		0x27
+@@ -45,6 +46,7 @@
+ #define	csr_dbyte_dll_mode_cntrl_addr		0x3a
+ #define csr_atx_impedance_addr			0x43
+ #define csr_dq_dqs_rcv_cntrl_addr		0x43
++#define csr_cal_offsets_addr			0x45
+ #define csr_tx_impedance_ctrl1_addr		0x49
+ #define csr_dq_dqs_rcv_cntrl1_addr		0x4a
+ #define csr_tx_odt_drv_stren_addr		0x4d
+@@ -61,6 +63,7 @@
+ #define csr_acsm_playback1x0_addr		0x81
+ #define csr_cal_rate_addr			0x88
+ #define csr_cal_zap_addr			0x89
++#define csr_cal_misc2_addr			0x98
+ #define csr_micro_reset_addr			0x99
+ #define csr_dfi_rd_data_cs_dest_map_addr	0xb0
+ #define csr_vref_in_global_addr			0xb2
+@@ -119,6 +122,9 @@
+ #define uct_write_prot_shadow_mask		0x1
+ #define csr_acsm_par_mode_mask			0x4000
+ #define csr_acsm_cke_enb_lsb			0
++#define csr_dfiphyupd_threshold_lsb		8
++#define csr_dfiphyupd_threshold_msb		11
++#define csr_dfiphyupd_threshold_mask		0xf00
+ #define csr_dfi_rd_destm0_lsb			0
+ #define csr_dfi_rd_destm1_lsb			2
+ #define csr_dfi_rd_destm2_lsb			4
+@@ -128,6 +134,11 @@
+ #define csr_dfi_wr_destm2_lsb			4
+ #define csr_dfi_wr_destm3_lsb			6
+ #define csr_acsm_2t_mode_mask 			0x40
++#define csr_cal_misc2_err_dis			13
++#define csr_cal_offset_pdc_lsb			6
++#define csr_cal_offset_pdc_msb			9
++#define csr_cal_offset_pdc_mask			0xe0
++
+ 
+ struct impedance_mapping {
+ 	int ohm;
+--- atf-LSDK-19.09-update-311219-M590/plat/nxp/drivers/ddr/phy-gen2/ddr4fw.h.orig	2022-05-09 13:29:57.241933298 -0700
++++ atf-LSDK-19.09-update-311219-M590/plat/nxp/drivers/ddr/phy-gen2/ddr4fw.h	2022-05-09 13:29:57.677915645 -0700
+@@ -1,5 +1,5 @@
+ /*
+- * Copyright 2018 NXP
++ * Copyright 2019 NXP
+  * SPDX-License-Identifier: BSD-3-Clause
+  *
+  */
+@@ -34,7 +34,9 @@
+ 	uint8_t  phy_cfg;
+ 	uint16_t sequence_ctrl;
+ 	uint8_t  hdt_ctrl;
+-	uint8_t  reserved19[0x22 - 0x19];
++	uint8_t  reserved19[0x1B - 0x19];
++	uint8_t  share2dvref_result;
++	uint8_t  reserved1c[0x22 - 0x1c];
+ 	uint16_t phy_config_override;
+ 	uint8_t  dfimrlmargin;
+ 	int8_t   cdd_rr_3_2;
+--- atf-LSDK-19.09-update-311219-M590/plat/nxp/drivers/ddr/phy-gen2/pie.h.orig	2022-05-09 13:29:57.245933135 -0700
++++ atf-LSDK-19.09-update-311219-M590/plat/nxp/drivers/ddr/phy-gen2/pie.h	2022-05-09 13:29:57.693914997 -0700
+@@ -1,5 +1,5 @@
+ /*
+- * Copyright 2018 NXP
++ * Copyright 2019 NXP
+  * SPDX-License-Identifier: BSD-3-Clause
+  *
+  * Author York Sun <york.sun@nxp.com>
+@@ -14,609 +14,621 @@
+ };
+ 
+ static const struct pie pie_udimm[] = {
+-	{0x090000,0x10},
+-	{0x090001,0x400},
+-	{0x090002,0x10e},
+-	{0x090003,0x0},
+-	{0x090004,0x0},
+-	{0x090005,0x8},
+-	{0x090029,0xb},
+-	{0x09002a,0x480},
+-	{0x09002b,0x109},
+-	{0x09002c,0x8},
+-	{0x09002d,0x448},
+-	{0x09002e,0x139},
+-	{0x09002f,0x8},
+-	{0x090030,0x478},
+-	{0x090031,0x109},
+-	{0x090032,0x2},
+-	{0x090033,0x10},
+-	{0x090034,0x139},
+-	{0x090035,0xb},
+-	{0x090036,0x7c0},
+-	{0x090037,0x139},
+-	{0x090038,0x44},
+-	{0x090039,0x630},
+-	{0x09003a,0x159},
+-	{0x09003b,0x14f},
+-	{0x09003c,0x630},
+-	{0x09003d,0x159},
+-	{0x09003e,0x47},
+-	{0x09003f,0x630},
+-	{0x090040,0x149},
+-	{0x090041,0x4f},
+-	{0x090042,0x630},
+-	{0x090043,0x179},
+-	{0x090044,0x8},
+-	{0x090045,0xe0},
+-	{0x090046,0x109},
+-	{0x090047,0x0},
+-	{0x090048,0x7c8},
+-	{0x090049,0x109},
+-	{0x09004a,0x0},
+-	{0x09004b,0x1},
+-	{0x09004c,0x8},
+-	{0x09004d,0x0},
+-	{0x09004e,0x45a},
+-	{0x09004f,0x9},
+-	{0x090050,0x0},
+-	{0x090051,0x448},
+-	{0x090052,0x109},
+-	{0x090053,0x40},
+-	{0x090054,0x630},
+-	{0x090055,0x179},
+-	{0x090056,0x1},
+-	{0x090057,0x618},
+-	{0x090058,0x109},
+-	{0x090059,0x40c0},
+-	{0x09005a,0x630},
+-	{0x09005b,0x149},
+-	{0x09005c,0x8},
+-	{0x09005d,0x4},
+-	{0x09005e,0x48},
+-	{0x09005f,0x4040},
+-	{0x090060,0x630},
+-	{0x090061,0x149},
+-	{0x090062,0x0},
+-	{0x090063,0x4},
+-	{0x090064,0x48},
+-	{0x090065,0x40},
+-	{0x090066,0x630},
+-	{0x090067,0x149},
+-	{0x090068,0x10},
+-	{0x090069,0x4},
+-	{0x09006a,0x18},
+-	{0x09006b,0x0},
+-	{0x09006c,0x4},
+-	{0x09006d,0x78},
+-	{0x09006e,0x549},
+-	{0x09006f,0x630},
+-	{0x090070,0x159},
+-	{0x090071,0xd49},
+-	{0x090072,0x630},
+-	{0x090073,0x159},
+-	{0x090074,0x94a},
+-	{0x090075,0x630},
+-	{0x090076,0x159},
+-	{0x090077,0x441},
+-	{0x090078,0x630},
+-	{0x090079,0x149},
+-	{0x09007a,0x42},
+-	{0x09007b,0x630},
+-	{0x09007c,0x149},
+-	{0x09007d,0x1},
+-	{0x09007e,0x630},
+-	{0x09007f,0x149},
+-	{0x090080,0x0},
+-	{0x090081,0xe0},
+-	{0x090082,0x109},
+-	{0x090083,0xa},
+-	{0x090084,0x10},
+-	{0x090085,0x109},
+-	{0x090086,0x9},
+-	{0x090087,0x3c0},
+-	{0x090088,0x149},
+-	{0x090089,0x9},
+-	{0x09008a,0x3c0},
+-	{0x09008b,0x159},
+-	{0x09008c,0x18},
+-	{0x09008d,0x10},
+-	{0x09008e,0x109},
+-	{0x09008f,0x0},
+-	{0x090090,0x3c0},
+-	{0x090091,0x109},
+-	{0x090092,0x18},
+-	{0x090093,0x4},
+-	{0x090094,0x48},
+-	{0x090095,0x18},
+-	{0x090096,0x4},
+-	{0x090097,0x58},
+-	{0x090098,0xa},
+-	{0x090099,0x10},
+-	{0x09009a,0x109},
+-	{0x09009b,0x2},
+-	{0x09009c,0x10},
+-	{0x09009d,0x109},
+-	{0x09009e,0x5},
+-	{0x09009f,0x7c0},
+-	{0x0900a0,0x109},
+-	{0x0900a1,0x0},
+-	{0x0900a2,0x8140},
+-	{0x0900a3,0x10c},
+-	{0x0900a4,0x10},
+-	{0x0900a5,0x8138},
+-	{0x0900a6,0x10c},
+-	{0x0900a7,0x8},
+-	{0x0900a8,0x7c8},
+-	{0x0900a9,0x101},
+-	{0x0900aa,0x8},
+-	{0x0900ab,0x0},
+-	{0x0900ac,0x8},
+-	{0x0900ad,0x8},
+-	{0x0900ae,0x448},
+-	{0x0900af,0x109},
+-	{0x0900b0,0xf},
+-	{0x0900b1,0x7c0},
+-	{0x0900b2,0x109},
+-	{0x0900b3,0x47},
+-	{0x0900b4,0x630},
+-	{0x0900b5,0x109},
+-	{0x0900b6,0x8},
+-	{0x0900b7,0x618},
+-	{0x0900b8,0x109},
+-	{0x0900b9,0x8},
+-	{0x0900ba,0xe0},
+-	{0x0900bb,0x109},
+-	{0x0900bc,0x0},
+-	{0x0900bd,0x7c8},
+-	{0x0900be,0x109},
+-	{0x0900bf,0x8},
+-	{0x0900c0,0x8140},
+-	{0x0900c1,0x10c},
+-	{0x0900c2,0x0},
+-	{0x0900c3,0x1},
+-	{0x0900c4,0x8},
+-	{0x0900c5,0x8},
+-	{0x0900c6,0x4},
+-	{0x0900c7,0x8},
+-	{0x0900c8,0x8},
+-	{0x0900c9,0x7c8},
+-	{0x0900ca,0x101},
+-	{0x090006,0x0},
+-	{0x090007,0x0},
+-	{0x090008,0x8},
+-	{0x090009,0x0},
+-	{0x09000a,0x0},
+-	{0x09000b,0x0},
+-	{0x0d00e7,0x400},
+-	{0x090017,0x0},
+-	{0x090026,0x2b},
++	{0x90000,0x10},
++	{0x90001,0x400},
++	{0x90002,0x10e},
++	{0x90003,0x0},
++	{0x90004,0x0},
++	{0x90005,0x8},
++	{0x90029,0xb},
++	{0x9002a,0x480},
++	{0x9002b,0x109},
++	{0x9002c,0x8},
++	{0x9002d,0x448},
++	{0x9002e,0x139},
++	{0x9002f,0x8},
++	{0x90030,0x478},
++	{0x90031,0x109},
++	{0x90032,0x2},
++	{0x90033,0x10},
++	{0x90034,0x139},
++	{0x90035,0xb},
++	{0x90036,0x7c0},
++	{0x90037,0x139},
++	{0x90038,0x44},
++	{0x90039,0x633},
++	{0x9003a,0x159},
++	{0x9003b,0x14f},
++	{0x9003c,0x630},
++	{0x9003d,0x159},
++	{0x9003e,0x47},
++	{0x9003f,0x633},
++	{0x90040,0x149},
++	{0x90041,0x4f},
++	{0x90042,0x633},
++	{0x90043,0x179},
++	{0x90044,0x8},
++	{0x90045,0xe0},
++	{0x90046,0x109},
++	{0x90047,0x0},
++	{0x90048,0x7c8},
++	{0x90049,0x109},
++	{0x9004a,0x0},
++	{0x9004b,0x1},
++	{0x9004c,0x8},
++	{0x9004d,0x0},
++	{0x9004e,0x45a},
++	{0x9004f,0x9},
++	{0x90050,0x0},
++	{0x90051,0x448},
++	{0x90052,0x109},
++	{0x90053,0x40},
++	{0x90054,0x633},
++	{0x90055,0x179},
++	{0x90056,0x1},
++	{0x90057,0x618},
++	{0x90058,0x109},
++	{0x90059,0x40c0},
++	{0x9005a,0x633},
++	{0x9005b,0x149},
++	{0x9005c,0x8},
++	{0x9005d,0x4},
++	{0x9005e,0x48},
++	{0x9005f,0x4040},
++	{0x90060,0x633},
++	{0x90061,0x149},
++	{0x90062,0x0},
++	{0x90063,0x4},
++	{0x90064,0x48},
++	{0x90065,0x40},
++	{0x90066,0x633},
++	{0x90067,0x149},
++	{0x90068,0x10},
++	{0x90069,0x4},
++	{0x9006a,0x18},
++	{0x9006b,0x0},
++	{0x9006c,0x4},
++	{0x9006d,0x78},
++	{0x9006e,0x549},
++	{0x9006f,0x633},
++	{0x90070,0x159},
++	{0x90071,0xd49},
++	{0x90072,0x633},
++	{0x90073,0x159},
++	{0x90074,0x94a},
++	{0x90075,0x633},
++	{0x90076,0x159},
++	{0x90077,0x441},
++	{0x90078,0x633},
++	{0x90079,0x149},
++	{0x9007a,0x42},
++	{0x9007b,0x633},
++	{0x9007c,0x149},
++	{0x9007d,0x1},
++	{0x9007e,0x633},
++	{0x9007f,0x149},
++	{0x90080,0x0},
++	{0x90081,0xe0},
++	{0x90082,0x109},
++	{0x90083,0xa},
++	{0x90084,0x10},
++	{0x90085,0x109},
++	{0x90086,0x9},
++	{0x90087,0x3c0},
++	{0x90088,0x149},
++	{0x90089,0x9},
++	{0x9008a,0x3c0},
++	{0x9008b,0x159},
++	{0x9008c,0x18},
++	{0x9008d,0x10},
++	{0x9008e,0x109},
++	{0x9008f,0x0},
++	{0x90090,0x3c0},
++	{0x90091,0x109},
++	{0x90092,0x18},
++	{0x90093,0x4},
++	{0x90094,0x48},
++	{0x90095,0x18},
++	{0x90096,0x4},
++	{0x90097,0x58},
++	{0x90098,0xb},
++	{0x90099,0x10},
++	{0x9009a,0x109},
++	{0x9009b,0x1},
++	{0x9009c,0x10},
++	{0x9009d,0x109},
++	{0x9009e,0x5},
++	{0x9009f,0x7c0},
++	{0x900a0,0x109},
++	{0x900a1,0x0},
++	{0x900a2,0x8140},
++	{0x900a3,0x10c},
++	{0x900a4,0x10},
++	{0x900a5,0x8138},
++	{0x900a6,0x10c},
++	{0x900a7,0x8},
++	{0x900a8,0x7c8},
++	{0x900a9,0x101},
++	{0x900aa,0x8},
++	{0x900ab,0x448},
++	{0x900ac,0x109},
++	{0x900ad,0xf},
++	{0x900ae,0x7c0},
++	{0x900af,0x109},
++	{0x900b0,0x47},
++	{0x900b1,0x630},
++	{0x900b2,0x109},
++	{0x900b3,0x8},
++	{0x900b4,0x618},
++	{0x900b5,0x109},
++	{0x900b6,0x8},
++	{0x900b7,0xe0},
++	{0x900b8,0x109},
++	{0x900b9,0x0},
++	{0x900ba,0x7c8},
++	{0x900bb,0x109},
++	{0x900bc,0x8},
++	{0x900bd,0x8140},
++	{0x900be,0x10c},
++	{0x900bf,0x0},
++	{0x900c0,0x478},
++	{0x900c1,0x109},
++	{0x900c2,0x0},
++	{0x900c3,0x1},
++	{0x900c4,0x8},
++	{0x900c5,0x8},
++	{0x900c6,0x4},
++	{0x900c7,0x8},
++	{0x900c8,0x8},
++	{0x900c9,0x7c8},
++	{0x900ca,0x101},
++	{0x90006,0x0},
++	{0x90007,0x0},
++	{0x90008,0x8},
++	{0x90009,0x0},
++	{0x9000a,0x0},
++	{0x9000b,0x0},
++	{0xd00e7,0x400},
++	{0x90017,0x0},
++	{0x90026,0x2b},
+ };
+ 
+ static const struct pie pie_rdimm[] = {
+-	{0x90000, 0x10},
+-	{0x90001, 0x400},
+-	{0x90002, 0x10e},
+-	{0x90003, 0x0},
+-	{0x90004, 0x0},
+-	{0x90005, 0x8},
+-	{0x40000, 0x10},
+-	{0x40020, 0x0},
+-	{0x40040, 0x0},
+-	{0x40060, 0x0},
+-	{0x40001, 0x70a},
+-	{0x40021, 0x7005},
+-	{0x40041, 0x0},
+-	{0x40061, 0x2001},
+-	{0x40002, 0x4010},
+-	{0x40022, 0x0},
+-	{0x40042, 0x0},
+-	{0x40062, 0x0},
+-	{0x90029, 0x10},
+-	{0x9002a, 0x400},
+-	{0x9002b, 0x16e},
+-	{0x9002c, 0x8},
+-	{0x9002d, 0x370},
+-	{0x9002e, 0x169},
+-	{0x9002f, 0x8},
+-	{0x90030, 0x7aa},
+-	{0x90031, 0x6a},
+-	{0x90032, 0x10},
+-	{0x90033, 0x7b2},
+-	{0x90034, 0x6a},
+-	{0x90035, 0x0},
+-	{0x90036, 0x48a},
+-	{0x90037, 0x6a},
+-	{0x90038, 0x9},
+-	{0x90039, 0x480},
+-	{0x9003a, 0x16a},
+-	{0x9003b, 0x4},
+-	{0x9003c, 0x790},
+-	{0x9003d, 0x16a},
+-	{0x9003e, 0xc},
+-	{0x9003f, 0x408},
+-	{0x90040, 0x169},
+-	{0x90041, 0xa},
+-	{0x90042, 0x0},
+-	{0x90043, 0x68},
+-	{0x90044, 0x0},
+-	{0x90045, 0x408},
+-	{0x90046, 0x169},
+-	{0x90047, 0x1},
+-	{0x90048, 0x480},
+-	{0x90049, 0x16a},
+-	{0x9004a, 0xb},
+-	{0x9004b, 0x480},
+-	{0x9004c, 0x109},
+-	{0x9004d, 0x8},
+-	{0x9004e, 0x448},
+-	{0x9004f, 0x139},
+-	{0x90050, 0x78},
+-	{0x90051, 0x8},
+-	{0x90052, 0x139},
+-	{0x90053, 0x2},
+-	{0x90054, 0x10},
+-	{0x90055, 0x139},
+-	{0x90056, 0xb},
+-	{0x90057, 0x7c0},
+-	{0x90058, 0x139},
+-	{0x90059, 0x44},
+-	{0x9005a, 0x630},
+-	{0x9005b, 0x159},
+-	{0x9005c, 0x14f},
+-	{0x9005d, 0x630},
+-	{0x9005e, 0x159},
+-	{0x9005f, 0x47},
+-	{0x90060, 0x630},
+-	{0x90061, 0x149},
+-	{0x90062, 0x4f},
+-	{0x90063, 0x630},
+-	{0x90064, 0x179},
+-	{0x90065, 0x8},
+-	{0x90066, 0xe0},
+-	{0x90067, 0x109},
+-	{0x90068, 0x0},
+-	{0x90069, 0x7c8},
+-	{0x9006a, 0x109},
+-	{0x9006b, 0x0},
+-	{0x9006c, 0x1},
+-	{0x9006d, 0x8},
+-	{0x9006e, 0x0},
+-	{0x9006f, 0x45a},
+-	{0x90070, 0x9},
+-	{0x90071, 0x0},
+-	{0x90072, 0x448},
+-	{0x90073, 0x109},
+-	{0x90074, 0x40},
+-	{0x90075, 0x630},
+-	{0x90076, 0x179},
+-	{0x90077, 0x1},
+-	{0x90078, 0x618},
+-	{0x90079, 0x109},
+-	{0x9007a, 0x40c0},
+-	{0x9007b, 0x630},
+-	{0x9007c, 0x149},
+-	{0x9007d, 0x8},
+-	{0x9007e, 0x4},
+-	{0x9007f, 0x48},
+-	{0x90080, 0x4040},
+-	{0x90081, 0x630},
+-	{0x90082, 0x149},
+-	{0x90083, 0x0},
+-	{0x90084, 0x4},
+-	{0x90085, 0x48},
+-	{0x90086, 0x40},
+-	{0x90087, 0x630},
+-	{0x90088, 0x149},
+-	{0x90089, 0x10},
+-	{0x9008a, 0x4},
+-	{0x9008b, 0x18},
+-	{0x9008c, 0x0},
+-	{0x9008d, 0x4},
+-	{0x9008e, 0x78},
+-	{0x9008f, 0x549},
+-	{0x90090, 0x630},
+-	{0x90091, 0x159},
+-	{0x90092, 0xd49},
+-	{0x90093, 0x630},
+-	{0x90094, 0x159},
+-	{0x90095, 0x94a},
+-	{0x90096, 0x630},
+-	{0x90097, 0x159},
+-	{0x90098, 0x441},
+-	{0x90099, 0x630},
+-	{0x9009a, 0x149},
+-	{0x9009b, 0x42},
+-	{0x9009c, 0x630},
+-	{0x9009d, 0x149},
+-	{0x9009e, 0x1},
+-	{0x9009f, 0x630},
+-	{0x900a0, 0x149},
+-	{0x900a1, 0x0},
+-	{0x900a2, 0xe0},
+-	{0x900a3, 0x109},
+-	{0x900a4, 0xa},
+-	{0x900a5, 0x10},
+-	{0x900a6, 0x109},
+-	{0x900a7, 0x9},
+-	{0x900a8, 0x3c0},
+-	{0x900a9, 0x149},
+-	{0x900aa, 0x9},
+-	{0x900ab, 0x3c0},
+-	{0x900ac, 0x159},
+-	{0x900ad, 0x18},
+-	{0x900ae, 0x10},
+-	{0x900af, 0x109},
+-	{0x900b0, 0x0},
+-	{0x900b1, 0x3c0},
+-	{0x900b2, 0x109},
+-	{0x900b3, 0x18},
+-	{0x900b4, 0x4},
+-	{0x900b5, 0x48},
+-	{0x900b6, 0x18},
+-	{0x900b7, 0x4},
+-	{0x900b8, 0x58},
+-	{0x900b9, 0xa},
+-	{0x900ba, 0x10},
+-	{0x900bb, 0x109},
+-	{0x900bc, 0x2},
+-	{0x900bd, 0x10},
+-	{0x900be, 0x109},
+-	{0x900bf, 0x5},
+-	{0x900c0, 0x7c0},
+-	{0x900c1, 0x109},
+-	{0x900c2, 0x3},
+-	{0x900c3, 0x370},
+-	{0x900c4, 0x169},
+-	{0x900c5, 0x3},
+-	{0x900c6, 0x8},
+-	{0x900c7, 0x139},
+-	{0x900c8, 0x0},
+-	{0x900c9, 0x400},
+-	{0x900ca, 0x16e},
+-	{0x900cb, 0x8},
+-	{0x900cc, 0x478},
+-	{0x900cd, 0x109},
+-	{0x900ce, 0x0},
+-	{0x900cf, 0x8140},
+-	{0x900d0, 0x10c},
+-	{0x900d1, 0x10},
+-	{0x900d2, 0x8138},
+-	{0x900d3, 0x10c},
+-	{0x900d4, 0x8},
+-	{0x900d5, 0x7c8},
+-	{0x900d6, 0x101},
+-	{0x900d7, 0x8},
+-	{0x900d8, 0x0},
+-	{0x900d9, 0x8},
+-	{0x900da, 0x8},
+-	{0x900db, 0x448},
+-	{0x900dc, 0x109},
+-	{0x900dd, 0xf},
+-	{0x900de, 0x7c0},
+-	{0x900df, 0x109},
+-	{0x900e0, 0x47},
+-	{0x900e1, 0x630},
+-	{0x900e2, 0x109},
+-	{0x900e3, 0x8},
+-	{0x900e4, 0x618},
+-	{0x900e5, 0x109},
+-	{0x900e6, 0x8},
+-	{0x900e7, 0xe0},
+-	{0x900e8, 0x109},
+-	{0x900e9, 0x0},
+-	{0x900ea, 0x7c8},
+-	{0x900eb, 0x109},
+-	{0x900ec, 0x8},
+-	{0x900ed, 0x8140},
+-	{0x900ee, 0x10c},
+-	{0x900ef, 0x0},
+-	{0x900f0, 0x1},
+-	{0x900f1, 0x8},
+-	{0x900f2, 0x8},
+-	{0x900f3, 0x4},
+-	{0x900f4, 0x8},
+-	{0x900f5, 0x8},
+-	{0x900f6, 0x7c8},
+-	{0x900f7, 0x101},
+-	{0x90006, 0x0},
+-	{0x90007, 0x0},
+-	{0x90008, 0x8},
+-	{0x90009, 0x0},
+-	{0x9000a, 0x0},
+-	{0x9000b, 0x0},
+-	{0xd00e7, 0x400},
+-	{0x90017, 0x0},
+-	{0x90026, 0x3a},
++	{0x90000,0x10},
++	{0x90001,0x400},
++	{0x90002,0x10e},
++	{0x90003,0x0},
++	{0x90004,0x0},
++	{0x90005,0x8},
++	{0x40000,0x10},
++	{0x40020,0x0},
++	{0x40040,0x0},
++	{0x40060,0x0},
++	{0x40001,0x70a},
++	{0x40021,0x7005},
++	{0x40041,0x0},
++	{0x40061,0x2001},
++	{0x40002,0x4010},
++	{0x40022,0x0},
++	{0x40042,0x0},
++	{0x40062,0x0},
++	{0x90029,0x10},
++	{0x9002a,0x400},
++	{0x9002b,0x16e},
++	{0x9002c,0x8},
++	{0x9002d,0x370},
++	{0x9002e,0x169},
++	{0x9002f,0x8},
++	{0x90030,0x7aa},
++	{0x90031,0x6a},
++	{0x90032,0x10},
++	{0x90033,0x7b2},
++	{0x90034,0x6a},
++	{0x90035,0x0},
++	{0x90036,0x48a},
++	{0x90037,0x6a},
++	{0x90038,0x9},
++	{0x90039,0x480},
++	{0x9003a,0x16a},
++	{0x9003b,0x4},
++	{0x9003c,0x790},
++	{0x9003d,0x16a},
++	{0x9003e,0xc},
++	{0x9003f,0x408},
++	{0x90040,0x169},
++	{0x90041,0xa},
++	{0x90042,0x0},
++	{0x90043,0x68},
++	{0x90044,0x0},
++	{0x90045,0x408},
++	{0x90046,0x169},
++	{0x90047,0x1},
++	{0x90048,0x480},
++	{0x90049,0x16a},
++	{0x9004a,0xb},
++	{0x9004b,0x480},
++	{0x9004c,0x109},
++	{0x9004d,0x8},
++	{0x9004e,0x448},
++	{0x9004f,0x139},
++	{0x90050,0x78},
++	{0x90051,0x8},
++	{0x90052,0x139},
++	{0x90053,0x2},
++	{0x90054,0x10},
++	{0x90055,0x139},
++	{0x90056,0xb},
++	{0x90057,0x7c0},
++	{0x90058,0x139},
++	{0x90059,0x44},
++	{0x9005a,0x633},
++	{0x9005b,0x159},
++	{0x9005c,0x14f},
++	{0x9005d,0x630},
++	{0x9005e,0x159},
++	{0x9005f,0x47},
++	{0x90060,0x633},
++	{0x90061,0x149},
++	{0x90062,0x4f},
++	{0x90063,0x633},
++	{0x90064,0x179},
++	{0x90065,0x8},
++	{0x90066,0xe0},
++	{0x90067,0x109},
++	{0x90068,0x0},
++	{0x90069,0x7c8},
++	{0x9006a,0x109},
++	{0x9006b,0x0},
++	{0x9006c,0x1},
++	{0x9006d,0x8},
++	{0x9006e,0x0},
++	{0x9006f,0x45a},
++	{0x90070,0x9},
++	{0x90071,0x0},
++	{0x90072,0x448},
++	{0x90073,0x109},
++	{0x90074,0x40},
++	{0x90075,0x633},
++	{0x90076,0x179},
++	{0x90077,0x1},
++	{0x90078,0x618},
++	{0x90079,0x109},
++	{0x9007a,0x40c0},
++	{0x9007b,0x633},
++	{0x9007c,0x149},
++	{0x9007d,0x8},
++	{0x9007e,0x4},
++	{0x9007f,0x48},
++	{0x90080,0x4040},
++	{0x90081,0x633},
++	{0x90082,0x149},
++	{0x90083,0x0},
++	{0x90084,0x4},
++	{0x90085,0x48},
++	{0x90086,0x40},
++	{0x90087,0x633},
++	{0x90088,0x149},
++	{0x90089,0x10},
++	{0x9008a,0x4},
++	{0x9008b,0x18},
++	{0x9008c,0x0},
++	{0x9008d,0x4},
++	{0x9008e,0x78},
++	{0x9008f,0x549},
++	{0x90090,0x633},
++	{0x90091,0x159},
++	{0x90092,0xd49},
++	{0x90093,0x633},
++	{0x90094,0x159},
++	{0x90095,0x94a},
++	{0x90096,0x633},
++	{0x90097,0x159},
++	{0x90098,0x441},
++	{0x90099,0x633},
++	{0x9009a,0x149},
++	{0x9009b,0x42},
++	{0x9009c,0x633},
++	{0x9009d,0x149},
++	{0x9009e,0x1},
++	{0x9009f,0x633},
++	{0x900a0,0x149},
++	{0x900a1,0x0},
++	{0x900a2,0xe0},
++	{0x900a3,0x109},
++	{0x900a4,0xa},
++	{0x900a5,0x10},
++	{0x900a6,0x109},
++	{0x900a7,0x9},
++	{0x900a8,0x3c0},
++	{0x900a9,0x149},
++	{0x900aa,0x9},
++	{0x900ab,0x3c0},
++	{0x900ac,0x159},
++	{0x900ad,0x18},
++	{0x900ae,0x10},
++	{0x900af,0x109},
++	{0x900b0,0x0},
++	{0x900b1,0x3c0},
++	{0x900b2,0x109},
++	{0x900b3,0x18},
++	{0x900b4,0x4},
++	{0x900b5,0x48},
++	{0x900b6,0x18},
++	{0x900b7,0x4},
++	{0x900b8,0x58},
++	{0x900b9,0xb},
++	{0x900ba,0x10},
++	{0x900bb,0x109},
++	{0x900bc,0x1},
++	{0x900bd,0x10},
++	{0x900be,0x109},
++	{0x900bf,0x5},
++	{0x900c0,0x7c0},
++	{0x900c1,0x109},
++	{0x900c2,0x3},
++	{0x900c3,0x370},
++	{0x900c4,0x169},
++	{0x900c5,0x3},
++	{0x900c6,0x8},
++	{0x900c7,0x139},
++	{0x900c8,0x0},
++	{0x900c9,0x400},
++	{0x900ca,0x16e},
++	{0x900cb,0x8},
++	{0x900cc,0x478},
++	{0x900cd,0x109},
++	{0x900ce,0x0},
++	{0x900cf,0x8140},
++	{0x900d0,0x10c},
++	{0x900d1,0x10},
++	{0x900d2,0x8138},
++	{0x900d3,0x10c},
++	{0x900d4,0x8},
++	{0x900d5,0x7c8},
++	{0x900d6,0x101},
++	{0x900d7,0x7a},
++	{0x900d8,0x8},
++	{0x900d9,0x109},
++	{0x900da,0x8},
++	{0x900db,0x448},
++	{0x900dc,0x109},
++	{0x900dd,0xf},
++	{0x900de,0x7c0},
++	{0x900df,0x109},
++	{0x900e0,0x47},
++	{0x900e1,0x630},
++	{0x900e2,0x109},
++	{0x900e3,0x8},
++	{0x900e4,0x618},
++	{0x900e5,0x109},
++	{0x900e6,0x8},
++	{0x900e7,0xe0},
++	{0x900e8,0x109},
++	{0x900e9,0x0},
++	{0x900ea,0x8},
++	{0x900eb,0x109},
++	{0x900ec,0x0},
++	{0x900ed,0x7c8},
++	{0x900ee,0x109},
++	{0x900ef,0x8},
++	{0x900f0,0x8140},
++	{0x900f1,0x10c},
++	{0x900f2,0x0},
++	{0x900f3,0x478},
++	{0x900f4,0x109},
++	{0x900f5,0x0},
++	{0x900f6,0x1},
++	{0x900f7,0x8},
++	{0x900f8,0x8},
++	{0x900f9,0x4},
++	{0x900fa,0x8},
++	{0x900fb,0x8},
++	{0x900fc,0x7c8},
++	{0x900fd,0x101},
++	{0x90006,0x0},
++	{0x90007,0x0},
++	{0x90008,0x8},
++	{0x90009,0x0},
++	{0x9000a,0x0},
++	{0x9000b,0x0},
++	{0xd00e7,0x400},
++	{0x90017,0x0},
++	{0x90026,0x3a},
+ };
+ 
+ static const struct pie pie_lrdimm[] = {
+-	{0x90000, 0x10},
+-	{0x90001, 0x400},
+-	{0x90002, 0x10e},
+-	{0x90003, 0x0},
+-	{0x90004, 0x0},
+-	{0x90005, 0x8},
+-	{0x90029, 0xb},
+-	{0x9002a, 0x480},
+-	{0x9002b, 0x109},
+-	{0x9002c, 0x8},
+-	{0x9002d, 0x448},
+-	{0x9002e, 0x139},
+-	{0x9002f, 0x78},
+-	{0x90030, 0x8},
+-	{0x90031, 0x139},
+-	{0x90032, 0x2},
+-	{0x90033, 0x10},
+-	{0x90034, 0x139},
+-	{0x90035, 0xf},
+-	{0x90036, 0x7c0},
+-	{0x90037, 0x139},
+-	{0x90038, 0x44},
+-	{0x90039, 0x630},
+-	{0x9003a, 0x159},
+-	{0x9003b, 0x14f},
+-	{0x9003c, 0x630},
+-	{0x9003d, 0x159},
+-	{0x9003e, 0x47},
+-	{0x9003f, 0x630},
+-	{0x90040, 0x149},
+-	{0x90041, 0x4f},
+-	{0x90042, 0x630},
+-	{0x90043, 0x179},
+-	{0x90044, 0x8},
+-	{0x90045, 0xe0},
+-	{0x90046, 0x109},
+-	{0x90047, 0x0},
+-	{0x90048, 0x7c8},
+-	{0x90049, 0x109},
+-	{0x9004a, 0x0},
+-	{0x9004b, 0x1},
+-	{0x9004c, 0x8},
+-	{0x9004d, 0x0},
+-	{0x9004e, 0x45a},
+-	{0x9004f, 0x9},
+-	{0x90050, 0x0},
+-	{0x90051, 0x448},
+-	{0x90052, 0x109},
+-	{0x90053, 0x40},
+-	{0x90054, 0x630},
+-	{0x90055, 0x179},
+-	{0x90056, 0x1},
+-	{0x90057, 0x618},
+-	{0x90058, 0x109},
+-	{0x90059, 0x40c0},
+-	{0x9005a, 0x630},
+-	{0x9005b, 0x149},
+-	{0x9005c, 0x8},
+-	{0x9005d, 0x4},
+-	{0x9005e, 0x48},
+-	{0x9005f, 0x4040},
+-	{0x90060, 0x630},
+-	{0x90061, 0x149},
+-	{0x90062, 0x0},
+-	{0x90063, 0x4},
+-	{0x90064, 0x48},
+-	{0x90065, 0x40},
+-	{0x90066, 0x630},
+-	{0x90067, 0x149},
+-	{0x90068, 0x10},
+-	{0x90069, 0x4},
+-	{0x9006a, 0x18},
+-	{0x9006b, 0x0},
+-	{0x9006c, 0x4},
+-	{0x9006d, 0x78},
+-	{0x9006e, 0x549},
+-	{0x9006f, 0x630},
+-	{0x90070, 0x159},
+-	{0x90071, 0xd49},
+-	{0x90072, 0x630},
+-	{0x90073, 0x159},
+-	{0x90074, 0x94a},
+-	{0x90075, 0x630},
+-	{0x90076, 0x159},
+-	{0x90077, 0x441},
+-	{0x90078, 0x630},
+-	{0x90079, 0x149},
+-	{0x9007a, 0x42},
+-	{0x9007b, 0x630},
+-	{0x9007c, 0x149},
+-	{0x9007d, 0x1},
+-	{0x9007e, 0x630},
+-	{0x9007f, 0x149},
+-	{0x90080, 0x0},
+-	{0x90081, 0xe0},
+-	{0x90082, 0x109},
+-	{0x90083, 0xa},
+-	{0x90084, 0x10},
+-	{0x90085, 0x109},
+-	{0x90086, 0x9},
+-	{0x90087, 0x3c0},
+-	{0x90088, 0x149},
+-	{0x90089, 0x9},
+-	{0x9008a, 0x3c0},
+-	{0x9008b, 0x159},
+-	{0x9008c, 0x18},
+-	{0x9008d, 0x10},
+-	{0x9008e, 0x109},
+-	{0x9008f, 0x0},
+-	{0x90090, 0x3c0},
+-	{0x90091, 0x109},
+-	{0x90092, 0x18},
+-	{0x90093, 0x4},
+-	{0x90094, 0x48},
+-	{0x90095, 0x18},
+-	{0x90096, 0x4},
+-	{0x90097, 0x58},
+-	{0x90098, 0xa},
+-	{0x90099, 0x10},
+-	{0x9009a, 0x109},
+-	{0x9009b, 0x2},
+-	{0x9009c, 0x10},
+-	{0x9009d, 0x109},
+-	{0x9009e, 0x7},
+-	{0x9009f, 0x7c0},
+-	{0x900a0, 0x109},
+-	{0x900a1, 0x10},
+-	{0x900a2, 0x10},
+-	{0x900a3, 0x109},
+-	{0x900a4, 0x0},
+-	{0x900a5, 0x8140},
+-	{0x900a6, 0x10c},
+-	{0x900a7, 0x10},
+-	{0x900a8, 0x8138},
+-	{0x900a9, 0x10c},
+-	{0x900aa, 0x7},
+-	{0x900ab, 0x8},
+-	{0x900ac, 0x139},
+-	{0x900ad, 0x8},
+-	{0x900ae, 0x478},
+-	{0x900af, 0x109},
+-	{0x900b0, 0x8},
+-	{0x900b1, 0x7c8},
+-	{0x900b2, 0x101},
+-	{0x900b3, 0x8},
+-	{0x900b4, 0x0},
+-	{0x900b5, 0x8},
+-	{0x900b6, 0x8},
+-	{0x900b7, 0x448},
+-	{0x900b8, 0x109},
+-	{0x900b9, 0xf},
+-	{0x900ba, 0x7c0},
+-	{0x900bb, 0x109},
+-	{0x900bc, 0x47},
+-	{0x900bd, 0x630},
+-	{0x900be, 0x109},
+-	{0x900bf, 0x8},
+-	{0x900c0, 0x618},
+-	{0x900c1, 0x109},
+-	{0x900c2, 0x8},
+-	{0x900c3, 0xe0},
+-	{0x900c4, 0x109},
+-	{0x900c5, 0x0},
+-	{0x900c6, 0x7c8},
+-	{0x900c7, 0x109},
+-	{0x900c8, 0x8},
+-	{0x900c9, 0x8140},
+-	{0x900ca, 0x10c},
+-	{0x900cb, 0x0},
+-	{0x900cc, 0x1},
+-	{0x900cd, 0x8},
+-	{0x900ce, 0x8},
+-	{0x900cf, 0x4},
+-	{0x900d0, 0x8},
+-	{0x900d1, 0x8},
+-	{0x900d2, 0x7c8},
+-	{0x900d3, 0x101},
+-	{0x90006, 0x0},
+-	{0x90007, 0x0},
+-	{0x90008, 0x8},
+-	{0x90009, 0x0},
+-	{0x9000a, 0x0},
+-	{0x9000b, 0x0},
+-	{0xd00e7, 0x400},
+-	{0x90017, 0x0},
+-	{0x90026, 0x2e},
++	{0x90000,0x10},
++	{0x90001,0x400},
++	{0x90002,0x10e},
++	{0x90003,0x0},
++	{0x90004,0x0},
++	{0x90005,0x8},
++	{0x90029,0xb},
++	{0x9002a,0x480},
++	{0x9002b,0x109},
++	{0x9002c,0x8},
++	{0x9002d,0x448},
++	{0x9002e,0x139},
++	{0x9002f,0x78},
++	{0x90030,0x8},
++	{0x90031,0x139},
++	{0x90032,0x2},
++	{0x90033,0x10},
++	{0x90034,0x139},
++	{0x90035,0xb},
++	{0x90036,0x7c0},
++	{0x90037,0x139},
++	{0x90038,0x44},
++	{0x90039,0x633},
++	{0x9003a,0x159},
++	{0x9003b,0x14f},
++	{0x9003c,0x630},
++	{0x9003d,0x159},
++	{0x9003e,0x47},
++	{0x9003f,0x633},
++	{0x90040,0x149},
++	{0x90041,0x4f},
++	{0x90042,0x633},
++	{0x90043,0x179},
++	{0x90044,0x8},
++	{0x90045,0xe0},
++	{0x90046,0x109},
++	{0x90047,0x0},
++	{0x90048,0x7c8},
++	{0x90049,0x109},
++	{0x9004a,0x0},
++	{0x9004b,0x1},
++	{0x9004c,0x8},
++	{0x9004d,0x0},
++	{0x9004e,0x45a},
++	{0x9004f,0x9},
++	{0x90050,0x0},
++	{0x90051,0x448},
++	{0x90052,0x109},
++	{0x90053,0x40},
++	{0x90054,0x633},
++	{0x90055,0x179},
++	{0x90056,0x1},
++	{0x90057,0x618},
++	{0x90058,0x109},
++	{0x90059,0x40c0},
++	{0x9005a,0x633},
++	{0x9005b,0x149},
++	{0x9005c,0x8},
++	{0x9005d,0x4},
++	{0x9005e,0x48},
++	{0x9005f,0x4040},
++	{0x90060,0x633},
++	{0x90061,0x149},
++	{0x90062,0x0},
++	{0x90063,0x4},
++	{0x90064,0x48},
++	{0x90065,0x40},
++	{0x90066,0x633},
++	{0x90067,0x149},
++	{0x90068,0x10},
++	{0x90069,0x4},
++	{0x9006a,0x18},
++	{0x9006b,0x0},
++	{0x9006c,0x4},
++	{0x9006d,0x78},
++	{0x9006e,0x549},
++	{0x9006f,0x633},
++	{0x90070,0x159},
++	{0x90071,0xd49},
++	{0x90072,0x633},
++	{0x90073,0x159},
++	{0x90074,0x94a},
++	{0x90075,0x633},
++	{0x90076,0x159},
++	{0x90077,0x441},
++	{0x90078,0x633},
++	{0x90079,0x149},
++	{0x9007a,0x42},
++	{0x9007b,0x633},
++	{0x9007c,0x149},
++	{0x9007d,0x1},
++	{0x9007e,0x633},
++	{0x9007f,0x149},
++	{0x90080,0x0},
++	{0x90081,0xe0},
++	{0x90082,0x109},
++	{0x90083,0xa},
++	{0x90084,0x10},
++	{0x90085,0x109},
++	{0x90086,0x9},
++	{0x90087,0x3c0},
++	{0x90088,0x149},
++	{0x90089,0x9},
++	{0x9008a,0x3c0},
++	{0x9008b,0x159},
++	{0x9008c,0x18},
++	{0x9008d,0x10},
++	{0x9008e,0x109},
++	{0x9008f,0x0},
++	{0x90090,0x3c0},
++	{0x90091,0x109},
++	{0x90092,0x18},
++	{0x90093,0x4},
++	{0x90094,0x48},
++	{0x90095,0x18},
++	{0x90096,0x4},
++	{0x90097,0x58},
++	{0x90098,0xb},
++	{0x90099,0x10},
++	{0x9009a,0x109},
++	{0x9009b,0x1},
++	{0x9009c,0x10},
++	{0x9009d,0x109},
++	{0x9009e,0x5},
++	{0x9009f,0x7c0},
++	{0x900a0,0x109},
++	{0x900a1,0x3},
++	{0x900a2,0x8},
++	{0x900a3,0x139},
++	{0x900a4,0x0},
++	{0x900a5,0x400},
++	{0x900a6,0x16e},
++	{0x900a7,0x8},
++	{0x900a8,0x478},
++	{0x900a9,0x109},
++	{0x900aa,0x0},
++	{0x900ab,0x8140},
++	{0x900ac,0x10c},
++	{0x900ad,0x10},
++	{0x900ae,0x8138},
++	{0x900af,0x10c},
++	{0x900b0,0x8},
++	{0x900b1,0x7c8},
++	{0x900b2,0x101},
++	{0x900b3,0x7a},
++	{0x900b4,0x8},
++	{0x900b5,0x109},
++	{0x900b6,0x8},
++	{0x900b7,0x448},
++	{0x900b8,0x109},
++	{0x900b9,0xf},
++	{0x900ba,0x7c0},
++	{0x900bb,0x109},
++	{0x900bc,0x47},
++	{0x900bd,0x630},
++	{0x900be,0x109},
++	{0x900bf,0x8},
++	{0x900c0,0x618},
++	{0x900c1,0x109},
++	{0x900c2,0x8},
++	{0x900c3,0xe0},
++	{0x900c4,0x109},
++	{0x900c5,0x0},
++	{0x900c6,0x8},
++	{0x900c7,0x109},
++	{0x900c8,0x0},
++	{0x900c9,0x7c8},
++	{0x900ca,0x109},
++	{0x900cb,0x8},
++	{0x900cc,0x8140},
++	{0x900cd,0x10c},
++	{0x900ce,0x0},
++	{0x900cf,0x478},
++	{0x900d0,0x109},
++	{0x900d1,0x0},
++	{0x900d2,0x1},
++	{0x900d3,0x8},
++	{0x900d4,0x8},
++	{0x900d5,0x4},
++	{0x900d6,0x8},
++	{0x900d7,0x8},
++	{0x900d8,0x7c8},
++	{0x900d9,0x101},
++	{0x90006,0x0},
++	{0x90007,0x0},
++	{0x90008,0x8},
++	{0x90009,0x0},
++	{0x9000a,0x0},
++	{0x9000b,0x0},
++	{0xd00e7,0x400},
++	{0x90017,0x0},
++	{0x90026,0x2e},
+ };
+ 
+ #endif
+--- atf-LSDK-19.09-update-311219-M590/plat/nxp/drivers/ddr/phy-gen2/input.h.orig	2022-05-09 13:29:57.245933135 -0700
++++ atf-LSDK-19.09-update-311219-M590/plat/nxp/drivers/ddr/phy-gen2/input.h	2022-05-09 13:29:57.685915321 -0700
+@@ -1,5 +1,5 @@
+ /*
+- * Copyright 2018 NXP
++ * Copyright 2019 NXP
+  * SPDX-License-Identifier: BSD-3-Clause
+  *
+  * Author York Sun <york.sun@nxp.com>
+@@ -13,6 +13,7 @@
+ 	DDR3,
+ 	LPDDR4,
+ 	LPDDR3,
++	LPDDR2,
+ 	DDR5,
+ };
+ 
+@@ -83,6 +84,9 @@
+ 	int tx_slew_fall_dq;
+ 	int tx_slew_rise_ac;
+ 	int tx_slew_fall_ac;
++	int enable_high_clk_skew_fix;
++	int disable_unused_addr_lns;
++	int phy_init_sequence_num;
+ 	int cs_mode;		/* rdimm */
+ 	int cast_cs_to_cid;	/* rdimm */
+ };
+--- atf-LSDK-19.09-update-311219-M590/plat/nxp/drivers/ddr/phy-gen2/phy.c.orig	2022-05-09 13:29:57.245933135 -0700
++++ atf-LSDK-19.09-update-311219-M590/plat/nxp/drivers/ddr/phy-gen2/phy.c	2022-05-09 13:29:57.693914997 -0700
+@@ -1,5 +1,5 @@
+ /*
+- * Copyright 2018-2019 NXP
++ * Copyright 2018-2020 NXP
+  * SPDX-License-Identifier: BSD-3-Clause
+  *
+  * Author York Sun <york.sun@nxp.com>
+@@ -25,6 +25,9 @@
+ #include "input.h"
+ #include "pie.h"
+ 
++#ifdef DDR_PHY_DEBUG
++#include "messages.h"
++#endif
+ 
+ #define TIMEOUTDEFAULT 500
+ #define MAP_PHY_ADDR(pstate, n, instance, offset, c) \
+@@ -63,6 +66,11 @@
+ 	}
+ }
+ 
++static inline uint8_t get_board_rev(void)
++{
++	return (((*(volatile uint32_t*)(NXP_DCFG_ADDR + DCFG_SVR_OFFSET)) >> 4) & 0x3);
++}
++
+ static inline uint16_t *phy_io_addr(void *phy, uint32_t addr)
+ {
+ 	return phy + (map_phy_addr_space(addr) << 2);
+@@ -72,7 +80,7 @@
+ {
+ 	out_le16(phy_io_addr(phy, addr), data);
+ #ifdef DEBUG_PHY_IO
+-	printf("0x%x (%p) -> 0x%x\n", addr, phy_io_addr(phy, addr), data);
++	printf("0x%06x,0x%x\n", addr, data);
+ #endif
+ }
+ 
+@@ -81,7 +89,7 @@
+ 	uint16_t reg = in_le16(phy_io_addr(phy, addr));
+ 
+ #ifdef DEBUG_PHY_IO
+-	printf("R: 0x%x (%p) -> 0x%x\n", addr, phy_io_addr(phy, addr), reg);
++	printf("R: 0x%06x,0x%x\n", addr, reg);
+ #endif
+ 
+ 	return reg;
+@@ -188,13 +196,27 @@
+ 	int ps_count[4];
+ 	int frq;
+ 	uint32_t addr;
++	uint8_t board_rev;
++	int lower_freq_opt = 0;
+ 
+ 	frq = input->basic.frequency >> 1;
+-
+-	ps_count[0] = 0x520; /* seq0bdly0 */
+-	ps_count[1] = 0xa41; /* seq0bdly1 */
+-	ps_count[2] = 0x668a; /* seq0bdly2 */
+-
++	ps_count[0] = frq >> 3; /* 0.5 * frq / 4*/
++	if (input->basic.frequency < 400)
++		lower_freq_opt = (input->basic.dimm_type == RDIMM) ? 7 : 3;
++	else if (input->basic.frequency < 533)
++		lower_freq_opt = (input->basic.dimm_type == RDIMM) ? 14 : 11;
++
++	ps_count[1] = (frq >> 2) - lower_freq_opt; /* 1.0 * frq / 4 - lower_freq */
++	ps_count[2] = (frq << 1) +  (frq >> 1); /* 10.0 * frq / 4 */
++
++#ifdef  DDR_PLL_FIX
++	board_rev = get_board_rev();
++	if(board_rev == 1) {
++		ps_count[0] = 0x520; /* seq0bdly0 */
++		ps_count[1] = 0xa41; /* seq0bdly1 */
++		ps_count[2] = 0x668a; /* seq0bdly2 */
++	}
++#endif
+ 	if (frq > 266)
+ 		ps_count[3] = 44;
+ 	else if (frq > 200)
+@@ -347,12 +369,22 @@
+ 		return -EINVAL;
+ 	}
+ 	msg_blk->pstate			= 0;
++
++	/*Enable quickRd2D, a substage of read deskew, to 1D training.*/
++	msg_blk->reserved00		= 0x20;
++
++	/*Enable High-Effort WrDQ1D.*/
++	msg_blk->reserved00             |= 0x40;
+ 	if (input->basic.dimm_type == LRDIMM)
+ 		msg_blk->sequence_ctrl	= 0x3f1f;
+ 	else
+ 		msg_blk->sequence_ctrl	= 0x031f;
+ 	msg_blk->phy_config_override	= 0;
++#ifdef DDR_PHY_DEBUG
++	msg_blk->hdt_ctrl		= 0x5;
++#else
+ 	msg_blk->hdt_ctrl		= 0xc9;
++#endif
+ 	msg_blk->msg_misc		= 0x0;
+ 	msg_blk->dfimrlmargin		= 0x1;
+ 	msg_blk->phy_vref		= input->vref ? input->vref : 0x61;
+@@ -361,6 +393,7 @@
+ 	msg_blk->cs_present_d1		= input->cs_d1;
+ 	if (input->mirror)
+ 		msg_blk->addr_mirror	= 0x0a;	/* odd CS are mirrored */
++	msg_blk->share2dvref_result	= 1;
+ 
+ 	msg_blk->acsm_odt_ctrl0		= input->odt[0];
+ 	msg_blk->acsm_odt_ctrl1		= input->odt[1];
+@@ -368,7 +401,6 @@
+ 	msg_blk->acsm_odt_ctrl3		= input->odt[3];
+ 	msg_blk->enabled_dqs = (input->basic.num_active_dbyte_dfi0 +
+ 				input->basic.num_active_dbyte_dfi1) * 8;
+-	msg_blk->phy_cfg		= input->adv.is2ttiming;
+ 	msg_blk->x16present		= input->basic.dram_data_width == 0x10 ?
+ 					  msg_blk->cs_present : 0;
+ 	msg_blk->d4misc			= 0x1;
+@@ -472,6 +504,8 @@
+ 	/* below is different for 1D and 2D message block */
+ 	if (input->basic.train2d) {
+ 		memcpy(msg_blk_2d, msg_blk, sizeof(struct ddr4u1d));
++		/*High-Effort WrDQ1D is applicable to 2D traning also*/
++		msg_blk_2d->reserved00		|= 0x40;
+ 		msg_blk_2d->sequence_ctrl	= 0x0061;
+ 		msg_blk_2d->rx2d_train_opt	= 1;
+ 		msg_blk_2d->tx2d_train_opt	= 1;
+@@ -483,6 +517,9 @@
+ 				msg_blk_2d->tx2d_train_opt);
+ 	}
+ 
++	msg_blk->phy_cfg = ((msg_blk->mr3 & 0x8) || (msg_blk_2d->mr3 & 0x8)) ? 0
++				: input->adv.is2ttiming;
++
+ 	return 0;
+ }
+ 
+@@ -524,7 +561,10 @@
+ 	atx_pre_n = input->adv.tx_slew_fall_ac;
+ 	atx_pre_p = input->adv.tx_slew_rise_ac;
+ 
+-	if (input->basic.num_anib == 10 || input->basic.num_anib == 12 ||
++	if (input->basic.num_anib == 8) {
++		ck_anib_inst[0] = 1;
++		ck_anib_inst[1] = 1;
++	} else if (input->basic.num_anib == 10 || input->basic.num_anib == 12 ||
+ 	    input->basic.num_anib == 13) {
+ 		ck_anib_inst[0] = 4;
+ 		ck_anib_inst[1] = 5;
+@@ -564,6 +604,7 @@
+ 					 const struct input *input,
+ 					 const struct ddr4lr1d *msg)
+ {
++	const struct ddr4lr1d *msg_blk;
+ 	uint16_t dfi_xxdestm0 = 0;
+ 	uint16_t dfi_xxdestm1 = 0;
+ 	uint16_t dfi_xxdestm2 = 0;
+@@ -571,6 +612,7 @@
+ 	uint16_t dfi_rd_data_cs_dest_map;
+ 	uint16_t dfi_wr_data_cs_dest_map;
+ 
++
+ #ifdef NXP_ERRATUM_A011396
+ 	/* Only apply to DDRC 5.05.00 */
+ 	if (ip_rev == 0x50500) {
+@@ -579,26 +621,47 @@
+ 	}
+ #endif
+ 
+-	if (input->basic.dimm_type != LRDIMM)
+-		return;
++	msg_blk = msg;
+ 
+-	if (msg->cs_present_d1) {
+-		dfi_xxdestm2 = 1;
+-		dfi_xxdestm3 = 1;
+-	}
+-
+-	dfi_rd_data_cs_dest_map = dfi_xxdestm0 << csr_dfi_rd_destm0_lsb	|
+-			     dfi_xxdestm1 << csr_dfi_rd_destm1_lsb	|
+-			     dfi_xxdestm2 << csr_dfi_rd_destm2_lsb	|
+-			     dfi_xxdestm3 << csr_dfi_rd_destm3_lsb;
+-	dfi_wr_data_cs_dest_map = dfi_xxdestm0 << csr_dfi_wr_destm0_lsb	|
+-			     dfi_xxdestm1 << csr_dfi_wr_destm1_lsb	|
+-			     dfi_xxdestm2 << csr_dfi_wr_destm2_lsb	|
+-			     dfi_xxdestm3 << csr_dfi_wr_destm3_lsb;
+-	phy_io_write16(phy, t_master | csr_dfi_rd_data_cs_dest_map_addr,
+-		       dfi_rd_data_cs_dest_map);
+-	phy_io_write16(phy, t_master | csr_dfi_wr_data_cs_dest_map_addr,
+-		       dfi_wr_data_cs_dest_map);
++	switch (input->basic.dimm_type) {
++	case UDIMM:
++	case SODIMM:
++	case NODIMM:
++		if ((msg_blk->msg_misc & 0x40) != 0) {
++			dfi_rd_data_cs_dest_map = 0xa0;
++			dfi_wr_data_cs_dest_map = 0xa0;
++
++			phy_io_write16(phy,
++				t_master | csr_dfi_rd_data_cs_dest_map_addr,
++				dfi_rd_data_cs_dest_map);
++			phy_io_write16(phy,
++				t_master | csr_dfi_wr_data_cs_dest_map_addr,
++				dfi_wr_data_cs_dest_map);
++		}
++		break;
++	case LRDIMM:
++		if (msg->cs_present_d1) {
++			dfi_xxdestm2 = 1;
++			dfi_xxdestm3 = 1;
++		}
++
++		dfi_rd_data_cs_dest_map = dfi_xxdestm0 << csr_dfi_rd_destm0_lsb	|
++			dfi_xxdestm1 << csr_dfi_rd_destm1_lsb	|
++			dfi_xxdestm2 << csr_dfi_rd_destm2_lsb	|
++			dfi_xxdestm3 << csr_dfi_rd_destm3_lsb;
++		dfi_wr_data_cs_dest_map = dfi_xxdestm0 << csr_dfi_wr_destm0_lsb	|
++			dfi_xxdestm1 << csr_dfi_wr_destm1_lsb	|
++			dfi_xxdestm2 << csr_dfi_wr_destm2_lsb	|
++			dfi_xxdestm3 << csr_dfi_wr_destm3_lsb;
++		phy_io_write16(phy, t_master | csr_dfi_rd_data_cs_dest_map_addr,
++				dfi_rd_data_cs_dest_map);
++		phy_io_write16(phy, t_master | csr_dfi_wr_data_cs_dest_map_addr,
++				dfi_wr_data_cs_dest_map);
++
++		break;
++	default:
++		break;
++	}
+ }
+ 
+ static void prog_pll_ctrl(uint16_t *phy,
+@@ -1241,6 +1304,39 @@
+ 	phy_io_write16(phy, addr, dmipin_present);
+ }
+ 
++static void prog_dfi_phyupd(uint16_t *phy,
++			  const struct input *input)
++{
++	int dfiphyupd_dat;
++	uint32_t addr;
++
++	addr = t_master | (csr_dfiphyupd_addr);
++	dfiphyupd_dat = phy_io_read16(phy, addr) &
++				~csr_dfiphyupd_threshold_mask;
++
++	phy_io_write16(phy, addr, dfiphyupd_dat);
++}
++
++static void prog_cal_misc2(uint16_t *phy,
++			  const struct input *input)
++{
++	int cal_misc2_dat, cal_offsets_dat;
++	uint32_t addr;
++
++	addr = t_master | (csr_cal_misc2_addr);
++	cal_misc2_dat = phy_io_read16(phy, addr) |
++			(1 << csr_cal_misc2_err_dis);
++
++	phy_io_write16(phy, addr, cal_misc2_dat);
++
++
++	addr = t_master | (csr_cal_offsets_addr);
++	cal_offsets_dat = (phy_io_read16(phy, addr) & csr_cal_offset_pdc_mask)
++			| 0x9;
++
++	phy_io_write16(phy, addr, cal_offsets_dat);
++}
++
+ static int c_init_phy_config(uint16_t **phy_ptr,
+ 			     unsigned int ip_rev,
+ 			     const struct input *input,
+@@ -1248,6 +1344,7 @@
+ {
+ 	int i;
+ 	uint16_t *phy;
++	uint8_t board_rev;
+ 
+ 	for (i = 0; i < NUM_OF_DDRC; i++) {
+ 		phy = phy_ptr[i];
+@@ -1261,7 +1358,16 @@
+ 		prog_dfi_rd_data_cs_dest_map(phy, ip_rev, input, msg);
+ 		prog_pll_ctrl(phy, input);
+ 		prog_pll_ctrl2(phy, input);
+-		prog_pll_pwr_dn(phy, input);
++#ifdef  DDR_PLL_FIX
++		board_rev = get_board_rev();
++		debug("board_rev = %x\n", board_rev);
++		if (board_rev == 1) {
++			prog_pll_pwr_dn(phy, input);
++
++			/*Enable FFE aka TxEqualizationMode for rev1 SI*/
++			phy_io_write16(phy, 0x010048, 0x1);
++		}
++#endif
+ 		prog_ard_ptr_init_val(phy, input);
+ 		prog_dqs_preamble_control(phy, input);
+ 		prog_proc_odt_time_ctl(phy, input);
+@@ -1282,6 +1388,8 @@
+ 		prog_dbyte_misc_mode(phy, input, msg);
+ 		prog_master_x4config(phy, input);
+ 		prog_dmipin_present(phy, input, msg);
++		prog_dfi_phyupd(phy, input);
++		prog_cal_misc2(phy, input);
+ 	}
+ 
+ 	return 0;
+@@ -1328,21 +1436,59 @@
+ 	return mail;
+ }
+ 
+-static void decode_stream_message(uint16_t *phy)
++#ifdef DDR_PHY_DEBUG
++static const char * lookup_msg(uint32_t index, int train2d)
+ {
+-	uint32_t index;
+-	uint32_t args[12] __unused;
+-	int i, j;
++	int i;
++	int size;
++	const struct phy_msg *messages;
++	const char *ptr = NULL;
++
++	if (train2d) {
++		messages = messages_2d;
++		size = ARRAY_SIZE(messages_2d);
++	} else {
++		messages = messages_1d;
++		size = ARRAY_SIZE(messages_1d);
++	}
++	for (i = 0; i < size; i++) {
++		if (messages[i].index == index) {
++			ptr = messages[i].msg;
++			break;
++		}
++	}
+ 
++	return ptr;
++}
++#endif
++
++#define MAX_ARGS 32
++static void decode_stream_message(uint16_t *phy, int train2d)
++{
++	uint32_t index __unused;
++	__unused const char *format;
++	__unused uint32_t args[MAX_ARGS];
++	__unused int i;
++
++#ifdef DDR_PHY_DEBUG
+ 	index = get_mail(phy, 1);
+-	if ((index & 0xffff) > 12)	/* up to 12 args so far */
++	if ((index & 0xffff) > MAX_ARGS)	/* up to MAX_ARGS args so far */
+ 		printf("Program error in %s\n", __func__);
+-	for (i = 0; i < (index & 0xffff) && i < 12; i++)
++	for (i = 0; i < (index & 0xffff) && i < MAX_ARGS; i++)
+ 		args[i] = get_mail(phy, 1);
+-	debug("0x%08x:\t", index);
+-	for (j = 0; j < i; j++)
+-		debug("0x%x\t", args[j]);
+-	debug("\n");
++
++	format = lookup_msg(index, train2d);
++	if (format) {
++		printf("0x%08x: ", index);
++		printf(format, args[0], args[1], args[2], args[3], args[4],
++		       args[5], args[6], args[7], args[8], args[9], args[10],
++		       args[11], args[12], args[13], args[14], args[15],
++		       args[16], args[17], args[18], args[19], args[20],
++		       args[21], args[22], args[23], args[24], args[25],
++		       args[26], args[27], args[28], args[29], args[30],
++		       args[31]);
++	}
++#endif
+ }
+ 
+ static int wait_fw_done(uint16_t *phy, int train2d)
+@@ -1387,7 +1533,7 @@
+ 			mail = 0;
+ 			break;
+ 		case 0x8:
+-			decode_stream_message(phy);
++			decode_stream_message(phy, train2d);
+ 			mail = 0;
+ 			break;
+ 		case 0x9:
+@@ -1663,7 +1809,7 @@
+ 
+ int compute_ddr_phy(struct ddr_info *priv)
+ {
+-	const unsigned int clk = priv->clk;
++	const unsigned long clk = priv->clk;
+ 	const struct memctl_opt *popts = &priv->opt;
+ 	const struct ddr_conf *conf = &priv->conf;
+ 	const struct dimm_params *dimm_param = &priv->dimm;
+@@ -1691,14 +1837,14 @@
+ 	input.basic.num_dbyte = dimm_param->primary_sdram_width / 8 +
+ 				 dimm_param->ec_sdram_width / 8;
+ 	input.basic.num_active_dbyte_dfi0 = input.basic.num_dbyte;
+-	input.basic.num_rank_dfi0 = dimm_param->n_ranks;
++	input.basic.num_rank_dfi0 = dimm_param->n_ranks + 1;
+ 	input.basic.dram_data_width = dimm_param->device_width;
+-	input.basic.hard_macro_ver	= 3;
++	input.basic.hard_macro_ver	= 0xa;
+ 	input.basic.num_pstates	= 1;
+ 	input.basic.dfi_freq_ratio	= 1;
+ 	input.basic.num_anib		= 0xc;
+ 	input.basic.train2d		= popts->skip2d ? 0 : 1;
+-	input.basic.frequency = (clk + 1000000) / 2000000;
++	input.basic.frequency = (int) (clk / 2000000ul);
+ 	debug("frequency = %dMHz\n", input.basic.frequency);
+ 	input.cs_d0 = conf->cs_on_dimm[0];
+ #if DDRC_NUM_DIMM > 1
+--- atf-LSDK-19.09-update-311219-M590/plat/nxp/drivers/ddr/nxp-ddr/ddr.h.orig	2022-05-09 13:29:57.221934108 -0700
++++ atf-LSDK-19.09-update-311219-M590/plat/nxp/drivers/ddr/nxp-ddr/ddr.h	2022-05-09 13:29:57.661916292 -0700
+@@ -6,6 +6,7 @@
+  * Author York Sun <york.sun@nxp.com>
+  */
+ 
++#define DDR_DEBUG
+ #ifndef __DDR_H__
+ #define __DDR_H__
+ 
+--- atf-LSDK-19.09-update-311219-M590/plat/nxp/drivers/ddr/nxp-ddr/ddr.mk.orig	2022-05-09 13:29:57.221934108 -0700
++++ atf-LSDK-19.09-update-311219-M590/plat/nxp/drivers/ddr/nxp-ddr/ddr.mk	2022-05-09 13:29:57.661916292 -0700
+@@ -20,3 +20,11 @@
+ ifeq ($(DDR_DEBUG), yes)
+ $(eval $(call add_define, DDR_DEBUG))
+ endif
++
++ifeq ($(DDR_PHY_DEBUG), yes)
++$(eval $(call add_define, DDR_PHY_DEBUG))
++endif
++
++ifeq ($(DEBUG_PHY_IO), yes)
++$(eval $(call add_define, DEBUG_PHY_IO))
++endif
+--- atf-LSDK-19.09-update-311219-M590/plat/nxp/drivers/ddr/nxp-ddr/ddr.c.orig	2022-05-09 13:29:57.221934108 -0700
++++ atf-LSDK-19.09-update-311219-M590/plat/nxp/drivers/ddr/nxp-ddr/ddr.c	2022-05-09 13:29:57.661916292 -0700
+@@ -249,6 +249,10 @@
+ 		return DDR_BA_INTLV_CS0123;
+ 	case 0x3:
+ 		return DDR_BA_INTLV_CS01;
++	case 0x1:
++		return DDR_BA_NONE;
++	case 0x5:
++		return DDR_BA_NONE;
+ 	default:
+ 		break;
+ 	}
+@@ -834,7 +838,7 @@
+ 	priv->ip_rev = ip_rev;
+ 
+ #ifndef CONFIG_STATIC_DDR
+-	INFO("time base %lu ms\n", time_base);
++	NOTICE("time base %lu ms\n", time_base);
+ 	debug("Parse DIMM SPD(s)\n");
+ 	valid_spd_mask = parse_spd(priv);
+ 	if (valid_spd_mask < 0) {
+--- atf-LSDK-19.09-update-311219-M590/plat/nxp/drivers/ddr/nxp-ddr/regs.c.orig	2022-05-09 13:29:57.225933945 -0700
++++ atf-LSDK-19.09-update-311219-M590/plat/nxp/drivers/ddr/nxp-ddr/regs.c	2022-05-09 13:29:57.661916292 -0700
+@@ -925,6 +925,9 @@
+ 	case DDR_BA_INTLV_CS0123:
+ 		cs = 2;
+ 		break;
++	case DDR_BA_NONE:
++		cs = 0;
++		break;
+ 	default:
+ 		ERROR("%s ba_intlv 0x%x\n", __func__, ba_intlv);
+ 		return;
+@@ -966,6 +969,8 @@
+ 		map_cs[0] = placement++;
+ 		if (cs == 2)
+ 			map_cs[1] = placement++;
++	} else {
++		map_cs[0] = 0x3F;
+ 	}
+ 	for (i = 0; i < row_bits; i++)
+ 		map_row[i] = placement++;
+--- atf-LSDK-19.09-update-311219-M590/plat/nxp/drivers/sd/sd_mmc.c.orig	2022-05-09 13:29:57.253932812 -0700
++++ atf-LSDK-19.09-update-311219-M590/plat/nxp/drivers/sd/sd_mmc.c	2022-05-09 13:29:57.705914511 -0700
+@@ -1,6 +1,6 @@
+ /*
+  * Copyright (c) 2015, 2016 Freescale Semiconductor, Inc.
+- * Copyright 2017-2019 NXP
++ * Copyright 2017-2020 NXP
+  *
+  * SPDX-License-Identifier: BSD-3-Clause
+  *
+@@ -89,7 +89,9 @@
+ /***************************************************************************
+  * Function    :    esdhc_init
+  * Arguments   :    mmc - Pointer to mmc struct
+- *                  src_emmc - flag indicating if SRC is eMMC or not
++ *                  card_detect - flag to indicate if card insert needs
++ *                  to be detected or not. For SDHC2 controller, Card detect
++ *                  is not present, so this field will be false
+  * Return      :    SUCCESS or Error Code
+  * Description :    1. Set Initial Clock Speed
+  *                  2. Card Detect if not eMMC
+@@ -97,7 +99,7 @@
+  *                  4. Send 80 ticks for card to power up
+  *                  5. Set LE mode and Bus Width as 1 bit.
+  ***************************************************************************/
+-static int esdhc_init(struct mmc *mmc)
++static int esdhc_init(struct mmc *mmc, bool card_detect)
+ {
+ 	uint32_t val;
+ 	uint64_t start_time;
+@@ -124,11 +126,13 @@
+ 	/* Set initial clock speed */
+ 	set_speed(mmc, CARD_IDENTIFICATION_FREQ);
+ 
+-	/* Check CINS in prsstat register */
+-	val = esdhc_in32(&mmc->esdhc_regs->prsstat) & ESDHC_PRSSTAT_CINS;
+-	if (!val) {
+-		ERROR("CINS not set in prsstat\n");
+-		return ERROR_ESDHC_CARD_DETECT_FAIL;
++	if (card_detect) {
++		/* Check CINS in prsstat register */
++		val = esdhc_in32(&mmc->esdhc_regs->prsstat) & ESDHC_PRSSTAT_CINS;
++		if (!val) {
++			ERROR("CINS not set in prsstat\n");
++			return ERROR_ESDHC_CARD_DETECT_FAIL;
++		}
+ 	}
+ 
+ 	/* Enable controller clock */
+@@ -1064,12 +1068,12 @@
+  * Return      :    SUCCESS or Error Code (< 0)
+  * Description :    Base Function called from sd_mmc_init or emmc_init
+  ***************************************************************************/
+-int esdhc_emmc_init(struct mmc *mmc)
++int esdhc_emmc_init(struct mmc *mmc, bool card_detect)
+ {
+ 	int error = 0;
+ 	int ret = 0;
+ 
+-	error = esdhc_init(mmc);
++	error = esdhc_init(mmc, card_detect);
+ 	if (error)
+ 		return error;
+ 
+@@ -1147,6 +1151,7 @@
+ {
+ 	struct mmc *mmc = NULL;
+ 	int ret;
++	bool card_detect = true;
+ 
+ 	mmc = &mmc_drv_data;
+ 	memset(mmc, 0, sizeof(struct mmc));
+@@ -1157,6 +1162,7 @@
+ 	case SDHC2:
+ #ifdef NXP_ESDHC2_ADDR	
+ 		mmc->esdhc_regs = (struct esdhc_regs *)NXP_ESDHC2_ADDR;
++		card_detect = false;
+ 		break;
+ #else
+ 		return -1;
+@@ -1166,7 +1172,7 @@
+ 	}
+ 
+ 	INFO("esdhc_emmc_init\n");
+-	ret = esdhc_emmc_init(mmc);
++	ret = esdhc_emmc_init(mmc, card_detect);
+ 	return ret;
+ }
+ 
+--- atf-LSDK-19.09-update-311219-M590/plat/nxp/drivers/sd/sd_mmc.h.orig	2022-05-09 13:29:57.253932812 -0700
++++ atf-LSDK-19.09-update-311219-M590/plat/nxp/drivers/sd/sd_mmc.h	2022-05-09 13:29:57.705914511 -0700
+@@ -1,6 +1,6 @@
+ /*
+  * Copyright (c) 2015, 2016 Freescale Semiconductor, Inc.
+- * Copyright 2017-2019 NXP
++ * Copyright 2017-2020 NXP
+  *
+  * SPDX-License-Identifier: BSD-3-Clause
+  *
+@@ -318,7 +318,7 @@
+ int emmc_io_setup(void);
+ int emmc_sdhc2_io_setup(void);
+ 
+-int esdhc_emmc_init(struct mmc *mmc);
++int esdhc_emmc_init(struct mmc *mmc, bool card_detect);
+ int esdhc_read(struct mmc *mmc, uint32_t src_offset, uintptr_t dst,
+ 	       size_t size);
+ int esdhc_write(struct mmc *mmc, uintptr_t src, uint32_t dst_offset,
+--- atf-LSDK-19.09-update-311219-M590/plat/nxp/drivers/i2c/i2c.c.orig	2022-05-09 13:29:57.249932974 -0700
++++ atf-LSDK-19.09-update-311219-M590/plat/nxp/drivers/i2c/i2c.c	2022-05-09 13:29:57.701914673 -0700
+@@ -21,7 +21,7 @@
+ 
+ void i2c_init(void)
+ {
+-	struct ls_i2c *ccsr_i2c = (void *)NXP_I2C_ADDR;
++	struct ls_i2c *ccsr_i2c = (void *)NXP_I2C_5_ADDR;
+ 
+ 	/* Presume workaround for erratum a009203 applied */
+ 	i2c_out(&ccsr_i2c->cr, I2C_CR_DIS);
+@@ -185,7 +185,7 @@
+ {
+ 	int ret;
+ 	unsigned char cr;
+-	struct ls_i2c *ccsr_i2c = (void *)NXP_I2C_ADDR;
++	struct ls_i2c *ccsr_i2c = (void *)NXP_I2C_5_ADDR;
+ 
+ 	ret = i2c_write_addr(ccsr_i2c, chip, addr, alen);
+ 	if (ret < 0) {
+@@ -209,7 +209,7 @@
+ int i2c_write(unsigned char chip, int addr, int alen, const unsigned char *buf, int len)
+ {
+ 	int ret;
+-	struct ls_i2c *ccsr_i2c = (void *)NXP_I2C_ADDR;
++	struct ls_i2c *ccsr_i2c = (void *)NXP_I2C_5_ADDR;
+ 
+ 	ret = i2c_write_addr(ccsr_i2c, chip, addr, alen);
+ 	if (ret < 0)
+@@ -221,7 +221,7 @@
+ int i2c_probe_chip(unsigned char chip)
+ {
+ 	int ret;
+-	struct ls_i2c *ccsr_i2c = (void *)NXP_I2C_ADDR;
++	struct ls_i2c *ccsr_i2c = (void *)NXP_I2C_5_ADDR;
+ 
+ 	ret = i2c_write_addr(ccsr_i2c, chip, 0, 0);
+ 	if (ret < 0) {
+--- atf-LSDK-19.09-update-311219-M590/plat/nxp/common/include/errata.h.orig	2022-05-09 13:29:57.213934432 -0700
++++ atf-LSDK-19.09-update-311219-M590/plat/nxp/common/include/errata.h	2022-05-09 13:29:57.653916616 -0700
+@@ -1,5 +1,5 @@
+ /*
+- * Copyright 2018 NXP
++ * Copyright 2018, 2020 NXP
+  *
+  * SPDX-License-Identifier: BSD-3-Clause
+  *
+@@ -15,5 +15,8 @@
+ void erratum_a008850_post(void);
+ void erratum_a009660(void);
+ void erratum_a010539(void);
++#ifdef ERRATA_PLAT_A050426
++void erratum_a050426(void);
++#endif
+ 
+ #endif /* __ERRATA_H__ */
+--- atf-LSDK-19.09-update-311219-M590/plat/nxp/common/ls_common.c.orig	2022-05-09 13:29:57.217934269 -0700
++++ atf-LSDK-19.09-update-311219-M590/plat/nxp/common/ls_common.c	2022-05-09 13:29:57.657916455 -0700
+@@ -1,5 +1,5 @@
+ /*
+- * Copyright 2018 NXP
++ * Copyright 2018,2020 NXP
+  *
+  * SPDX-License-Identifier: BSD-3-Clause
+  *
+@@ -18,6 +18,7 @@
+ #include <io.h>
+ #include <mmio.h>
+ #include <mmu_def.h>
++#include <platform.h>
+ 
+ const mmap_region_t *plat_ls_get_mmap(void);
+ 
+@@ -304,6 +305,7 @@
+ 	reg_val |= (1 << CNTACR_RWVT_SHIFT) | (1 << CNTACR_RWPT_SHIFT);
+ 	mmio_write_32(LS_SYS_TIMCTL_BASE +
+ 		      CNTACR_BASE(PLAT_LS_NSTIMER_FRAME_ID), reg_val);
++	mmio_write_32(LS_SYS_TIMCTL_BASE, plat_get_syscnt_freq2());
+ #endif /* LS_CONFIG_CNTACR */
+ 
+ 	reg_val = (1 << CNTNSAR_NS_SHIFT(PLAT_LS_NSTIMER_FRAME_ID));
+--- atf-LSDK-19.09-update-311219-M590/plat/nxp/common/ls_ota.c.orig	2022-05-09 13:29:57.217934269 -0700
++++ atf-LSDK-19.09-update-311219-M590/plat/nxp/common/ls_ota.c	2022-05-09 13:29:57.657916455 -0700
+@@ -35,7 +35,7 @@
+ 	memset(mmc, 0, sizeof(struct mmc));
+ 	mmc->esdhc_regs = (struct esdhc_regs *)NXP_ESDHC_ADDR;
+ 
+-	esdhc_emmc_init(mmc);
++	esdhc_emmc_init(mmc, true);
+ 
+ 	esdhc_read(mmc, OTA_OFFSET, buffer, OTA_SIZE);
+ 
+--- atf-LSDK-19.09-update-311219-M590/plat/nxp/common/errata.c.orig	2022-05-09 13:29:57.213934432 -0700
++++ atf-LSDK-19.09-update-311219-M590/plat/nxp/common/errata.c	2022-05-09 13:29:57.653916616 -0700
+@@ -1,5 +1,5 @@
+ /*
+- * Copyright 2018-2019 NXP
++ * Copyright 2018-2020 NXP
+  *
+  * SPDX-License-Identifier: BSD-3-Clause
+  *
+@@ -12,6 +12,797 @@
+ #include <plat_common.h>
+ #include <io.h>
+ 
++#ifdef ERRATA_PLAT_A050426
++void erratum_a050426 (void)
++{
++	uint32_t i, val3,val4;
++
++	/* Enable BIST to access internal memory locations */
++	val3 = in_le32(0x700117E60);
++	out_le32(0x700117E60,(val3 | 0x80000001));
++	val4 = in_le32(0x700117E90);
++	out_le32(0x700117E90,(val4 & 0xFFDFFFFF));
++
++	/* EDMA internal Memory*/
++	for (i = 0; i < 5; i++)
++		out_le32(0x70a208000 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 5; i++)
++		out_le32(0x70a208800 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 5; i++)
++		out_le32(0x70a209000 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 5; i++)
++		out_le32(0x70a209800 + (i * 4), 0x55555555);
++
++	/* QDMA internal Memory*/
++	for (i = 0; i < 5; i++)
++		out_le32(0x70b008000 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 5; i++)
++		out_le32(0x70b00c000 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 5; i++)
++		out_le32(0x70b010000 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 5; i++)
++		out_le32(0x70b014000 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 5; i++)
++		out_le32(0x70b018000 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 5; i++)
++		out_le32(0x70b018400 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 5; i++)
++		out_le32(0x70b01a000 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 5; i++)
++		out_le32(0x70b01a400 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 5; i++)
++		out_le32(0x70b01c000 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 5; i++)
++		out_le32(0x70b01d000 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 5; i++)
++		out_le32(0x70b01e000 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 5; i++)
++		out_le32(0x70b01e800 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 5; i++)
++		out_le32(0x70b01f000 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 5; i++)
++		out_le32(0x70b01f800 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 5; i++)
++		out_le32(0x70b020000 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 5; i++)
++		out_le32(0x70b020400 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 5; i++)
++		out_le32(0x70b020800 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 5; i++)
++		out_le32(0x70b020c00 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 5; i++)
++		out_le32(0x70b022000 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 5; i++)
++		out_le32(0x70b022400 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 5; i++)
++		out_le32(0x70b024000 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 5; i++)
++		out_le32(0x70b024800 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 5; i++)
++		out_le32(0x70b025000 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 5; i++)
++		out_le32(0x70b025800 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 4; i++)
++		out_le32(0x70b026000 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 4; i++)
++		out_le32(0x70b026200 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 5; i++)
++		out_le32(0x70b028000 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 5; i++)
++		out_le32(0x70b028800 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 5; i++)
++		out_le32(0x70b029000 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 5; i++)
++		out_le32(0x70b029800 + (i * 4), 0x55555555);
++
++	/* PEX1 internal Memory*/
++	for (i = 0; i < 3; i++)
++		out_le32(0x70a508000 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 5; i++)
++		out_le32(0x70a520000 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 5; i++)
++		out_le32(0x70a528000 + (i * 4), 0x55555555);
++
++	/* PEX2 internal Memory*/
++	for (i = 0; i < 3; i++)
++		out_le32(0x70a608000 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 5; i++)
++		out_le32(0x70a620000 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 5; i++)
++		out_le32(0x70a628000 + (i * 4), 0x55555555);
++
++	/* PEX4 internal Memory*/
++	for (i = 0; i < 3; i++)
++		out_le32(0x70a808000 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 5; i++)
++		out_le32(0x70a820000 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 5; i++)
++		out_le32(0x70a828000 + (i * 4), 0x55555555);
++
++	/* PEX6 internal Memory*/
++	for (i = 0; i < 3; i++)
++		out_le32(0x70ab08000 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 5; i++)
++		out_le32(0x70ab20000 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 5; i++)
++		out_le32(0x70ab28000 + (i * 4), 0x55555555);
++
++	/* PEX3 internal Memory*/
++	for (i = 0; i < 5; i++)
++		out_le32(0x70a708000 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 5; i++)
++		out_le32(0x70a728000 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 5; i++)
++		out_le32(0x70a730000 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 5; i++)
++		out_le32(0x70a738000 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 5; i++)
++		out_le32(0x70a748000 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 5; i++)
++		out_le32(0x70a758000 + (i * 4), 0x55555555);
++
++	/* PEX5 internal Memory*/
++	for (i = 0; i < 5; i++)
++		out_le32(0x70aa08000 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 5; i++)
++		out_le32(0x70aa28000 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 5; i++)
++		out_le32(0x70aa30000 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 5; i++)
++		out_le32(0x70aa38000 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 5; i++)
++		out_le32(0x70aa48000 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 5; i++)
++		out_le32(0x70aa58000 + (i * 4), 0x55555555);
++
++	/* lnx1_e1000#0 internal Memory*/
++	for (i = 0; i < 3; i++)
++		out_le32(0x70c00a000 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 3; i++)
++		out_le32(0x70c00a200 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 3; i++)
++		out_le32(0x70c00a400 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 3; i++)
++		out_le32(0x70c00a600 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 3; i++)
++		out_le32(0x70c00a800 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 3; i++)
++		out_le32(0x70c00aa00 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 3; i++)
++		out_le32(0x70c00ac00 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 3; i++)
++		out_le32(0x70c00ae00 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 3; i++)
++		out_le32(0x70c00b000 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 3; i++)
++		out_le32(0x70c00b200 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 3; i++)
++		out_le32(0x70c00b400 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 3; i++)
++		out_le32(0x70c00b600 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 3; i++)
++		out_le32(0x70c00b800 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 3; i++)
++		out_le32(0x70c00ba00 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 3; i++)
++		out_le32(0x70c00bc00 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 3; i++)
++		out_le32(0x70c00be00 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 5; i++)
++		out_le32(0x70c00c000 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 5; i++)
++		out_le32(0x70c00c400 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 5; i++)
++		out_le32(0x70c00c800 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 5; i++)
++		out_le32(0x70c00cc00 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 5; i++)
++		out_le32(0x70c00d000 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 5; i++)
++		out_le32(0x70c00d400 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 5; i++)
++		out_le32(0x70c00d800 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 5; i++)
++		out_le32(0x70c00dc00 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 3; i++)
++		out_le32(0x70c00e000 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 3; i++)
++		out_le32(0x70c00f000 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 3; i++)
++		out_le32(0x70c012000 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 3; i++)
++		out_le32(0x70c012200 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 3; i++)
++		out_le32(0x70c012400 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 3; i++)
++		out_le32(0x70c012600 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 3; i++)
++		out_le32(0x70c012800 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 3; i++)
++		out_le32(0x70c012a00 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 3; i++)
++		out_le32(0x70c012c00 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 3; i++)
++		out_le32(0x70c012e00 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 3; i++)
++		out_le32(0x70c013000 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 3; i++)
++		out_le32(0x70c013200 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 3; i++)
++		out_le32(0x70c013400 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 3; i++)
++		out_le32(0x70c013600 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 3; i++)
++		out_le32(0x70c013800 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 3; i++)
++		out_le32(0x70c013a00 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 3; i++)
++		out_le32(0x70c013c00 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 3; i++)
++		out_le32(0x70c013e00 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 5; i++)
++		out_le32(0x70c014000 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 5; i++)
++		out_le32(0x70c014400 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 5; i++)
++		out_le32(0x70c014800 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 5; i++)
++		out_le32(0x70c014c00 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 5; i++)
++		out_le32(0x70c015000 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 5; i++)
++		out_le32(0x70c015400 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 5; i++)
++		out_le32(0x70c015800 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 5; i++)
++		out_le32(0x70c015c00 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 3; i++)
++		out_le32(0x70c016000 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 3; i++)
++		out_le32(0x70c017000 + (i * 4), 0x55555555);
++
++	/* lnx1_xfi internal Memory*/
++	for (i = 0; i < 3; i++)
++		out_le32(0x70c108000 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 3; i++)
++		out_le32(0x70c108200 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 3; i++)
++		out_le32(0x70c10a000 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 3; i++)
++		out_le32(0x70c10a400 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 5; i++)
++		out_le32(0x70c10c000 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 5; i++)
++		out_le32(0x70c10c400 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 3; i++)
++		out_le32(0x70c10e000 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 3; i++)
++		out_le32(0x70c10e200 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 3; i++)
++		out_le32(0x70c110000 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 3; i++)
++		out_le32(0x70c110400 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 5; i++)
++		out_le32(0x70c112000 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 5; i++)
++		out_le32(0x70c112400 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 3; i++)
++		out_le32(0x70c114000 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 3; i++)
++		out_le32(0x70c114200 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 3; i++)
++		out_le32(0x70c116000 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 3; i++)
++		out_le32(0x70c116400 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 5; i++)
++		out_le32(0x70c118000 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 5; i++)
++		out_le32(0x70c118400 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 3; i++)
++		out_le32(0x70c11a000 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 3; i++)
++		out_le32(0x70c11a200 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 3; i++)
++		out_le32(0x70c11c000 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 3; i++)
++		out_le32(0x70c11c400 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 5; i++)
++		out_le32(0x70c11e000 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 5; i++)
++		out_le32(0x70c11e400 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 3; i++)
++		out_le32(0x70c120000 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 3; i++)
++		out_le32(0x70c120200 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 3; i++)
++		out_le32(0x70c122000 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 3; i++)
++		out_le32(0x70c122400 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 5; i++)
++		out_le32(0x70c124000 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 5; i++)
++		out_le32(0x70c124400 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 3; i++)
++		out_le32(0x70c126000 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 3; i++)
++		out_le32(0x70c126200 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 3; i++)
++		out_le32(0x70c128000 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 3; i++)
++		out_le32(0x70c128400 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 5; i++)
++		out_le32(0x70c12a000 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 5; i++)
++		out_le32(0x70c12a400 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 3; i++)
++		out_le32(0x70c12c000 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 3; i++)
++		out_le32(0x70c12c200 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 3; i++)
++		out_le32(0x70c12e000 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 3; i++)
++		out_le32(0x70c12e400 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 5; i++)
++		out_le32(0x70c130000 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 5; i++)
++		out_le32(0x70c130400 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 3; i++)
++		out_le32(0x70c132000 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 3; i++)
++		out_le32(0x70c132200 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 3; i++)
++		out_le32(0x70c134000 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 3; i++)
++		out_le32(0x70c134400 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 5; i++)
++		out_le32(0x70c136000 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 5; i++)
++		out_le32(0x70c136400 + (i * 4), 0x55555555);
++
++	/* lnx2_xfi internal Memory*/
++	for (i = 0; i < 3; i++)
++		out_le32(0x70c308000 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 3; i++)
++		out_le32(0x70c308200 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 3; i++)
++		out_le32(0x70c30a000 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 3; i++)
++		out_le32(0x70c30a400 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 5; i++)
++		out_le32(0x70c30c000 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 5; i++)
++		out_le32(0x70c30c400 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 3; i++)
++		out_le32(0x70c30e000 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 3; i++)
++		out_le32(0x70c30e200 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 3; i++)
++		out_le32(0x70c310000 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 3; i++)
++		out_le32(0x70c310400 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 5; i++)
++		out_le32(0x70c312000 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 5; i++)
++		out_le32(0x70c312400 + (i * 4), 0x55555555);
++
++	/* wriop internal Memory*/
++
++	for (i = 0; i < 4; i++)
++		out_le32(0x706312000 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 4; i++)
++		out_le32(0x706312400 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 4; i++)
++		out_le32(0x706312800 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 4; i++)
++		out_le32(0x706314000 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 4; i++)
++		out_le32(0x706314400 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 4; i++)
++		out_le32(0x706314800 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 4; i++)
++		out_le32(0x706314c00 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 3; i++)
++		out_le32(0x706316000 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 3; i++)
++		out_le32(0x706320000 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 3; i++)
++		out_le32(0x706320400 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 2; i++)
++		out_le32(0x70640a000 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 3; i++)
++		out_le32(0x706518000 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 3; i++)
++		out_le32(0x706519000 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 4; i++)
++		out_le32(0x706522000 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 4; i++)
++		out_le32(0x706522800 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 4; i++)
++		out_le32(0x706523000 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 4; i++)
++		out_le32(0x706523800 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 4; i++)
++		out_le32(0x706524000 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 4; i++)
++		out_le32(0x706524800 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 4; i++)
++		out_le32(0x706608000 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 4; i++)
++		out_le32(0x706608800 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 4; i++)
++		out_le32(0x706609000 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 4; i++)
++		out_le32(0x706609800 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 4; i++)
++		out_le32(0x70660a000 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 4; i++)
++		out_le32(0x70660a800 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 4; i++)
++		out_le32(0x70660b000 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 4; i++)
++		out_le32(0x70660b800 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 3; i++)
++		out_le32(0x70660c000 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 3; i++)
++		out_le32(0x70660c800 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 2; i++)
++		out_le32(0x706718000 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 2; i++)
++		out_le32(0x706718800 + (i * 4), 0x55555555);
++
++	out_le32(0x706b0a000 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 4; i++)
++		out_le32(0x706b0e000 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 4; i++)
++		out_le32(0x706b0e800 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 2; i++)
++		out_le32(0x706b10000 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 2; i++)
++		out_le32(0x706b10400 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 4; i++)
++		out_le32(0x706b14000 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 4; i++)
++		out_le32(0x706b14800 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 4; i++)
++		out_le32(0x706b15000 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 4; i++)
++		out_le32(0x706b15800 + (i * 4), 0x55555555);
++
++	out_le32(0x706e12000 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 4; i++)
++		out_le32(0x706e14000 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 4; i++)
++		out_le32(0x706e14800 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 2; i++)
++		out_le32(0x706e16000 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 2; i++)
++		out_le32(0x706e16400 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 3; i++)
++		out_le32(0x706e1a000 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 3; i++)
++		out_le32(0x706e1a800 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 3; i++)
++		out_le32(0x706e1b000 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 3; i++)
++		out_le32(0x706e1b800 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 3; i++)
++		out_le32(0x706e1c000 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 3; i++)
++		out_le32(0x706e1c800 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 3; i++)
++		out_le32(0x706e1e000 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 3; i++)
++		out_le32(0x706e1e800 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 3; i++)
++		out_le32(0x706e1f000 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 3; i++)
++		out_le32(0x706e1f800 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 3; i++)
++		out_le32(0x706e20000 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 3; i++)
++		out_le32(0x706e20800 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 4; i++)
++		out_le32(0x707108000 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 4; i++)
++		out_le32(0x707109000 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 4; i++)
++		out_le32(0x70710a000 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 2; i++)
++		out_le32(0x70711c000 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 2; i++)
++		out_le32(0x70711c800 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 2; i++)
++		out_le32(0x70711d000 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 2; i++)
++		out_le32(0x70711d800 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 2; i++)
++		out_le32(0x70711e000 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 4; i++)
++		out_le32(0x707120000 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 4; i++)
++		out_le32(0x707121000 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 3; i++)
++		out_le32(0x707122000 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 3; i++)
++		out_le32(0x70725a000 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 3; i++)
++		out_le32(0x70725b000 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 3; i++)
++		out_le32(0x70725c000 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 3; i++)
++		out_le32(0x70725e000 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 3; i++)
++		out_le32(0x70725e400 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 3; i++)
++		out_le32(0x70725e800 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 3; i++)
++		out_le32(0x70725ec00 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 3; i++)
++		out_le32(0x70725f000 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 3; i++)
++		out_le32(0x70725f400 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 3; i++)
++		out_le32(0x707340000 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 3; i++)
++		out_le32(0x707346000 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 3; i++)
++		out_le32(0x707484000 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 3; i++)
++		out_le32(0x70748a000 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 3; i++)
++		out_le32(0x70748b000 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 3; i++)
++		out_le32(0x70748c000 + (i * 4), 0x55555555);
++
++	for (i = 0; i < 3; i++)
++		out_le32(0x70748d000 + (i * 4), 0x55555555);
++
++	/* Disable BIST */
++
++	out_le32(0x700117E60,val3);
++	out_le32(0x700117E90,val4);
++}
++#endif
++
+ void erratum_a008850_early(void)
+ {
+ #if ERRATA_PLAT_A008850
+--- atf-LSDK-19.09-update-311219-M590/plat/nxp/common/ddr_io_storage.c.orig	2022-05-09 13:29:57.213934432 -0700
++++ atf-LSDK-19.09-update-311219-M590/plat/nxp/common/ddr_io_storage.c	2022-05-09 13:29:57.653916616 -0700
+@@ -23,8 +23,13 @@
+ /* TBD - Move these defined to the platform_def.h file.
+  * Keeping them for reference here
+  */
++#if 1
++#define PLAT_DDR_FIP_OFFSET	0x260000
++#define PLAT_DDR_FIP_MAX_SIZE	0x40000
++#else
+ #define PLAT_DDR_FIP_OFFSET	0x800000
+ #define PLAT_DDR_FIP_MAX_SIZE	0x32000
++#endif
+ 
+ extern uintptr_t backend_dev_handle;
+ 
+--- atf-LSDK-19.09-update-311219-M590/plat/nxp/common/errata.mk.orig	2022-05-09 13:29:57.213934432 -0700
++++ atf-LSDK-19.09-update-311219-M590/plat/nxp/common/errata.mk	2022-05-09 13:29:57.653916616 -0700
+@@ -1,5 +1,5 @@
+ #
+-# Copyright 2018 NXP
++# Copyright 2018, 2020 NXP
+ #
+ # SPDX-License-Identifier: BSD-3-Clause
+ #
+@@ -29,4 +29,12 @@
+ $(eval $(call assert_boolean,ERRATA_PLAT_A010539))
+ $(eval $(call add_define,ERRATA_PLAT_A010539))
+ 
++# Flag to apply erratum 50426 workaround during reset.
++ERRATA_PLAT_A050426	?=0
++
++# Process ERRATA_PLAT_A050426 flag
++ifeq (${ERRATA_PLAT_A050426}, 1)
++$(eval $(call add_define,ERRATA_PLAT_A050426))
++endif
++
+ BL2_SOURCES	+= 	${PLAT_COMMON_PATH}/errata.c
+--- atf-LSDK-19.09-update-311219-M590/lib/xlat_tables_v2/xlat_tables_internal.c.orig	2022-05-09 13:29:57.109938642 -0700
++++ atf-LSDK-19.09-update-311219-M590/lib/xlat_tables_v2/xlat_tables_internal.c	2022-05-09 13:29:57.601918722 -0700
+@@ -1035,7 +1035,7 @@
+ 		assert(mem_type_index == ATTR_DEVICE_INDEX);
+ 		tf_printf("DEV");
+ 	}
+-
++#if 1
+ 	const char *priv_str = "(PRIV)";
+ 	const char *user_str = "(USER)";
+ 
+@@ -1077,7 +1077,7 @@
+ 		tf_printf(UPPER_ATTRS(UXN) & desc ? xn_str : exec_str);
+ 		tf_printf(user_str);
+ 	}
+-
++#endif
+ 	tf_printf(LOWER_ATTRS(NS) & desc ? "-NS" : "-S");
+ }
+ 
+--- atf-LSDK-19.09-update-311219-M590/Makefile.orig	2022-05-09 13:29:56.753953056 -0700
++++ atf-LSDK-19.09-update-311219-M590/Makefile	2022-05-09 13:29:57.469924067 -0700
+@@ -97,7 +97,7 @@
+ 
+ # Default build string (git branch and commit)
+ ifeq (${BUILD_STRING},)
+-        BUILD_STRING	:=	$(shell git describe --always --dirty --tags 2> /dev/null)
++        BUILD_STRING	:=	$(shell git describe --always --dirty --tags 2> /dev/null) #LSDK-19.09-update-311219
+ endif
+ VERSION_STRING		:=	v${VERSION_MAJOR}.${VERSION_MINOR}(${BUILD_TYPE}):${BUILD_STRING}
+ 
+--- atf-LSDK-19.09-update-311219-M590/plat/nxp/drivers/ddr/phy-gen2/messages.h.orig	1969-12-31 16:00:00.000000000 -0800
++++ atf-LSDK-19.09-update-311219-M590/plat/nxp/drivers/ddr/phy-gen2/messages.h	2022-05-09 13:29:57.689915159 -0700
+@@ -0,0 +1,2907 @@
++/*
++ * Copyright 2019-2020 NXP
++ * SPDX-License-Identifier: BSD-3-Clause
++ *
++ * Author York Sun <york.sun@nxp.com>
++ */
++
++#ifndef _MESSAGE_H_
++#ifdef DEBUG
++struct phy_msg {
++	uint32_t index;
++	const char * msg;
++};
++
++const static struct phy_msg messages_1d[] = {
++	{0x00000001,
++	 "PMU1:prbsGenCtl:%x\n"
++	},
++	{0x00010000,
++	 "PMU1: loading 2D acsm sequence\n"
++	},
++	{0x00020000,
++	 "PMU1: loading 1D acsm sequence\n"
++	},
++	{0x00030002,
++	 "PMU3: %d memclocks @ %d to get half of 300ns\n"
++	},
++	{0x00040000,
++	 "PMU: Error: User requested MPR read pattern for read DQS training in DDR3 Mode\n"
++	},
++	{0x00050000,
++	 "PMU3: Running 1D search for left eye edge\n"
++	},
++	{0x00060001,
++	 "PMU1: In Phase Left Edge Search cs %d\n"
++	},
++	{0x00070001,
++	 "PMU1: Out of Phase Left Edge Search cs %d\n"
++	},
++	{0x00080000,
++	 "PMU3: Running 1D search for right eye edge\n"
++	},
++	{0x00090001,
++	 "PMU1: In Phase Right Edge Search cs %d\n"
++	},
++	{0x000a0001,
++	 "PMU1: Out of Phase Right Edge Search cs %d\n"
++	},
++	{0x000b0001,
++	 "PMU1: mxRdLat training pstate %d\n"
++	},
++	{0x000c0001,
++	 "PMU1: mxRdLat search for cs %d\n"
++	},
++	{0x000d0001,
++	 "PMU0: MaxRdLat non consistant DtsmLoThldXingInd 0x%03x\n"
++	},
++	{0x000e0003,
++	 "PMU4: CS %d Dbyte %d worked with DFIMRL = %d DFICLKs \n"
++	},
++	{0x000f0004,
++	 "PMU3: MaxRdLat Read Lane err mask for csn %d, DFIMRL %2d DFIClks, dbyte %d = 0x%03x\n"
++	},
++	{0x00100003,
++	 "PMU3: MaxRdLat Read Lane err mask for csn %d DFIMRL %2d, All dbytes = 0x%03x\n"
++	},
++	{0x00110001,
++	 "PMU: Error: CS%d failed to find a DFIMRL setting that worked for all bytes during MaxRdLat training\n"
++	},
++	{0x00120002,
++	 "PMU3: Smallest passing DFIMRL for all dbytes in CS%d = %d DFIClks\n"
++	},
++	{0x00130000,
++	 "PMU: Error: No passing DFIMRL value found for any chip select during MaxRdLat training\n"
++	},
++	{0x00140003,
++	 "PMU: Error: Dbyte %d lane %d txDqDly passing region is too small (width = %d)\n"
++	},
++	{0x00150006,
++	 "PMU10: Adjusting rxclkdly db %d nib %d from %d+%d=%d->%d\n"
++	},
++	{0x00160000,
++	 "PMU4: TxDqDly Passing Regions (EyeLeft EyeRight -> EyeCenter) Units=1/32 UI\n"
++	},
++	{0x00170005,
++	 "PMU4: DB %d Lane %d: %3d %3d -> %3d\n"
++	},
++	{0x00180002,
++	 "PMU2: TXDQ delayLeft[%2d] = %3d (DISCONNECTED)\n"
++	},
++	{0x00190004,
++	 "PMU2: TXDQ delayLeft[%2d] = %3d oopScaled = %3d selectOop %d\n"
++	},
++	{0x001a0002,
++	 "PMU2: TXDQ delayRight[%2d] = %3d (DISCONNECTED)\n"
++	},
++	{0x001b0004,
++	 "PMU2: TXDQ delayRight[%2d] = %3d oopScaled = %3d selectOop %d\n"
++	},
++	{0x001c0003,
++	 "PMU: Error: Dbyte %d lane %d txDqDly passing region is too small (width = %d)\n"
++	},
++	{0x001d0000,
++	 "PMU4: TxDqDly Passing Regions (EyeLeft EyeRight -> EyeCenter) Units=1/32 UI\n"
++	},
++	{0x001e0002,
++	 "PMU4: DB %d Lane %d: (DISCONNECTED)\n"
++	},
++	{0x001f0005,
++	 "PMU4: DB %d Lane %d: %3d %3d -> %3d\n"
++	},
++	{0x00200002,
++	 "PMU3: Running 1D search csn %d for DM Right/NotLeft(%d) eye edge\n"
++	},
++	{0x00210002,
++	 "PMU3: WrDq DM byte%2d with Errcnt %d\n"
++	},
++	{0x00220002,
++	 "PMU3: WrDq DM byte%2d avgDly 0x%04x\n"
++	},
++	{0x00230002,
++	 "PMU1: WrDq DM byte%2d with Errcnt %d\n"
++	},
++	{0x00240001,
++	 "PMU: Error: Dbyte %d txDqDly DM training did not start inside the eye\n"
++	},
++	{0x00250000,
++	 "PMU4: DM TxDqDly Passing Regions (EyeLeft EyeRight -> EyeCenter) Units=1/32 UI\n"
++	},
++	{0x00260002,
++	 "PMU4: DB %d Lane %d: (DISCONNECTED)\n"
++	},
++	{0x00270005,
++	 "PMU4: DB %d Lane %d: %3d %3d -> %3d\n"
++	},
++	{0x00280003,
++	 "PMU: Error: Dbyte %d lane %d txDqDly DM passing region is too small (width = %d)\n"
++	},
++	{0x00290004,
++	 "PMU3: Errcnt for MRD/MWD search nib %2d delay = (%d, 0x%02x) = %d\n"
++	},
++	{0x002a0000,
++	 "PMU3: Precharge all open banks\n"
++	},
++	{0x002b0002,
++	 "PMU: Error: Dbyte %d nibble %d found mutliple working coarse delay setting for MRD/MWD\n"
++	},
++	{0x002c0000,
++	 "PMU4: MRD Passing Regions (coarseVal, fineLeft fineRight -> fineCenter)\n"
++	},
++	{0x002d0000,
++	 "PMU4: MWD Passing Regions (coarseVal, fineLeft fineRight -> fineCenter)\n"
++	},
++	{0x002e0004,
++	 "PMU10: Warning: DB %d nibble %d has multiple working coarse delays, %d and %d, choosing the smaller delay\n"
++	},
++	{0x002f0003,
++	 "PMU: Error: Dbyte %d nibble %d MRD/MWD passing region is too small (width = %d)\n"
++	},
++	{0x00300006,
++	 "PMU4: DB %d nibble %d: %3d, %3d %3d -> %3d\n"
++	},
++	{0x00310002,
++	 "PMU1: Start MRD/nMWD %d for csn %d\n"
++	},
++	{0x00320002,
++	 "PMU2: RXDQS delayLeft[%2d] = %3d (DISCONNECTED)\n"
++	},
++	{0x00330006,
++	 "PMU2: RXDQS delayLeft[%2d] = %3d delayOop[%2d] = %3d OopScaled %4d, selectOop %d\n"
++	},
++	{0x00340002,
++	 "PMU2: RXDQS delayRight[%2d] = %3d (DISCONNECTED)\n"
++	},
++	{0x00350006,
++	 "PMU2: RXDQS delayRight[%2d] = %3d delayOop[%2d] = %4d OopScaled %4d, selectOop %d\n"
++	},
++	{0x00360000,
++	 "PMU4: RxClkDly Passing Regions (EyeLeft EyeRight -> EyeCenter)\n"
++	},
++	{0x00370002,
++	 "PMU4: DB %d nibble %d: (DISCONNECTED)\n"
++	},
++	{0x00380005,
++	 "PMU4: DB %d nibble %d: %3d %3d -> %3d\n"
++	},
++	{0x00390003,
++	 "PMU: Error: Dbyte %d nibble %d rxClkDly passing region is too small (width = %d)\n"
++	},
++	{0x003a0002,
++	 "PMU0: goodbar = %d for RDWR_BLEN %d\n"
++	},
++	{0x003b0001,
++	 "PMU3: RxClkDly = %d\n"
++	},
++	{0x003c0005,
++	 "PMU0: db %d l %d absLane %d -> bottom %d top %d\n"
++	},
++	{0x003d0009,
++	 "PMU3: BYTE %d - %3d %3d %3d %3d %3d %3d %3d %3d\n"
++	},
++	{0x003e0002,
++	 "PMU: Error: dbyte %d lane %d's per-lane vrefDAC's had no passing region\n"
++	},
++	{0x003f0004,
++	 "PMU0: db%d l%d - %d %d\n"
++	},
++	{0x00400002,
++	 "PMU0: goodbar = %d for RDWR_BLEN %d\n"
++	},
++	{0x00410004,
++	 "PMU3: db%d l%d saw %d issues at rxClkDly %d\n"
++	},
++	{0x00420003,
++	 "PMU3: db%d l%d first saw a pass->fail edge at rxClkDly %d\n"
++	},
++	{0x00430002,
++	 "PMU3: lane %d PBD = %d\n"
++	},
++	{0x00440003,
++	 "PMU3: db%d l%d first saw a DBI pass->fail edge at rxClkDly %d\n"
++	},
++	{0x00450003,
++	 "PMU2: db%d l%d already passed rxPBD = %d\n"
++	},
++	{0x00460003,
++	 "PMU0: db%d l%d, PBD = %d\n"
++	},
++	{0x00470002,
++	 "PMU: Error: dbyte %d lane %d failed read deskew\n"
++	},
++	{0x00480003,
++	 "PMU0: db%d l%d, inc PBD = %d\n"
++	},
++	{0x00490003,
++	 "PMU1: Running lane deskew on pstate %d csn %d rdDBIEn %d\n"
++	},
++	{0x004a0000,
++	 "PMU: Error: Read deskew training has been requested, but csrMajorModeDbyte[2] is set\n"
++	},
++	{0x004b0002,
++	 "PMU1: AcsmCsMapCtrl%02d 0x%04x\n"
++	},
++	{0x004c0002,
++	 "PMU1: AcsmCsMapCtrl%02d 0x%04x\n"
++	},
++	{0x004d0001,
++	 "PMU: Error: Wrong PMU image loaded. message Block DramType = 0x%02x, but image built for D3U Type\n"
++	},
++	{0x004e0001,
++	 "PMU: Error: Wrong PMU image loaded. message Block DramType = 0x%02x, but image built for D3R Type\n"
++	},
++	{0x004f0001,
++	 "PMU: Error: Wrong PMU image loaded. message Block DramType = 0x%02x, but image built for D4U Type\n"
++	},
++	{0x00500001,
++	 "PMU: Error: Wrong PMU image loaded. message Block DramType = 0x%02x, but image built for D4R Type\n"
++	},
++	{0x00510001,
++	 "PMU: Error: Wrong PMU image loaded. message Block DramType = 0x%02x, but image built for D4LR Type\n"
++	},
++	{0x00520000,
++	 "PMU: Error: Both 2t timing mode and ddr4 geardown mode specifed in the messageblock's PhyCfg and MR3 fields. Only one can be enabled\n"
++	},
++	{0x00530003,
++	 "PMU10: PHY TOTALS - NUM_DBYTES %d NUM_NIBBLES %d NUM_ANIBS %d\n"
++	},
++	{0x00540006,
++	 "PMU10: CSA=0x%02X, CSB=0x%02X, TSTAGES=0x%04X, HDTOUT=%d, MMISC=%d DRAMFreq=%dMT DramType=LPDDR3\n"
++	},
++	{0x00550006,
++	 "PMU10: CSA=0x%02X, CSB=0x%02X, TSTAGES=0x%04X, HDTOUT=%d, MMISC=%d DRAMFreq=%dMT DramType=LPDDR4\n"
++	},
++	{0x00560008,
++	 "PMU10: CS=0x%02X, TSTAGES=0x%04X, HDTOUT=%d, 2T=%d, MMISC=%d AddrMirror=%d DRAMFreq=%dMT DramType=%d\n"
++	},
++	{0x00570004,
++	 "PMU10: Pstate%d MR0=0x%04X MR1=0x%04X MR2=0x%04X\n"
++	},
++	{0x00580008,
++	 "PMU10: Pstate%d MRS MR0=0x%04X MR1=0x%04X MR2=0x%04X MR3=0x%04X MR4=0x%04X MR5=0x%04X MR6=0x%04X\n"
++	},
++	{0x00590005,
++	 "PMU10: Pstate%d MRS MR1_A0=0x%04X MR2_A0=0x%04X MR3_A0=0x%04X MR11_A0=0x%04X\n"
++	},
++	{0x005a0000,
++	 "PMU10: UseBroadcastMR set. All ranks and channels use MRXX_A0 for MR settings.\n"
++	},
++	{0x005b0005,
++	 "PMU10: Pstate%d MRS MR01_A0=0x%02X MR02_A0=0x%02X MR03_A0=0x%02X MR11_A0=0x%02X\n"
++	},
++	{0x005c0005,
++	 "PMU10: Pstate%d MRS MR12_A0=0x%02X MR13_A0=0x%02X MR14_A0=0x%02X MR22_A0=0x%02X\n"
++	},
++	{0x005d0005,
++	 "PMU10: Pstate%d MRS MR01_A1=0x%02X MR02_A1=0x%02X MR03_A1=0x%02X MR11_A1=0x%02X\n"
++	},
++	{0x005e0005,
++	 "PMU10: Pstate%d MRS MR12_A1=0x%02X MR13_A1=0x%02X MR14_A1=0x%02X MR22_A1=0x%02X\n"
++	},
++	{0x005f0005,
++	 "PMU10: Pstate%d MRS MR01_B0=0x%02X MR02_B0=0x%02X MR03_B0=0x%02X MR11_B0=0x%02X\n"
++	},
++	{0x00600005,
++	 "PMU10: Pstate%d MRS MR12_B0=0x%02X MR13_B0=0x%02X MR14_B0=0x%02X MR22_B0=0x%02X\n"
++	},
++	{0x00610005,
++	 "PMU10: Pstate%d MRS MR01_B1=0x%02X MR02_B1=0x%02X MR03_B1=0x%02X MR11_B1=0x%02X\n"
++	},
++	{0x00620005,
++	 "PMU10: Pstate%d MRS MR12_B1=0x%02X MR13_B1=0x%02X MR14_B1=0x%02X MR22_B1=0x%02X\n"
++	},
++	{0x00630002,
++	 "PMU1: AcsmOdtCtrl%02d 0x%02x\n"
++	},
++	{0x00640002,
++	 "PMU1: AcsmCsMapCtrl%02d 0x%04x\n"
++	},
++	{0x00650002,
++	 "PMU1: AcsmCsMapCtrl%02d 0x%04x\n"
++	},
++	{0x00660000,
++	 "PMU1: HwtCAMode set\n"
++	},
++	{0x00670001,
++	 "PMU3: DDR4 infinite preamble enter/exit mode %d\n"
++	},
++	{0x00680002,
++	 "PMU1: In rxenb_train() csn=%d pstate=%d\n"
++	},
++	{0x00690000,
++	 "PMU3: Finding DQS falling edge\n"
++	},
++	{0x006a0000,
++	 "PMU3: Searching for DDR3/LPDDR3/LPDDR4 read preamble\n"
++	},
++	{0x006b0009,
++	 "PMU3: dtsm fails Even Nibbles : %2x %2x %2x %2x %2x %2x %2x %2x %2x\n"
++	},
++	{0x006c0009,
++	 "PMU3: dtsm fails Odd  Nibbles : %2x %2x %2x %2x %2x %2x %2x %2x %2x\n"
++	},
++	{0x006d0002,
++	 "PMU3: Preamble search pass=%d anyfail=%d\n"
++	},
++	{0x006e0000,
++	 "PMU: Error: RxEn training preamble not found\n"
++	},
++	{0x006f0000,
++	 "PMU3: Found DQS pre-amble\n"
++	},
++	{0x00700001,
++	 "PMU: Error: Dbyte %d couldn't find the rising edge of DQS during RxEn Training\n"
++	},
++	{0x00710000,
++	 "PMU3: RxEn aligning to first rising edge of burst\n"
++	},
++	{0x00720001,
++	 "PMU3: Decreasing RxEn delay by %d fine step to allow full capture of reads\n"
++	},
++	{0x00730001,
++	 "PMU3: MREP Delay = %d\n"
++	},
++	{0x00740003,
++	 "PMU3: Errcnt for MREP nib %2d delay = %2d is %d\n"
++	},
++	{0x00750002,
++	 "PMU3: MREP nibble %d sampled a 1 at data buffer delay %d\n"
++	},
++	{0x00760002,
++	 "PMU3: MREP nibble %d saw a 0 to 1 transition at data buffer delay %d\n"
++	},
++	{0x00770000,
++	 "PMU2:  MREP did not find a 0 to 1 transition for all nibbles. Failing nibbles assumed to have rising edge close to fine delay 63\n"
++	},
++	{0x00780002,
++	 "PMU2:  Rising edge found in alias window, setting rxDly for nibble %d = %d\n"
++	},
++	{0x00790002,
++	 "PMU: Error: Failed MREP for nib %d with %d one\n"
++	},
++	{0x007a0003,
++	 "PMU2:  Rising edge not found in alias window with %d one, leaving rxDly for nibble %d = %d\n"
++	},
++	{0x007b0002,
++	 "PMU3: Training DIMM %d CSn %d\n"
++	},
++	{0x007c0001,
++	 "PMU3: exitCAtrain_lp3 cs 0x%x\n"
++	},
++	{0x007d0001,
++	 "PMU3: enterCAtrain_lp3 cs 0x%x\n"
++	},
++	{0x007e0001,
++	 "PMU3: CAtrain_switchmsb_lp3 cs 0x%x\n"
++	},
++	{0x007f0001,
++	 "PMU3: CATrain_rdwr_lp3 looking for pattern %x\n"
++	},
++	{0x00800000,
++	 "PMU3: exitCAtrain_lp4\n"
++	},
++	{0x00810001,
++	 "PMU3: DEBUG enterCAtrain_lp4 1: cs 0x%x\n"
++	},
++	{0x00820001,
++	 "PMU3: DEBUG enterCAtrain_lp4 3: Put dbyte %d in async mode\n"
++	},
++	{0x00830000,
++	 "PMU3: DEBUG enterCAtrain_lp4 5: Send MR13 to turn on CA training\n"
++	},
++	{0x00840003,
++	 "PMU3: DEBUG enterCAtrain_lp4 7: idx = %d vref = %x mr12 = %x \n"
++	},
++	{0x00850001,
++	 "PMU3: CATrain_rdwr_lp4 looking for pattern %x\n"
++	},
++	{0x00860004,
++	 "PMU3: Phase %d CAreadbackA db:%d %x xo:%x\n"
++	},
++	{0x00870005,
++	 "PMU3: DEBUG lp4SetCatrVref 1: cs=%d chan=%d mr12=%x vref=%d.%d%%\n"
++	},
++	{0x00880003,
++	 "PMU3: DEBUG lp4SetCatrVref 3: mr12 = %x send vref= %x to db=%d\n"
++	},
++	{0x00890000,
++	 "PMU10:Optimizing vref\n"
++	},
++	{0x008a0004,
++	 "PMU4:mr12:%2x cs:%d chan %d r:%4x\n"
++	},
++	{0x008b0005,
++	 "PMU3: i:%2d bstr:%2d bsto:%2d st:%d r:%d\n"
++	},
++	{0x008c0002, "Failed to find sufficient CA Vref Passing Region for CS %d channel %d\n"
++	},
++	{0x008d0005,
++	 "PMU3:Found %d.%d%% MR12:%x for cs:%d chan %d\n"
++	},
++	{0x008e0002,
++	 "PMU3:Calculated %d for AtxImpedence from acx %d.\n"
++	},
++	{0x008f0000,
++	 "PMU3:CA Odt impedence ==0.  Use default vref.\n"
++	},
++	{0x00900003,
++	 "PMU3:Calculated %d.%d%% for Vref MR12=0x%x.\n"
++	},
++	{0x00910000,
++	 "PMU3: CAtrain_lp\n"
++	},
++	{0x00920000,
++	 "PMU3: CAtrain Begins.\n"
++	},
++	{0x00930001,
++	 "PMU3: CAtrain_lp testing dly %d\n"
++	},
++	{0x00940001,
++	 "PMU5: CA bitmap dump for cs %x\n"
++	},
++	{0x00950001,
++	 "PMU5: CAA%d "
++	},
++	{0x00960001, "%02x"
++	},
++	{0x00970000, "\n"
++	},
++	{0x00980001,
++	 "PMU5: CAB%d "
++	},
++	{0x00990001, "%02x"
++	},
++	{0x009a0000, "\n"
++	},
++	{0x009b0003,
++	 "PMU3: anibi=%d, anibichan[anibi]=%d ,chan=%d\n"
++	},
++	{0x009c0001, "%02x"
++	},
++	{0x009d0001, "\nPMU3:Raw CA setting :%x"
++	},
++	{0x009e0002, "\nPMU3:ATxDly setting:%x margin:%d\n"
++	},
++	{0x009f0002, "\nPMU3:InvClk ATxDly setting:%x margin:%d\n"
++	},
++	{0x00a00000, "\nPMU3:No Range found!\n"
++	},
++	{0x00a10003,
++	 "PMU3: 2 anibi=%d, anibichan[anibi]=%d ,chan=%d"
++	},
++	{0x00a20002, "\nPMU3: no neg clock => CA setting anib=%d, :%d\n"
++	},
++	{0x00a30001,
++	 "PMU3:Normal margin:%d\n"
++	},
++	{0x00a40001,
++	 "PMU3:Inverted margin:%d\n"
++	},
++	{0x00a50000,
++	 "PMU3:Using Inverted clock\n"
++	},
++	{0x00a60000,
++	 "PMU3:Using normal clk\n"
++	},
++	{0x00a70003,
++	 "PMU3: 3 anibi=%d, anibichan[anibi]=%d ,chan=%d\n"
++	},
++	{0x00a80002,
++	 "PMU3: Setting ATxDly for anib %x to %x\n"
++	},
++	{0x00a90000,
++	 "PMU: Error: CA Training Failed.\n"
++	},
++	{0x00aa0000,
++	 "PMU1: Writing MRs\n"
++	},
++	{0x00ab0000,
++	 "PMU4:Using MR12 values from 1D CA VREF training.\n"
++	},
++	{0x00ac0000,
++	 "PMU3:Writing all MRs to fsp 1\n"
++	},
++	{0x00ad0000,
++	 "PMU10:Lp4Quickboot mode.\n"
++	},
++	{0x00ae0000,
++	 "PMU3: Writing MRs\n"
++	},
++	{0x00af0001,
++	 "PMU10: Setting boot clock divider to %d\n"
++	},
++	{0x00b00000,
++	 "PMU3: Resetting DRAM\n"
++	},
++	{0x00b10000,
++	 "PMU3: setup for RCD initalization\n"
++	},
++	{0x00b20000,
++	 "PMU3: pmu_exit_SR from dev_init()\n"
++	},
++	{0x00b30000,
++	 "PMU3: initializing RCD\n"
++	},
++	{0x00b40000,
++	 "PMU10: **** Executing 2D Image ****\n"
++	},
++	{0x00b50001,
++	 "PMU10: **** Start DDR4 Training. PMU Firmware Revision 0x%04x ****\n"
++	},
++	{0x00b60001,
++	 "PMU10: **** Start DDR3 Training. PMU Firmware Revision 0x%04x ****\n"
++	},
++	{0x00b70001,
++	 "PMU10: **** Start LPDDR3 Training. PMU Firmware Revision 0x%04x ****\n"
++	},
++	{0x00b80001,
++	 "PMU10: **** Start LPDDR4 Training. PMU Firmware Revision 0x%04x ****\n"
++	},
++	{0x00b90000,
++	 "PMU: Error: Mismatched internal revision between DCCM and ICCM images\n"
++	},
++	{0x00ba0001,
++	 "PMU10: **** Testchip %d Specific Firmware ****\n"
++	},
++	{0x00bb0000,
++	 "PMU1: LRDIMM with EncodedCS mode, one DIMM\n"
++	},
++	{0x00bc0000,
++	 "PMU1: LRDIMM with EncodedCS mode, two DIMMs\n"
++	},
++	{0x00bd0000,
++	 "PMU1: RDIMM with EncodedCS mode, one DIMM\n"
++	},
++	{0x00be0000,
++	 "PMU2: Starting LRDIMM MREP training for all ranks\n"
++	},
++	{0x00bf0000,
++	 "PMU199: LRDIMM MREP training for all ranks completed\n"
++	},
++	{0x00c00000,
++	 "PMU2: Starting LRDIMM DWL training for all ranks\n"
++	},
++	{0x00c10000,
++	 "PMU199: LRDIMM DWL training for all ranks completed\n"
++	},
++	{0x00c20000,
++	 "PMU2: Starting LRDIMM MRD training for all ranks\n"
++	},
++	{0x00c30000,
++	 "PMU199: LRDIMM MRD training for all ranks completed\n"
++	},
++	{0x00c40000,
++	 "PMU2: Starting RXEN training for all ranks\n"
++	},
++	{0x00c50000,
++	 "PMU2: Starting write leveling fine delay training for all ranks\n"
++	},
++	{0x00c60000,
++	 "PMU2: Starting LRDIMM MWD training for all ranks\n"
++	},
++	{0x00c70000,
++	 "PMU199: LRDIMM MWD training for all ranks completed\n"
++	},
++	{0x00c80000,
++	 "PMU2: Starting write leveling fine delay training for all ranks\n"
++	},
++	{0x00c90000,
++	 "PMU2: Starting read deskew training\n"
++	},
++	{0x00ca0000,
++	 "PMU2: Starting SI friendly 1d RdDqs training for all ranks\n"
++	},
++	{0x00cb0000,
++	 "PMU2: Starting write leveling coarse delay training for all ranks\n"
++	},
++	{0x00cc0000,
++	 "PMU2: Starting 1d WrDq training for all ranks\n"
++	},
++	{0x00cd0000,
++	 "PMU2: Running DQS2DQ Oscillator for all ranks\n"
++	},
++	{0x00ce0000,
++	 "PMU2: Starting again read deskew training but with PRBS\n"
++	},
++	{0x00cf0000,
++	 "PMU2: Starting 1d RdDqs training for all ranks\n"
++	},
++	{0x00d00000,
++	 "PMU2: Starting again 1d WrDq training for all ranks\n"
++	},
++	{0x00d10000,
++	 "PMU2: Starting MaxRdLat training\n"
++	},
++	{0x00d20000,
++	 "PMU2: Starting 2d WrDq training for all ranks\n"
++	},
++	{0x00d30000,
++	 "PMU2: Starting 2d RdDqs training for all ranks\n"
++	},
++	{0x00d40002,
++	 "PMU3:read_fifo %x %x\n"
++	},
++	{0x00d50001,
++	 "PMU: Error: Invalid PhyDrvImpedance of 0x%x specified in message block.\n"
++	},
++	{0x00d60001,
++	 "PMU: Error: Invalid PhyOdtImpedance of 0x%x specified in message block.\n"
++	},
++	{0x00d70001,
++	 "PMU: Error: Invalid BPZNResVal of 0x%x specified in message block.\n"
++	},
++	{0x00d80005,
++	 "PMU3: fixRxEnBackOff csn:%d db:%d dn:%d bo:%d dly:%x\n"
++	},
++	{0x00d90001,
++	 "PMU3: fixRxEnBackOff dly:%x\n"
++	},
++	{0x00da0000,
++	 "PMU3: Entering setupPpt\n"
++	},
++	{0x00db0000,
++	 "PMU3: Start lp4PopulateHighLowBytes\n"
++	},
++	{0x00dc0002,
++	 "PMU3:Dbyte Detect: db%d received %x\n"
++	},
++	{0x00dd0002,
++	 "PMU3:getDqs2Dq read %x from dbyte %d\n"
++	},
++	{0x00de0002,
++	 "PMU3:getDqs2Dq(2) read %x from dbyte %d\n"
++	},
++	{0x00df0001,
++	 "PMU: Error: Dbyte %d read 0 from the DQS oscillator it is connected to\n"
++	},
++	{0x00e00002,
++	 "PMU4: Dbyte %d dqs2dq = %d/32 UI\n"
++	},
++	{0x00e10003,
++	 "PMU3:getDqs2Dq set dqs2dq:%d/32 ui (%d ps) from dbyte %d\n"
++	},
++	{0x00e20003,
++	 "PMU3: Setting coarse delay in AtxDly chiplet %d from 0x%02x to 0x%02x \n"
++	},
++	{0x00e30003,
++	 "PMU3: Clearing coarse delay in AtxDly chiplet %d from 0x%02x to 0x%02x \n"
++	},
++	{0x00e40000,
++	 "PMU3: Performing DDR4 geardown sync sequence\n"
++	},
++	{0x00e50000,
++	 "PMU1: Enter self refresh\n"
++	},
++	{0x00e60000,
++	 "PMU1: Exit self refresh\n"
++	},
++	{0x00e70000,
++	 "PMU: Error: No dbiEnable with lp4\n"
++	},
++	{0x00e80000,
++	 "PMU: Error: No dbiDisable with lp4\n"
++	},
++	{0x00e90001,
++	 "PMU1: DDR4 update Rx DBI Setting disable %d\n"
++	},
++	{0x00ea0001,
++	 "PMU1: DDR4 update 2nCk WPre Setting disable %d\n"
++	},
++	{0x00eb0005,
++	 "PMU1: read_delay: db%d lane%d delays[%2d] = 0x%02x (max 0x%02x)\n"
++	},
++	{0x00ec0004,
++	 "PMU1: write_delay: db%d lane%d delays[%2d] = 0x%04x\n"
++	},
++	{0x00ed0001,
++	 "PMU5: ID=%d -- db0  db1  db2  db3  db4  db5  db6  db7  db8  db9 --\n"
++	},
++	{0x00ee000b,
++	 "PMU5: [%d]:0x %4x %4x %4x %4x %4x %4x %4x %4x %4x %4x\n"
++	},
++	{0x00ef0003,
++	 "PMU2: dump delays - pstate=%d dimm=%d csn=%d\n"
++	},
++	{0x00f00000,
++	 "PMU3: Printing Mid-Training Delay Information\n"
++	},
++	{0x00f10001,
++	 "PMU5: CS%d <<KEY>> 0 TrainingCntr <<KEY>> coarse(15:10) fine(9:0)\n"
++	},
++	{0x00f20001,
++	 "PMU5: CS%d <<KEY>> 0 RxEnDly, 1 RxClkDly <<KEY>> coarse(10:6) fine(5:0)\n"
++	},
++	{0x00f30001,
++	 "PMU5: CS%d <<KEY>> 0 TxDqsDly, 1 TxDqDly <<KEY>> coarse(9:6) fine(5:0)\n"
++	},
++	{0x00f40001,
++	 "PMU5: CS%d <<KEY>> 0 RxPBDly <<KEY>> 1 Delay Unit ~= 7ps \n"
++	},
++	{0x00f50000,
++	 "PMU5: all CS <<KEY>> 0 DFIMRL <<KEY>> Units = DFI clocks\n"
++	},
++	{0x00f60000,
++	 "PMU5: all CS <<KEY>> VrefDACs <<KEY>> DAC(6:0)\n"
++	},
++	{0x00f70000,
++	 "PMU1: Set DMD in MR13 and wrDBI in MR3 for training\n"
++	},
++	{0x00f80000,
++	 "PMU: Error: getMaxRxen() failed to find largest rxen nibble delay\n"
++	},
++	{0x00f90003,
++	 "PMU2: getMaxRxen(): maxDly %d maxTg %d maxNib %d\n"
++	},
++	{0x00fa0003,
++	 "PMU2: getRankMaxRxen(): maxDly %d Tg %d maxNib %d\n"
++	},
++	{0x00fb0000,
++	 "PMU1: skipping CDD calculation in 2D image\n"
++	},
++	{0x00fc0001,
++	 "PMU3: Calculating CDDs for pstate %d\n"
++	},
++	{0x00fd0003,
++	 "PMU3: rxFromDly[%d][%d] = %d\n"
++	},
++	{0x00fe0003,
++	 "PMU3: rxToDly  [%d][%d] = %d\n"
++	},
++	{0x00ff0003,
++	 "PMU3: rxDly    [%d][%d] = %d\n"
++	},
++	{0x01000003,
++	 "PMU3: txDly    [%d][%d] = %d\n"
++	},
++	{0x01010003,
++	 "PMU3: allFine CDD_RR_%d_%d = %d\n"
++	},
++	{0x01020003,
++	 "PMU3: allFine CDD_WW_%d_%d = %d\n"
++	},
++	{0x01030003,
++	 "PMU3: CDD_RR_%d_%d = %d\n"
++	},
++	{0x01040003,
++	 "PMU3: CDD_WW_%d_%d = %d\n"
++	},
++	{0x01050003,
++	 "PMU3: allFine CDD_RW_%d_%d = %d\n"
++	},
++	{0x01060003,
++	 "PMU3: allFine CDD_WR_%d_%d = %d\n"
++	},
++	{0x01070003,
++	 "PMU3: CDD_RW_%d_%d = %d\n"
++	},
++	{0x01080003,
++	 "PMU3: CDD_WR_%d_%d = %d\n"
++	},
++	{0x01090004,
++	 "PMU3: F%dBC2x_B%d_D%d = 0x%02x\n"
++	},
++	{0x010a0004,
++	 "PMU3: F%dBC3x_B%d_D%d = 0x%02x\n"
++	},
++	{0x010b0004,
++	 "PMU3: F%dBC4x_B%d_D%d = 0x%02x\n"
++	},
++	{0x010c0004,
++	 "PMU3: F%dBC5x_B%d_D%d = 0x%02x\n"
++	},
++	{0x010d0004,
++	 "PMU3: F%dBC8x_B%d_D%d = 0x%02x\n"
++	},
++	{0x010e0004,
++	 "PMU3: F%dBC9x_B%d_D%d = 0x%02x\n"
++	},
++	{0x010f0004,
++	 "PMU3: F%dBCAx_B%d_D%d = 0x%02x\n"
++	},
++	{0x01100004,
++	 "PMU3: F%dBCBx_B%d_D%d = 0x%02x\n"
++	},
++	{0x01110000,
++	 "PMU10: Entering context_switch_postamble\n"
++	},
++	{0x01120003,
++	 "PMU10: context_switch_postamble is enabled for DIMM %d, RC0A=0x%x, RC3x=0x%x\n"
++	},
++	{0x01130000,
++	 "PMU10: Setting bcw fspace 0\n"
++	},
++	{0x01140001,
++	 "PMU10: Sending BC0A = 0x%x\n"
++	},
++	{0x01150001,
++	 "PMU10: Sending BC6x = 0x%x\n"
++	},
++	{0x01160001,
++	 "PMU10: Sending RC0A = 0x%x\n"
++	},
++	{0x01170001,
++	 "PMU10: Sending RC3x = 0x%x\n"
++	},
++	{0x01180001,
++	 "PMU10: Sending RC0A = 0x%x\n"
++	},
++	{0x01190001,
++	 "PMU1: enter_lp3: DEBUG: pstate = %d\n"
++	},
++	{0x011a0001,
++	 "PMU1: enter_lp3: DEBUG: dfifreqxlat_pstate = %d\n"
++	},
++	{0x011b0001,
++	 "PMU1: enter_lp3: DEBUG: pllbypass = %d\n"
++	},
++	{0x011c0001,
++	 "PMU1: enter_lp3: DEBUG: forcecal = %d\n"
++	},
++	{0x011d0001,
++	 "PMU1: enter_lp3: DEBUG: pllmaxrange = 0x%x\n"
++	},
++	{0x011e0001,
++	 "PMU1: enter_lp3: DEBUG: dacval_out = 0x%x\n"
++	},
++	{0x011f0001,
++	 "PMU1: enter_lp3: DEBUG: pllctrl3 = 0x%x\n"
++	},
++	{0x01200000,
++	 "PMU3: Loading DRAM with BIOS supplied MR values and entering self refresh prior to exiting PMU code.\n"
++	},
++	{0x01210002,
++	 "PMU3: Setting DataBuffer function space of dimmcs 0x%02x to %d\n"
++	},
++	{0x01220002,
++	 "PMU4: Setting RCW FxRC%Xx = 0x%02x\n"
++	},
++	{0x01230002,
++	 "PMU4: Setting RCW FxRC%02X = 0x%02x\n"
++	},
++	{0x01240001,
++	 "PMU1: DDR4 update Rd Pre Setting disable %d\n"
++	},
++	{0x01250002,
++	 "PMU2: Setting BCW FxBC%Xx = 0x%02x\n"
++	},
++	{0x01260002,
++	 "PMU2: Setting BCW BC%02X = 0x%02x\n"
++	},
++	{0x01270002,
++	 "PMU2: Setting BCW PBA mode FxBC%Xx = 0x%02x\n"
++	},
++	{0x01280002,
++	 "PMU2: Setting BCW PBA mode BC%02X = 0x%02x\n"
++	},
++	{0x01290003,
++	 "PMU4: BCW value for dimm %d, fspace %d, addr 0x%04x\n"
++	},
++	{0x012a0002,
++	 "PMU4: DB %d, value 0x%02x\n"
++	},
++	{0x012b0000,
++	 "PMU6: WARNING MREP underflow, set to min value -2 coarse, 0 fine\n"
++	},
++	{0x012c0004,
++	 "PMU6: LRDIMM Writing final data buffer fine delay value nib %2d, trainDly %3d, fineDly code %2d, new MREP fine %2d\n"
++	},
++	{0x012d0003,
++	 "PMU6: LRDIMM Writing final data buffer fine delay value nib %2d, trainDly %3d, fineDly code %2d\n"
++	},
++	{0x012e0003,
++	 "PMU6: LRDIMM Writing data buffer fine delay type %d nib %2d, code %2d\n"
++	},
++	{0x012f0002,
++	 "PMU6: Writing final data buffer coarse delay value dbyte %2d, coarse = 0x%02x\n"
++	},
++	{0x01300003,
++	 "PMU4: data 0x%04x at MB addr 0x%08x saved at CSR addr 0x%08x\n"
++	},
++	{0x01310003,
++	 "PMU4: data 0x%04x at MB addr 0x%08x restored from CSR addr 0x%08x\n"
++	},
++	{0x01320003,
++	 "PMU4: data 0x%04x at MB addr 0x%08x saved at CSR addr 0x%08x\n"
++	},
++	{0x01330003,
++	 "PMU4: data 0x%04x at MB addr 0x%08x restored from CSR addr 0x%08x\n"
++	},
++	{0x01340001,
++	 "PMU3: Update BC00, BC01, BC02 for rank-dimm 0x%02x\n"
++	},
++	{0x01350000,
++	 "PMU3: Writing D4 RDIMM RCD Control words F0RC00 -> F0RC0F\n"
++	},
++	{0x01360000,
++	 "PMU3: Disable parity in F0RC0E\n"
++	},
++	{0x01370000,
++	 "PMU3: Writing D4 RDIMM RCD Control words F1RC00 -> F1RC05\n"
++	},
++	{0x01380000,
++	 "PMU3: Writing D4 RDIMM RCD Control words F1RC1x -> F1RC9x\n"
++	},
++	{0x01390000,
++	 "PMU3: Writing D4 Data buffer Control words BC00 -> BC0E\n"
++	},
++	{0x013a0002,
++	 "PMU1: setAltCL Sending MR0 0x%x cl=%d\n"
++	},
++	{0x013b0002,
++	 "PMU1: restoreFromAltCL Sending MR0 0x%x cl=%d\n"
++	},
++	{0x013c0002,
++	 "PMU1: restoreAcsmFromAltCL Sending MR0 0x%x cl=%d\n"
++	},
++	{0x013d0002,
++	 "PMU2: Setting D3R RC%d = 0x%01x\n"
++	},
++	{0x013e0000,
++	 "PMU3: Writing D3 RDIMM RCD Control words RC0 -> RC11\n"
++	},
++	{0x013f0002,
++	 "PMU0: VrefDAC0/1 vddqStart %d dacToVddq %d\n"
++	},
++	{0x01400001,
++	 "PMU: Error: Messageblock phyVref=0x%x is above the limit for TSMC28's attenuated LPDDR4 receivers. Please see the pub databook\n"
++	},
++	{0x01410001,
++	 "PMU: Error: Messageblock phyVref=0x%x is above the limit for TSMC28's attenuated DDR4 receivers. Please see the pub databook\n"
++	},
++	{0x01420001,
++	 "PMU0: PHY VREF @ (%d/1000) VDDQ\n"
++	},
++	{0x01430002,
++	 "PMU0: initalizing phy vrefDacs to %d ExtVrefRange %x\n"
++	},
++	{0x01440002,
++	 "PMU0: initalizing global vref to %d range %d\n"
++	},
++	{0x01450002,
++	 "PMU4: Setting initial device vrefDQ for CS%d to MR6 = 0x%04x\n"
++	},
++	{0x01460003,
++	 "PMU1: In write_level_fine() csn=%d dimm=%d pstate=%d\n"
++	},
++	{0x01470000,
++	 "PMU3: Fine write leveling hardware search increasing TxDqsDly until full bursts are seen\n"
++	},
++	{0x01480000,
++	 "PMU4: WL normalized pos   : ........................|........................\n"
++	},
++	{0x01490007,
++	 "PMU4: WL margin for nib %2d: %08x%08x%08x%08x%08x%08x\n"
++	},
++	{0x014a0000,
++	 "PMU4: WL normalized pos   : ........................|........................\n"
++	},
++	{0x014b0000,
++	 "PMU3: Exiting write leveling mode\n"
++	},
++	{0x014c0001,
++	 "PMU3: got %d for cl in load_wrlvl_acsm\n"
++	},
++	{0x014d0003,
++	 "PMU1: In write_level_coarse() csn=%d dimm=%d pstate=%d\n"
++	},
++	{0x014e0003,
++	 "PMU3: left eye edge search db:%d ln:%d dly:0x%x\n"
++	},
++	{0x014f0003,
++	 "PMU3: right eye edge search db:%d ln:%d dly:0x%x\n"
++	},
++	{0x01500004,
++	 "PMU3: eye center db:%d ln:%d dly:0x%x (maxdq:%x)\n"
++	},
++	{0x01510003,
++	 "PMU3: Wrote to TxDqDly db:%d ln:%d dly:0x%x\n"
++	},
++	{0x01520003,
++	 "PMU3: Wrote to TxDqDly db:%d ln:%d dly:0x%x\n"
++	},
++	{0x01530002,
++	 "PMU3: Coarse write leveling dbyte%2d is still failing for TxDqsDly=0x%04x\n"
++	},
++	{0x01540002,
++	 "PMU4: Coarse write leveling iteration %d saw %d data miscompares across the entire phy\n"
++	},
++	{0x01550000,
++	 "PMU: Error: Failed write leveling coarse\n"
++	},
++	{0x01560001,
++	 "PMU3: got %d for cl in load_wrlvl_acsm\n"
++	},
++	{0x01570003,
++	 "PMU3: In write_level_coarse() csn=%d dimm=%d pstate=%d\n"
++	},
++	{0x01580003,
++	 "PMU3: left eye edge search db:%d ln:%d dly:0x%x\n"
++	},
++	{0x01590003,
++	 "PMU3: right eye edge search db: %d ln: %d dly: 0x%x\n"
++	},
++	{0x015a0004,
++	 "PMU3: eye center db: %d ln: %d dly: 0x%x (maxdq: 0x%x)\n"
++	},
++	{0x015b0003,
++	 "PMU3: Wrote to TxDqDly db: %d ln: %d dly: 0x%x\n"
++	},
++	{0x015c0003,
++	 "PMU3: Wrote to TxDqDly db: %d ln: %d dly: 0x%x\n"
++	},
++	{0x015d0002,
++	 "PMU3: Coarse write leveling nibble%2d is still failing for TxDqsDly=0x%04x\n"
++	},
++	{0x015e0002,
++	 "PMU4: Coarse write leveling iteration %d saw %d data miscompares across the entire phy\n"
++	},
++	{0x015f0000,
++	 "PMU: Error: Failed write leveling coarse\n"
++	},
++	{0x01600000,
++	 "PMU4: WL normalized pos   : ................................|................................\n"
++	},
++	{0x01610009,
++	 "PMU4: WL margin for nib %2d: %08x%08x%08x%08x%08x%08x%08x%08x\n"
++	},
++	{0x01620000,
++	 "PMU4: WL normalized pos   : ................................|................................\n"
++	},
++	{0x01630001,
++	 "PMU8: Adjust margin after WL coarse to be larger than %d\n"
++	},
++	{0x01640001,
++	 "PMU: Error: All margin after write leveling coarse are smaller than minMargin %d\n"
++	},
++	{0x01650002,
++	 "PMU8: Decrement nib %d TxDqsDly by %d fine step\n"
++	},
++	{0x01660003,
++	 "PMU3: In write_level_coarse() csn=%d dimm=%d pstate=%d\n"
++	},
++	{0x01670005,
++	 "PMU2: Write level: dbyte %d nib%d dq/dmbi %2d dqsfine 0x%04x dqDly 0x%04x\n"
++	},
++	{0x01680002,
++	 "PMU3: Coarse write leveling nibble%2d is still failing for TxDqsDly=0x%04x\n"
++	},
++	{0x01690002,
++	 "PMU4: Coarse write leveling iteration %d saw %d data miscompares across the entire phy\n"
++	},
++	{0x016a0000,
++	 "PMU: Error: Failed write leveling coarse\n"
++	},
++	{0x016b0001,
++	 "PMU3: DWL delay = %d\n"
++	},
++	{0x016c0003,
++	 "PMU3: Errcnt for DWL nib %2d delay = %2d is %d\n"
++	},
++	{0x016d0002,
++	 "PMU3: DWL nibble %d sampled a 1 at delay %d\n"
++	},
++	{0x016e0003,
++	 "PMU3: DWL nibble %d passed at delay %d. Rising edge was at %d\n"
++	},
++	{0x016f0000,
++	 "PMU2: DWL did nto find a rising edge of memclk for all nibbles. Failing nibbles assumed to have rising edge close to fine delay 63\n"
++	},
++	{0x01700002,
++	 "PMU2:  Rising edge found in alias window, setting wrlvlDly for nibble %d = %d\n"
++	},
++	{0x01710002,
++	 "PMU: Error: Failed DWL for nib %d with %d one\n"
++	},
++	{0x01720003,
++	 "PMU2:  Rising edge not found in alias window with %d one, leaving wrlvlDly for nibble %d = %d\n"
++	},
++	{0x04000000,
++	 "PMU: Error:Mailbox Buffer Overflowed.\n"
++	},
++	{0x04010000,
++	 "PMU: Error:Mailbox Buffer Overflowed.\n"
++	},
++	{0x04020000,
++	 "PMU: ***** Assertion Error - terminating *****\n"
++	},
++	{0x04030002,
++	 "PMU1: swapByte db %d by %d\n"
++	},
++	{0x04040003,
++	 "PMU3: get_cmd_dly max(%d ps, %d memclk) = %d\n"
++	},
++	{0x04050002,
++	 "PMU0: Write CSR 0x%06x 0x%04x\n"
++	},
++	{0x04060002,
++	 "PMU0: hwt_init_ppgc_prbs(): Polynomial: %x, Deg: %d\n"
++	},
++	{0x04070001,
++	 "PMU: Error: acsm_set_cmd to non existant instruction adddress %d\n"
++	},
++	{0x04080001,
++	 "PMU: Error: acsm_set_cmd with unknown ddr cmd 0x%x\n"
++	},
++	{0x0409000c,
++	 "PMU1: acsm_addr %02x, acsm_flgs %04x, ddr_cmd %02x, cmd_dly %02x, ddr_addr %04x, ddr_bnk %02x, ddr_cs %02x, cmd_rcnt %02x, AcsmSeq0/1/2/3 %04x %04x %04x %04x\n"
++	},
++	{0x040a0000,
++	 "PMU: Error: Polling on ACSM done failed to complete in acsm_poll_done()...\n"
++	},
++	{0x040b0000,
++	 "PMU1: acsm RUN\n"
++	},
++	{0x040c0000,
++	 "PMU1: acsm STOPPED\n"
++	},
++	{0x040d0002,
++	 "PMU1: acsm_init: acsm_mode %04x mxrdlat %04x\n"
++	},
++	{0x040e0002,
++	 "PMU: Error: setAcsmCLCWL: cl and cwl must be each >= 2 and 5, resp. CL=%d CWL=%d\n"
++	},
++	{0x040f0002,
++	 "PMU: Error: setAcsmCLCWL: cl and cwl must be each >= 5. CL=%d CWL=%d\n"
++	},
++	{0x04100002,
++	 "PMU1: setAcsmCLCWL: CASL %04d WCASL %04d\n"
++	},
++	{0x04110001,
++	 "PMU: Error: Reserved value of register F0RC0F found in message block: 0x%04x\n"
++	},
++	{0x04120001,
++	 "PMU3: Written MRS to CS=0x%02x\n"
++	},
++	{0x04130001,
++	 "PMU3: Written MRS to CS=0x%02x\n"
++	},
++	{0x04140000,
++	 "PMU3: Entering Boot Freq Mode.\n"
++	},
++	{0x04150001,
++	 "PMU: Error: Boot clock divider setting of %d is too small\n"
++	},
++	{0x04160000,
++	 "PMU3: Exiting Boot Freq Mode.\n"
++	},
++	{0x04170002,
++	 "PMU3: Writing MR%d OP=%x\n"
++	},
++	{0x04180000,
++	 "PMU: Error: Delay too large in slomo\n"
++	},
++	{0x04190001,
++	 "PMU3: Written MRS to CS=0x%02x\n"
++	},
++	{0x041a0000,
++	 "PMU3: Enable Channel A\n"
++	},
++	{0x041b0000,
++	 "PMU3: Enable Channel B\n"
++	},
++	{0x041c0000,
++	 "PMU3: Enable All Channels\n"
++	},
++	{0x041d0002,
++	 "PMU2: Use PDA mode to set MR%d with value 0x%02x\n"
++	},
++	{0x041e0001,
++	 "PMU3: Written Vref with PDA to CS=0x%02x\n"
++	},
++	{0x041f0000,
++	 "PMU1: start_cal: DEBUG: setting CalRun to 1\n"
++	},
++	{0x04200000,
++	 "PMU1: start_cal: DEBUG: setting CalRun to 0\n"
++	},
++	{0x04210001,
++	 "PMU1: lock_pll_dll: DEBUG: pstate = %d\n"
++	},
++	{0x04220001,
++	 "PMU1: lock_pll_dll: DEBUG: dfifreqxlat_pstate = %d\n"
++	},
++	{0x04230001,
++	 "PMU1: lock_pll_dll: DEBUG: pllbypass = %d\n"
++	},
++	{0x04240001,
++	 "PMU3: SaveLcdlSeed: Saving seed seed %d\n"
++	},
++	{0x04250000,
++	 "PMU1: in phy_defaults()\n"
++	},
++	{0x04260003,
++	 "PMU3: ACXConf:%d MaxNumDbytes:%d NumDfi:%d\n"
++	},
++	{0x04270005,
++	 "PMU1: setAltAcsmCLCWL setting cl=%d cwl=%d\n"
++	},
++
++};
++
++const static struct phy_msg messages_2d[] = {
++	{0x00000001,
++	 "PMU0: Converting %d into an MR\n"
++	},
++	{0x00010003,
++	 "PMU DEBUG: vref_idx %d -= %d, range_idx = %d\n"
++	},
++	{0x00020002,
++	 "PMU0: vrefIdx. Passing range %d, remaining vrefidx = %d\n"
++	},
++	{0x00030002,
++	 "PMU0: VrefIdx %d -> MR[6:0] 0x%02x\n"
++	},
++	{0x00040001,
++	 "PMU0: Converting MR 0x%04x to vrefIdx\n"
++	},
++	{0x00050002,
++	 "PMU0: DAC %d Range %d\n"
++	},
++	{0x00060003,
++	 "PMU0: Range %d, Range_idx %d, vref_idx offset %d \n"
++	},
++	{0x00070002,
++	 "PMU0: MR 0x%04x -> VrefIdx %d\n"
++	},
++	{0x00080001,
++	 "PMU: Error: Illegal timing group number ,%d, in getPtrVrefDq\n"
++	},
++	{0x00090003,
++	 "PMU1: VrefDqR%dNib%d = %d\n"
++	},
++	{0x000a0003,
++	 "PMU0: VrefDqR%dNib%d = %d\n"
++	},
++	{0x000b0000,
++	 "PMU0: ----------------MARGINS-------\n"
++	},
++	{0x000c0002,
++	 "PMU0: R%d_RxClkDly_Margin = %d\n"
++	},
++	{0x000d0002,
++	 "PMU0: R%d_VrefDac_Margin = %d\n"
++	},
++	{0x000e0002,
++	 "PMU0: R%d_TxDqDly_Margin = %d\n"
++	},
++	{0x000f0002,
++	 "PMU0: R%d_DeviceVref_Margin = %d\n"
++	},
++	{0x00100000,
++	 "PMU0: -----------------------\n"
++	},
++	{0x00110003,
++	 "PMU0: eye %d's for all TG's is [%d ... %d]\n"
++	},
++	{0x00120000,
++	 "PMU0: ------- settingWeight -----\n"
++	},
++	{0x00130002,
++	 "PMU0: Weight %d @ Setting %d\n"
++	},
++	{0x0014001f,
++	 "PMU4: %3d %3d %3d %3d %3d %3d %3d %3d %3d %3d %3d %3d %3d %3d %3d >%3d< %3d %3d %3d %3d %3d %3d %3d %3d %3d %3d %3d %3d %3d %3d %3d\n"
++	},
++	{0x00150002,
++	 "PMU3: Voltage Range = [%d, %d]\n"
++	},
++	{0x00160004,
++	 "PMU4: -- DB%d L%d -- centers: delay = %d, voltage = %d \n"
++	},
++	{0x00170001,
++	 "PMU5: <<KEY>> 0 TxDqDlyTg%d <<KEY>> coarse(6:6) fine(5:0)\n"
++	},
++	{0x00180001,
++	 "PMU5: <<KEY>> 0 messageBlock VrefDqR%d <<KEY>> MR6(6:0)\n"
++	},
++	{0x00190001,
++	 "PMU5: <<KEY>> 0 RxClkDlyTg%d <<KEY>> fine(5:0)\n"
++	},
++	{0x001a0003,
++	 "PMU0: tgToCsn: tg %d + 0x%04x -> csn %d\n"
++	},
++	{0x001b0002,
++	 "PMU: Error: LP4 rank %d cannot be mapped on tg %d\n"
++	},
++	{0x001c0002,
++	 "PMU3: Sending vref %d,  Mr = 0X%05x, to all devices\n"
++	},
++	{0x001d0004,
++	 "PMU4: -------- %dD Write Scanning TG %d (CS 0x%x) Lanes 0x%03x --------\n"
++	},
++	{0x001e0002,
++	 "PMU0: training lanes 0x%03x using lanes 0x%03x\n"
++	},
++	{0x001f0003,
++	 "PMU4: ------- 2D-DFE Read Scanning TG %d (CS 0x%x) Lanes 0x%03x -------\n"
++	},
++	{0x00200004,
++	 "PMU4: ------- %dD Read Scanning TG %d (CS 0x%x) Lanes 0x%03x -------\n"
++	},
++	{0x00210003,
++	 "PMU4: TG%d MR1[13,6,5]=0x%x MR6[13,9,8]=0x%x\n"
++	},
++	{0x00220002,
++	 "PMU0: training lanes 0x%03x using lanes 0x%03x\n"
++	},
++	{0x00230003,
++	 "PMU4: ------- 2D-DFE Read Scanning TG %d (CS 0x%x) Lanes 0x%03x -------\n"
++	},
++	{0x00240004,
++	 "PMU4: ------- %dD Read Scanning TG %d (CS 0x%x) Lanes 0x%03x -------\n"
++	},
++	{0x00250002,
++	 "PMU0: training lanes 0x%03x using lanes 0x%03x\n"
++	},
++	{0x00260002,
++	 "PMU3: Sending vref %d,  Mr = 0X%05x, to all devices\n"
++	},
++	{0x00270004,
++	 "PMU4: -------- %dD Write Scanning TG %d (CS 0x%x) Lanes 0x%03x --------\n"
++	},
++	{0x00280001,
++	 "PMU0: input %d\n"
++	},
++	{0x00290002,
++	 "PMU4: Programmed Voltage Search Range [%d, %d]\n"
++	},
++	{0x002a0002,
++	 "PMU3: Delay Stepsize = %d Fine, Voltage Stepsize = %d DAC\n"
++	},
++	{0x002b0002,
++	 "PMU4: Delay Weight = %d, Voltage Weight = %d\n"
++	},
++	{0x002c0003,
++	 "PMU0: raw 0x%x allFine %d incDec %d"
++	},
++	{0x002d0008,
++	 "PMU0: db%d l%d, voltage 0x%x (u_r %d) delay 0x%x (u_r %d) - lcdl %d mask 0x%x\n"
++	},
++	{0x002e0005,
++	 "PMU0: DB%d L%d, Eye %d, Seed = (0x%x, 0x%x)\n"
++	},
++	{0x002f0002,
++	 "PMU3: 2D Enables       : %d,                    1,                %d\n"
++	},
++	{0x00300006,
++	 "PMU3: 2D Delay   Ranges: OOPL[0x%04x,0x%04x], IP[0x%04x,0x%04x], OOPR[0x%04x,0x%04x]\n"
++	},
++	{0x00310002,
++	 "PMU3: 2D Voltage Search Range : [%d, %d]\n"
++	},
++	{0x00320002,
++	 "PMU4: Found Voltage Search Range [%d, %d]\n"
++	},
++	{0x00330002,
++	 "PMU0: User Weight = %d, Voltage Weight = %d\n"
++	},
++	{0x00340005,
++	 "PMU0: D(%d,%d) V(%d,%d | %d)\n"
++	},
++	{0x00350002,
++	 "PMU0: Norm Weight = %d, Voltage Weight = %d\n"
++	},
++	{0x00360002,
++	 "PMU0: seed 0 = (%d,%d) (center)\n"
++	},
++	{0x00370003,
++	 "PMU0: seed 1 = (%d,%d).min edge at idx %d\n"
++	},
++	{0x00380003,
++	 "PMU0: seed 2 = (%d,%d) max edge at idx %d\n"
++	},
++	{0x00390003,
++	 "PMU0: Search point %d = (%d,%d)\n"
++	},
++	{0x003a0005,
++	 "PMU0: YMARGIN: ^ %d, - %d, v %d. rate %d = %d\n"
++	},
++	{0x003b0003,
++	 "PMU0: XMARGIN: center %d, edge %d. = %d\n"
++	},
++	{0x003c0002,
++	 "PMU0: ----------- weighting (%d,%d) ----------------\n"
++	},
++	{0x003d0003,
++	 "PMU0: X margin - L %d R %d - Min %d\n"
++	},
++	{0x003e0003,
++	 "PMU0: Y margin - L %d R %d - Min %d\n"
++	},
++	{0x003f0003,
++	 "PMU0: center (%d,%d) weight = %d\n"
++	},
++	{0x00400003,
++	 "PMU4: Eye argest blob area %d from %d to %d\n"
++	},
++	{0x00410002,
++	 "PMU0: Compute centroid min_x %d max_x %d\n"
++	},
++	{0x00420003,
++	 "PMU0: Compute centroid sumLnDlyWidth %d sumLnVrefWidth %d sumLnWidht %d\n"
++	},
++	{0x00430000,
++	 "PMU: Error: No passing region found for 1 or more lanes. Set hdtCtrl=4 to see passing regions\n"
++	},
++	{0x00440003,
++	 "PMU0: Centroid ( %d, %d ) found with sumLnWidht %d\n"
++	},
++	{0x00450003,
++	 "PMU0: Optimal allFine Center ( %d + %d ,%d )\n"
++	},
++	{0x00460003,
++	 "PMU3: point %d starting at (%d,%d)\n"
++	},
++	{0x00470002,
++	 "PMU0: picking left (%d > %d)\n"
++	},
++	{0x00480002,
++	 "PMU0: picking right (%d > %d)\n"
++	},
++	{0x00490002,
++	 "PMU0: picking down (%d > %d)\n"
++	},
++	{0x004a0002,
++	 "PMU0: picking up (%d > %d)\n"
++	},
++	{0x004b0009,
++	 "PMU3: new center @ (%3d, %3d). Moved (%2i, %2i) -- L %d, R %d, C %d, U %d, D %d\n"
++	},
++	{0x004c0003,
++	 "PMU3: cordNum %d imporved %d to %d\n"
++	},
++	{0x004d0000,
++	 "PMU: Error: No passing region found for 1 or more lanes. Set hdtCtrl=4 to see passing regions\n"
++	},
++	{0x004e0004,
++	 "PMU0: Optimal allFine Center ( %d + %d ,%d ), found with weight %d.\n"
++	},
++	{0x004f0003,
++	 "PMU0: merging lanes=%d..%d, centerMerge_t %d\n"
++	},
++	{0x00500001,
++	 "PMU0: laneVal %d is disable\n"
++	},
++	{0x00510002,
++	 "PMU0: checking common center %d against current center %d\n"
++	},
++	{0x00520001,
++	 "PMU: Error: getCompoundEye Called on lane%d eye with non-compatible centers\n"
++	},
++	{0x00530001,
++	 "PMU0: laneItr %d is disable\n"
++	},
++	{0x00540005,
++	 "PMU0: lane %d, data_idx %d, offset_idx %d, = [%d..%d]\n"
++	},
++	{0x00550003,
++	 "PMU0: lane %d, data_idx %d, offset_idx %d, offset_idx out of range!\n"
++	},
++	{0x00560003,
++	 "PMU0: mergeData[%d] = max_v_low %d, min_v_high %d\n"
++	},
++	{0x00570005,
++	 "PMU1: writing merged center (%d,%d) back to dataBlock[%d]. doDelay %d, doVoltage %d\n"
++	},
++	{0x00580005,
++	 "PMU0: applying relative (%i,%i) back to dataBlock[%d]. doDelay %d, doVoltage %d\n"
++	},
++	{0x00590002,
++	 "PMU0: drvstren %x is idx %d in the table\n"
++	},
++	{0x005a0000,
++	 "PMU4: truncating FFE drive strength search range. Out of drive strengths to check.\n"
++	},
++	{0x005b0002,
++	 "PMU5: Weak 1 changed to pull-up %5d ohms, pull-down %5d ohms\n"
++	},
++	{0x005c0002,
++	 "PMU5: Weak 0 changed to pull-up %5d ohms, pull-down %5d ohms\n"
++	},
++	{0x005d0003,
++	 "PMU0: dlyMargin L %02d R %02d, min %02d\n"
++	},
++	{0x005e0003,
++	 "PMU0: vrefMargin T %02d B %02d, min %02d\n"
++	},
++	{0x005f0002,
++	 "PMU3: new minimum VrefMargin (%d < %d) recorded\n"
++	},
++	{0x00600002,
++	 "PMU3: new minimum DlyMargin (%d < %d) recorded\n"
++	},
++	{0x00610000,
++	 "PMU0: RX finding the per-nibble, per-tg rxClkDly values\n"
++	},
++	{0x00620003,
++	 "PMU0: Merging collected eyes [%d..%d) and analyzing for nibble %d's optimal rxClkDly\n"
++	},
++	{0x00630002,
++	 "PMU0: -- centers: delay = %d, voltage = %d \n"
++	},
++	{0x00640003,
++	 "PMU0: dumping optimized eye -- centers: delay = %d (%d), voltage = %d \n"
++	},
++	{0x00650000,
++	 "PMU0: TX optimizing txDqDelays\n"
++	},
++	{0x00660001,
++	 "PMU3: Analyzing collected eye %d for a lane's optimal TxDqDly\n"
++	},
++	{0x00670001,
++	 "PMU0: eye-lane %d is disable\n"
++	},
++	{0x00680000,
++	 "PMU0: TX optimizing device voltages\n"
++	},
++	{0x00690002,
++	 "PMU0: Merging collected eyes [%d..%d) and analyzing for optimal device txVref\n"
++	},
++	{0x006a0002,
++	 "PMU0: -- centers: delay = %d, voltage = %d \n"
++	},
++	{0x006b0003,
++	 "PMU0: dumping optimized eye -- centers: delay = %d (%d), voltage = %d \n"
++	},
++	{0x006c0000,
++	 "PMU4: VrefDac (compound all TG) Bottom Top -> Center\n"
++	},
++	{0x006d0005,
++	 "PMU4: DB%d L%d   %3d   %3d  ->  %3d (DISCONNECTED)\n"
++	},
++	{0x006e0005,
++	 "PMU4: DB%d L%d   %3d   %3d  ->  %3d\n"
++	},
++	{0x006f0005,
++	 "PMU0: writing rxClkDelay for tg%d db%1d nib%1d to 0x%02x from eye[%02d] (DISCONNECTED)\n"
++	},
++	{0x00700003,
++	 "PMU: Error: Dbyte %d nibble %d's optimal rxClkDly of 0x%x is out of bounds\n"
++	},
++	{0x00710005,
++	 "PMU0: writing rxClkDelay for tg%d db%1d nib%1d to 0x%02x from eye[%02d]\n"
++	},
++	{0x00720005,
++	 "PMU0: tx voltage for tg%2d nib%2d to %3d (%d) from eye[%02d]\n"
++	},
++	{0x00730001,
++	 "PMU0: vref Sum = %d\n"
++	},
++	{0x00740004,
++	 "PMU0: tx voltage total is %d/%d -> %d -> %d\n"
++	},
++	{0x00750007,
++	 "PMU0: writing txDqDelay for tg%1d db%1d ln%1d to  0x%02x (%d coarse, %d fine) from eye[%02d] (DISCONNECTED)\n"
++	},
++	{0x00760003,
++	 "PMU: Error: Dbyte %d lane %d's optimal txDqDly of 0x%x is out of bounds\n"
++	},
++	{0x00770007,
++	 "PMU0: writing txDqDelay for tg%1d db%1d l%1d to  0x%02x (%d coarse, %d fine) from eye[%02d]\n"
++	},
++	{0x00780002,
++	 "PMU0: %d (0=tx, 1=rx) TgMask for this simulation: %x\n"
++	},
++	{0x00790001,
++	 "PMU0: eye-byte %d is disable\n"
++	},
++	{0x007a0001,
++	 "PMU0: eye-lane %d is disable\n"
++	},
++	{0x007b0003,
++	 "PMU10: Start d4_2d_lrdimm_rx_dfe dimm %d nbTap %d biasStepMode %d\n"
++	},
++	{0x007c0001,
++	 "PMU10: DB DFE feature not fully supported, F2BCEx value is 0x%02x\n"
++	},
++	{0x007d0001,
++	 "PMU10: DB DFE feature fully supported, F2BCEx value is 0x%02x\n"
++	},
++	{0x007e0002,
++	 "PMU8: Start d4_2d_lrdimm_rx_dfe for tap %d biasStepInc %d\n"
++	},
++	{0x007f0001,
++	 "PMU7: Start d4_2d_lrdimm_rx_dfe tapCoff 0x%0x\n"
++	},
++	{0x00800003,
++	 "PMU6: d4_2d_lrdimm_rx_dfe db %d lane %d area %d\n"
++	},
++	{0x00810004,
++	 "PMU7: d4_2d_lrdimm_rx_dfe db %d lane %d max area %d best bias 0x%0x\n"
++	},
++	{0x00820001,
++	 "PMU0: eye-lane %d is disable\n"
++	},
++	{0x00830003,
++	 "PMU5: Setting 0x%x improved rank weight (%4d < %4d)\n"
++	},
++	{0x00840001,
++	 "PMU4: Setting 0x%x still optimal\n"
++	},
++	{0x00850002,
++	 "PMU5: ---- Training CS%d MR%d DRAM Equalization ----\n"
++	},
++	{0x00860001,
++	 "PMU0: eye-lane %d is disable\n"
++	},
++	{0x00870003,
++	 "PMU0: eye %d weight %d allTgWeight %d\n"
++	},
++	{0x00880002,
++	 "PMU5: FFE figure of merit improved from %d to %d\n"
++	},
++	{0x00890002,
++	 "PMU: Error: LP4 rank %d cannot be mapped on tg %d\n"
++	},
++	{0x008a0000,
++	 "PMU4: Adjusting vrefDac0 for just 1->x transitions\n"
++	},
++	{0x008b0000,
++	 "PMU4: Adjusting vrefDac1 for just 0->x transitions\n"
++	},
++	{0x008c0001,
++	 "PMU5: Strong 1, pull-up %d ohms\n"
++	},
++	{0x008d0001,
++	 "PMU5: Strong 0, pull-down %d ohms\n"
++	},
++	{0x008e0000,
++	 "PMU4: Enabling weak drive strengths (FFE)\n"
++	},
++	{0x008f0000,
++	 "PMU5: Changing all weak driver strengths\n"
++	},
++	{0x00900000,
++	 "PMU5: Finalizing weak drive strengths\n"
++	},
++	{0x00910000,
++	 "PMU4: retraining with optimal drive strength settings\n"
++	},
++	{0x00920002,
++	 "PMU0: targetting CsX = %d and CsY = %d\n"
++	},
++	{0x00930001,
++	 "PMU1:prbsGenCtl:%x\n"
++	},
++	{0x00940000,
++	 "PMU1: loading 2D acsm sequence\n"
++	},
++	{0x00950000,
++	 "PMU1: loading 1D acsm sequence\n"
++	},
++	{0x00960002,
++	 "PMU3: %d memclocks @ %d to get half of 300ns\n"
++	},
++	{0x00970000,
++	 "PMU: Error: User requested MPR read pattern for read DQS training in DDR3 Mode\n"
++	},
++	{0x00980000,
++	 "PMU3: Running 1D search for left eye edge\n"
++	},
++	{0x00990001,
++	 "PMU1: In Phase Left Edge Search cs %d\n"
++	},
++	{0x009a0001,
++	 "PMU1: Out of Phase Left Edge Search cs %d\n"
++	},
++	{0x009b0000,
++	 "PMU3: Running 1D search for right eye edge\n"
++	},
++	{0x009c0001,
++	 "PMU1: In Phase Right Edge Search cs %d\n"
++	},
++	{0x009d0001,
++	 "PMU1: Out of Phase Right Edge Search cs %d\n"
++	},
++	{0x009e0001,
++	 "PMU1: mxRdLat training pstate %d\n"
++	},
++	{0x009f0001,
++	 "PMU1: mxRdLat search for cs %d\n"
++	},
++	{0x00a00001,
++	 "PMU0: MaxRdLat non consistant DtsmLoThldXingInd 0x%03x\n"
++	},
++	{0x00a10003,
++	 "PMU4: CS %d Dbyte %d worked with DFIMRL = %d DFICLKs \n"
++	},
++	{0x00a20004,
++	 "PMU3: MaxRdLat Read Lane err mask for csn %d, DFIMRL %2d DFIClks, dbyte %d = 0x%03x\n"
++	},
++	{0x00a30003,
++	 "PMU3: MaxRdLat Read Lane err mask for csn %d DFIMRL %2d, All dbytes = 0x%03x\n"
++	},
++	{0x00a40001,
++	 "PMU: Error: CS%d failed to find a DFIMRL setting that worked for all bytes during MaxRdLat training\n"
++	},
++	{0x00a50002,
++	 "PMU3: Smallest passing DFIMRL for all dbytes in CS%d = %d DFIClks\n"
++	},
++	{0x00a60000,
++	 "PMU: Error: No passing DFIMRL value found for any chip select during MaxRdLat training\n"
++	},
++	{0x00a70003,
++	 "PMU: Error: Dbyte %d lane %d txDqDly passing region is too small (width = %d)\n"
++	},
++	{0x00a80006,
++	 "PMU10: Adjusting rxclkdly db %d nib %d from %d+%d=%d->%d\n"
++	},
++	{0x00a90000,
++	 "PMU4: TxDqDly Passing Regions (EyeLeft EyeRight -> EyeCenter) Units=1/32 UI\n"
++	},
++	{0x00aa0005,
++	 "PMU4: DB %d Lane %d: %3d %3d -> %3d\n"
++	},
++	{0x00ab0002,
++	 "PMU2: TXDQ delayLeft[%2d] = %3d (DISCONNECTED)\n"
++	},
++	{0x00ac0004,
++	 "PMU2: TXDQ delayLeft[%2d] = %3d oopScaled = %3d selectOop %d\n"
++	},
++	{0x00ad0002,
++	 "PMU2: TXDQ delayRight[%2d] = %3d (DISCONNECTED)\n"
++	},
++	{0x00ae0004,
++	 "PMU2: TXDQ delayRight[%2d] = %3d oopScaled = %3d selectOop %d\n"
++	},
++	{0x00af0003,
++	 "PMU: Error: Dbyte %d lane %d txDqDly passing region is too small (width = %d)\n"
++	},
++	{0x00b00000,
++	 "PMU4: TxDqDly Passing Regions (EyeLeft EyeRight -> EyeCenter) Units=1/32 UI\n"
++	},
++	{0x00b10002,
++	 "PMU4: DB %d Lane %d: (DISCONNECTED)\n"
++	},
++	{0x00b20005,
++	 "PMU4: DB %d Lane %d: %3d %3d -> %3d\n"
++	},
++	{0x00b30002,
++	 "PMU3: Running 1D search csn %d for DM Right/NotLeft(%d) eye edge\n"
++	},
++	{0x00b40002,
++	 "PMU3: WrDq DM byte%2d with Errcnt %d\n"
++	},
++	{0x00b50002,
++	 "PMU3: WrDq DM byte%2d avgDly 0x%04x\n"
++	},
++	{0x00b60002,
++	 "PMU1: WrDq DM byte%2d with Errcnt %d\n"
++	},
++	{0x00b70001,
++	 "PMU: Error: Dbyte %d txDqDly DM training did not start inside the eye\n"
++	},
++	{0x00b80000,
++	 "PMU4: DM TxDqDly Passing Regions (EyeLeft EyeRight -> EyeCenter) Units=1/32 UI\n"
++	},
++	{0x00b90002,
++	 "PMU4: DB %d Lane %d: (DISCONNECTED)\n"
++	},
++	{0x00ba0005,
++	 "PMU4: DB %d Lane %d: %3d %3d -> %3d\n"
++	},
++	{0x00bb0003,
++	 "PMU: Error: Dbyte %d lane %d txDqDly DM passing region is too small (width = %d)\n"
++	},
++	{0x00bc0004,
++	 "PMU3: Errcnt for MRD/MWD search nib %2d delay = (%d, 0x%02x) = %d\n"
++	},
++	{0x00bd0000,
++	 "PMU3: Precharge all open banks\n"
++	},
++	{0x00be0002,
++	 "PMU: Error: Dbyte %d nibble %d found mutliple working coarse delay setting for MRD/MWD\n"
++	},
++	{0x00bf0000,
++	 "PMU4: MRD Passing Regions (coarseVal, fineLeft fineRight -> fineCenter)\n"
++	},
++	{0x00c00000,
++	 "PMU4: MWD Passing Regions (coarseVal, fineLeft fineRight -> fineCenter)\n"
++	},
++	{0x00c10004,
++	 "PMU10: Warning: DB %d nibble %d has multiple working coarse delays, %d and %d, choosing the smaller delay\n"
++	},
++	{0x00c20003,
++	 "PMU: Error: Dbyte %d nibble %d MRD/MWD passing region is too small (width = %d)\n"
++	},
++	{0x00c30006,
++	 "PMU4: DB %d nibble %d: %3d, %3d %3d -> %3d\n"
++	},
++	{0x00c40002,
++	 "PMU1: Start MRD/nMWD %d for csn %d\n"
++	},
++	{0x00c50002,
++	 "PMU2: RXDQS delayLeft[%2d] = %3d (DISCONNECTED)\n"
++	},
++	{0x00c60006,
++	 "PMU2: RXDQS delayLeft[%2d] = %3d delayOop[%2d] = %3d OopScaled %4d, selectOop %d\n"
++	},
++	{0x00c70002,
++	 "PMU2: RXDQS delayRight[%2d] = %3d (DISCONNECTED)\n"
++	},
++	{0x00c80006,
++	 "PMU2: RXDQS delayRight[%2d] = %3d delayOop[%2d] = %4d OopScaled %4d, selectOop %d\n"
++	},
++	{0x00c90000,
++	 "PMU4: RxClkDly Passing Regions (EyeLeft EyeRight -> EyeCenter)\n"
++	},
++	{0x00ca0002,
++	 "PMU4: DB %d nibble %d: (DISCONNECTED)\n"
++	},
++	{0x00cb0005,
++	 "PMU4: DB %d nibble %d: %3d %3d -> %3d\n"
++	},
++	{0x00cc0003,
++	 "PMU: Error: Dbyte %d nibble %d rxClkDly passing region is too small (width = %d)\n"
++	},
++	{0x00cd0002,
++	 "PMU0: goodbar = %d for RDWR_BLEN %d\n"
++	},
++	{0x00ce0001,
++	 "PMU3: RxClkDly = %d\n"
++	},
++	{0x00cf0005,
++	 "PMU0: db %d l %d absLane %d -> bottom %d top %d\n"
++	},
++	{0x00d00009,
++	 "PMU3: BYTE %d - %3d %3d %3d %3d %3d %3d %3d %3d\n"
++	},
++	{0x00d10002,
++	 "PMU: Error: dbyte %d lane %d's per-lane vrefDAC's had no passing region\n"
++	},
++	{0x00d20004,
++	 "PMU0: db%d l%d - %d %d\n"
++	},
++	{0x00d30002,
++	 "PMU0: goodbar = %d for RDWR_BLEN %d\n"
++	},
++	{0x00d40004,
++	 "PMU3: db%d l%d saw %d issues at rxClkDly %d\n"
++	},
++	{0x00d50003,
++	 "PMU3: db%d l%d first saw a pass->fail edge at rxClkDly %d\n"
++	},
++	{0x00d60002,
++	 "PMU3: lane %d PBD = %d\n"
++	},
++	{0x00d70003,
++	 "PMU3: db%d l%d first saw a DBI pass->fail edge at rxClkDly %d\n"
++	},
++	{0x00d80003,
++	 "PMU2: db%d l%d already passed rxPBD = %d\n"
++	},
++	{0x00d90003,
++	 "PMU0: db%d l%d, PBD = %d\n"
++	},
++	{0x00da0002,
++	 "PMU: Error: dbyte %d lane %d failed read deskew\n"
++	},
++	{0x00db0003,
++	 "PMU0: db%d l%d, inc PBD = %d\n"
++	},
++	{0x00dc0003,
++	 "PMU1: Running lane deskew on pstate %d csn %d rdDBIEn %d\n"
++	},
++	{0x00dd0000,
++	 "PMU: Error: Read deskew training has been requested, but csrMajorModeDbyte[2] is set\n"
++	},
++	{0x00de0002,
++	 "PMU1: AcsmCsMapCtrl%02d 0x%04x\n"
++	},
++	{0x00df0002,
++	 "PMU1: AcsmCsMapCtrl%02d 0x%04x\n"
++	},
++	{0x00e00001,
++	 "PMU: Error: Wrong PMU image loaded. message Block DramType = 0x%02x, but image built for D3U Type\n"
++	},
++	{0x00e10001,
++	 "PMU: Error: Wrong PMU image loaded. message Block DramType = 0x%02x, but image built for D3R Type\n"
++	},
++	{0x00e20001,
++	 "PMU: Error: Wrong PMU image loaded. message Block DramType = 0x%02x, but image built for D4U Type\n"
++	},
++	{0x00e30001,
++	 "PMU: Error: Wrong PMU image loaded. message Block DramType = 0x%02x, but image built for D4R Type\n"
++	},
++	{0x00e40001,
++	 "PMU: Error: Wrong PMU image loaded. message Block DramType = 0x%02x, but image built for D4LR Type\n"
++	},
++	{0x00e50000,
++	 "PMU: Error: Both 2t timing mode and ddr4 geardown mode specifed in the messageblock's PhyCfg and MR3 fields. Only one can be enabled\n"
++	},
++	{0x00e60003,
++	 "PMU10: PHY TOTALS - NUM_DBYTES %d NUM_NIBBLES %d NUM_ANIBS %d\n"
++	},
++	{0x00e70006,
++	 "PMU10: CSA=0x%02X, CSB=0x%02X, TSTAGES=0x%04X, HDTOUT=%d, MMISC=%d DRAMFreq=%dMT DramType=LPDDR3\n"
++	},
++	{0x00e80006,
++	 "PMU10: CSA=0x%02X, CSB=0x%02X, TSTAGES=0x%04X, HDTOUT=%d, MMISC=%d DRAMFreq=%dMT DramType=LPDDR4\n"
++	},
++	{0x00e90008,
++	 "PMU10: CS=0x%02X, TSTAGES=0x%04X, HDTOUT=%d, 2T=%d, MMISC=%d AddrMirror=%d DRAMFreq=%dMT DramType=%d\n"
++	},
++	{0x00ea0004,
++	 "PMU10: Pstate%d MR0=0x%04X MR1=0x%04X MR2=0x%04X\n"
++	},
++	{0x00eb0008,
++	 "PMU10: Pstate%d MRS MR0=0x%04X MR1=0x%04X MR2=0x%04X MR3=0x%04X MR4=0x%04X MR5=0x%04X MR6=0x%04X\n"
++	},
++	{0x00ec0005,
++	 "PMU10: Pstate%d MRS MR1_A0=0x%04X MR2_A0=0x%04X MR3_A0=0x%04X MR11_A0=0x%04X\n"
++	},
++	{0x00ed0000,
++	 "PMU10: UseBroadcastMR set. All ranks and channels use MRXX_A0 for MR settings.\n"
++	},
++	{0x00ee0005,
++	 "PMU10: Pstate%d MRS MR01_A0=0x%02X MR02_A0=0x%02X MR03_A0=0x%02X MR11_A0=0x%02X\n"
++	},
++	{0x00ef0005,
++	 "PMU10: Pstate%d MRS MR12_A0=0x%02X MR13_A0=0x%02X MR14_A0=0x%02X MR22_A0=0x%02X\n"
++	},
++	{0x00f00005,
++	 "PMU10: Pstate%d MRS MR01_A1=0x%02X MR02_A1=0x%02X MR03_A1=0x%02X MR11_A1=0x%02X\n"
++	},
++	{0x00f10005,
++	 "PMU10: Pstate%d MRS MR12_A1=0x%02X MR13_A1=0x%02X MR14_A1=0x%02X MR22_A1=0x%02X\n"
++	},
++	{0x00f20005,
++	 "PMU10: Pstate%d MRS MR01_B0=0x%02X MR02_B0=0x%02X MR03_B0=0x%02X MR11_B0=0x%02X\n"
++	},
++	{0x00f30005,
++	 "PMU10: Pstate%d MRS MR12_B0=0x%02X MR13_B0=0x%02X MR14_B0=0x%02X MR22_B0=0x%02X\n"
++	},
++	{0x00f40005,
++	 "PMU10: Pstate%d MRS MR01_B1=0x%02X MR02_B1=0x%02X MR03_B1=0x%02X MR11_B1=0x%02X\n"
++	},
++	{0x00f50005,
++	 "PMU10: Pstate%d MRS MR12_B1=0x%02X MR13_B1=0x%02X MR14_B1=0x%02X MR22_B1=0x%02X\n"
++	},
++	{0x00f60002,
++	 "PMU1: AcsmOdtCtrl%02d 0x%02x\n"
++	},
++	{0x00f70002,
++	 "PMU1: AcsmCsMapCtrl%02d 0x%04x\n"
++	},
++	{0x00f80002,
++	 "PMU1: AcsmCsMapCtrl%02d 0x%04x\n"
++	},
++	{0x00f90000,
++	 "PMU1: HwtCAMode set\n"
++	},
++	{0x00fa0001,
++	 "PMU3: DDR4 infinite preamble enter/exit mode %d\n"
++	},
++	{0x00fb0002,
++	 "PMU1: In rxenb_train() csn=%d pstate=%d\n"
++	},
++	{0x00fc0000,
++	 "PMU3: Finding DQS falling edge\n"
++	},
++	{0x00fd0000,
++	 "PMU3: Searching for DDR3/LPDDR3/LPDDR4 read preamble\n"
++	},
++	{0x00fe0009,
++	 "PMU3: dtsm fails Even Nibbles : %2x %2x %2x %2x %2x %2x %2x %2x %2x\n"
++	},
++	{0x00ff0009,
++	 "PMU3: dtsm fails Odd  Nibbles : %2x %2x %2x %2x %2x %2x %2x %2x %2x\n"
++	},
++	{0x01000002,
++	 "PMU3: Preamble search pass=%d anyfail=%d\n"
++	},
++	{0x01010000,
++	 "PMU: Error: RxEn training preamble not found\n"
++	},
++	{0x01020000,
++	 "PMU3: Found DQS pre-amble\n"
++	},
++	{0x01030001,
++	 "PMU: Error: Dbyte %d couldn't find the rising edge of DQS during RxEn Training\n"
++	},
++	{0x01040000,
++	 "PMU3: RxEn aligning to first rising edge of burst\n"
++	},
++	{0x01050001,
++	 "PMU3: Decreasing RxEn delay by %d fine step to allow full capture of reads\n"
++	},
++	{0x01060001,
++	 "PMU3: MREP Delay = %d\n"
++	},
++	{0x01070003,
++	 "PMU3: Errcnt for MREP nib %2d delay = %2d is %d\n"
++	},
++	{0x01080002,
++	 "PMU3: MREP nibble %d sampled a 1 at data buffer delay %d\n"
++	},
++	{0x01090002,
++	 "PMU3: MREP nibble %d saw a 0 to 1 transition at data buffer delay %d\n"
++	},
++	{0x010a0000,
++	 "PMU2:  MREP did not find a 0 to 1 transition for all nibbles. Failing nibbles assumed to have rising edge close to fine delay 63\n"
++	},
++	{0x010b0002,
++	 "PMU2:  Rising edge found in alias window, setting rxDly for nibble %d = %d\n"
++	},
++	{0x010c0002,
++	 "PMU: Error: Failed MREP for nib %d with %d one\n"
++	},
++	{0x010d0003,
++	 "PMU2:  Rising edge not found in alias window with %d one, leaving rxDly for nibble %d = %d\n"
++	},
++	{0x010e0002,
++	 "PMU3: Training DIMM %d CSn %d\n"
++	},
++	{0x010f0001,
++	 "PMU3: exitCAtrain_lp3 cs 0x%x\n"
++	},
++	{0x01100001,
++	 "PMU3: enterCAtrain_lp3 cs 0x%x\n"
++	},
++	{0x01110001,
++	 "PMU3: CAtrain_switchmsb_lp3 cs 0x%x\n"
++	},
++	{0x01120001,
++	 "PMU3: CATrain_rdwr_lp3 looking for pattern %x\n"
++	},
++	{0x01130000,
++	 "PMU3: exitCAtrain_lp4\n"
++	},
++	{0x01140001,
++	 "PMU3: DEBUG enterCAtrain_lp4 1: cs 0x%x\n"
++	},
++	{0x01150001,
++	 "PMU3: DEBUG enterCAtrain_lp4 3: Put dbyte %d in async mode\n"
++	},
++	{0x01160000,
++	 "PMU3: DEBUG enterCAtrain_lp4 5: Send MR13 to turn on CA training\n"
++	},
++	{0x01170003,
++	 "PMU3: DEBUG enterCAtrain_lp4 7: idx = %d vref = %x mr12 = %x \n"
++	},
++	{0x01180001,
++	 "PMU3: CATrain_rdwr_lp4 looking for pattern %x\n"
++	},
++	{0x01190004,
++	 "PMU3: Phase %d CAreadbackA db:%d %x xo:%x\n"
++	},
++	{0x011a0005,
++	 "PMU3: DEBUG lp4SetCatrVref 1: cs=%d chan=%d mr12=%x vref=%d.%d%%\n"
++	},
++	{0x011b0003,
++	 "PMU3: DEBUG lp4SetCatrVref 3: mr12 = %x send vref= %x to db=%d\n"
++	},
++	{0x011c0000,
++	 "PMU10:Optimizing vref\n"
++	},
++	{0x011d0004,
++	 "PMU4:mr12:%2x cs:%d chan %d r:%4x\n"
++	},
++	{0x011e0005,
++	 "PMU3: i:%2d bstr:%2d bsto:%2d st:%d r:%d\n"
++	},
++	{0x011f0002, "Failed to find sufficient CA Vref Passing Region for CS %d channel %d\n"
++	},
++	{0x01200005,
++	 "PMU3:Found %d.%d%% MR12:%x for cs:%d chan %d\n"
++	},
++	{0x01210002,
++	 "PMU3:Calculated %d for AtxImpedence from acx %d.\n"
++	},
++	{0x01220000,
++	 "PMU3:CA Odt impedence ==0.  Use default vref.\n"
++	},
++	{0x01230003,
++	 "PMU3:Calculated %d.%d%% for Vref MR12=0x%x.\n"
++	},
++	{0x01240000,
++	 "PMU3: CAtrain_lp\n"
++	},
++	{0x01250000,
++	 "PMU3: CAtrain Begins.\n"
++	},
++	{0x01260001,
++	 "PMU3: CAtrain_lp testing dly %d\n"
++	},
++	{0x01270001,
++	 "PMU5: CA bitmap dump for cs %x\n"
++	},
++	{0x01280001,
++	 "PMU5: CAA%d "
++	},
++	{0x01290001, "%02x"
++	},
++	{0x012a0000, "\n"
++	},
++	{0x012b0001,
++	 "PMU5: CAB%d "
++	},
++	{0x012c0001, "%02x"
++	},
++	{0x012d0000, "\n"
++	},
++	{0x012e0003,
++	 "PMU3: anibi=%d, anibichan[anibi]=%d ,chan=%d\n"
++	},
++	{0x012f0001, "%02x"
++	},
++	{0x01300001, "\nPMU3:Raw CA setting :%x"
++	},
++	{0x01310002, "\nPMU3:ATxDly setting:%x margin:%d\n"
++	},
++	{0x01320002, "\nPMU3:InvClk ATxDly setting:%x margin:%d\n"
++	},
++	{0x01330000, "\nPMU3:No Range found!\n"
++	},
++	{0x01340003,
++	 "PMU3: 2 anibi=%d, anibichan[anibi]=%d ,chan=%d"
++	},
++	{0x01350002, "\nPMU3: no neg clock => CA setting anib=%d, :%d\n"
++	},
++	{0x01360001,
++	 "PMU3:Normal margin:%d\n"
++	},
++	{0x01370001,
++	 "PMU3:Inverted margin:%d\n"
++	},
++	{0x01380000,
++	 "PMU3:Using Inverted clock\n"
++	},
++	{0x01390000,
++	 "PMU3:Using normal clk\n"
++	},
++	{0x013a0003,
++	 "PMU3: 3 anibi=%d, anibichan[anibi]=%d ,chan=%d\n"
++	},
++	{0x013b0002,
++	 "PMU3: Setting ATxDly for anib %x to %x\n"
++	},
++	{0x013c0000,
++	 "PMU: Error: CA Training Failed.\n"
++	},
++	{0x013d0000,
++	 "PMU1: Writing MRs\n"
++	},
++	{0x013e0000,
++	 "PMU4:Using MR12 values from 1D CA VREF training.\n"
++	},
++	{0x013f0000,
++	 "PMU3:Writing all MRs to fsp 1\n"
++	},
++	{0x01400000,
++	 "PMU10:Lp4Quickboot mode.\n"
++	},
++	{0x01410000,
++	 "PMU3: Writing MRs\n"
++	},
++	{0x01420001,
++	 "PMU10: Setting boot clock divider to %d\n"
++	},
++	{0x01430000,
++	 "PMU3: Resetting DRAM\n"
++	},
++	{0x01440000,
++	 "PMU3: setup for RCD initalization\n"
++	},
++	{0x01450000,
++	 "PMU3: pmu_exit_SR from dev_init()\n"
++	},
++	{0x01460000,
++	 "PMU3: initializing RCD\n"
++	},
++	{0x01470000,
++	 "PMU10: **** Executing 2D Image ****\n"
++	},
++	{0x01480001,
++	 "PMU10: **** Start DDR4 Training. PMU Firmware Revision 0x%04x ****\n"
++	},
++	{0x01490001,
++	 "PMU10: **** Start DDR3 Training. PMU Firmware Revision 0x%04x ****\n"
++	},
++	{0x014a0001,
++	 "PMU10: **** Start LPDDR3 Training. PMU Firmware Revision 0x%04x ****\n"
++	},
++	{0x014b0001,
++	 "PMU10: **** Start LPDDR4 Training. PMU Firmware Revision 0x%04x ****\n"
++	},
++	{0x014c0000,
++	 "PMU: Error: Mismatched internal revision between DCCM and ICCM images\n"
++	},
++	{0x014d0001,
++	 "PMU10: **** Testchip %d Specific Firmware ****\n"
++	},
++	{0x014e0000,
++	 "PMU1: LRDIMM with EncodedCS mode, one DIMM\n"
++	},
++	{0x014f0000,
++	 "PMU1: LRDIMM with EncodedCS mode, two DIMMs\n"
++	},
++	{0x01500000,
++	 "PMU1: RDIMM with EncodedCS mode, one DIMM\n"
++	},
++	{0x01510000,
++	 "PMU2: Starting LRDIMM MREP training for all ranks\n"
++	},
++	{0x01520000,
++	 "PMU199: LRDIMM MREP training for all ranks completed\n"
++	},
++	{0x01530000,
++	 "PMU2: Starting LRDIMM DWL training for all ranks\n"
++	},
++	{0x01540000,
++	 "PMU199: LRDIMM DWL training for all ranks completed\n"
++	},
++	{0x01550000,
++	 "PMU2: Starting LRDIMM MRD training for all ranks\n"
++	},
++	{0x01560000,
++	 "PMU199: LRDIMM MRD training for all ranks completed\n"
++	},
++	{0x01570000,
++	 "PMU2: Starting RXEN training for all ranks\n"
++	},
++	{0x01580000,
++	 "PMU2: Starting write leveling fine delay training for all ranks\n"
++	},
++	{0x01590000,
++	 "PMU2: Starting LRDIMM MWD training for all ranks\n"
++	},
++	{0x015a0000,
++	 "PMU199: LRDIMM MWD training for all ranks completed\n"
++	},
++	{0x015b0000,
++	 "PMU2: Starting write leveling fine delay training for all ranks\n"
++	},
++	{0x015c0000,
++	 "PMU2: Starting read deskew training\n"
++	},
++	{0x015d0000,
++	 "PMU2: Starting SI friendly 1d RdDqs training for all ranks\n"
++	},
++	{0x015e0000,
++	 "PMU2: Starting write leveling coarse delay training for all ranks\n"
++	},
++	{0x015f0000,
++	 "PMU2: Starting 1d WrDq training for all ranks\n"
++	},
++	{0x01600000,
++	 "PMU2: Running DQS2DQ Oscillator for all ranks\n"
++	},
++	{0x01610000,
++	 "PMU2: Starting again read deskew training but with PRBS\n"
++	},
++	{0x01620000,
++	 "PMU2: Starting 1d RdDqs training for all ranks\n"
++	},
++	{0x01630000,
++	 "PMU2: Starting again 1d WrDq training for all ranks\n"
++	},
++	{0x01640000,
++	 "PMU2: Starting MaxRdLat training\n"
++	},
++	{0x01650000,
++	 "PMU2: Starting 2d WrDq training for all ranks\n"
++	},
++	{0x01660000,
++	 "PMU2: Starting 2d RdDqs training for all ranks\n"
++	},
++	{0x01670002,
++	 "PMU3:read_fifo %x %x\n"
++	},
++	{0x01680001,
++	 "PMU: Error: Invalid PhyDrvImpedance of 0x%x specified in message block.\n"
++	},
++	{0x01690001,
++	 "PMU: Error: Invalid PhyOdtImpedance of 0x%x specified in message block.\n"
++	},
++	{0x016a0001,
++	 "PMU: Error: Invalid BPZNResVal of 0x%x specified in message block.\n"
++	},
++	{0x016b0005,
++	 "PMU3: fixRxEnBackOff csn:%d db:%d dn:%d bo:%d dly:%x\n"
++	},
++	{0x016c0001,
++	 "PMU3: fixRxEnBackOff dly:%x\n"
++	},
++	{0x016d0000,
++	 "PMU3: Entering setupPpt\n"
++	},
++	{0x016e0000,
++	 "PMU3: Start lp4PopulateHighLowBytes\n"
++	},
++	{0x016f0002,
++	 "PMU3:Dbyte Detect: db%d received %x\n"
++	},
++	{0x01700002,
++	 "PMU3:getDqs2Dq read %x from dbyte %d\n"
++	},
++	{0x01710002,
++	 "PMU3:getDqs2Dq(2) read %x from dbyte %d\n"
++	},
++	{0x01720001,
++	 "PMU: Error: Dbyte %d read 0 from the DQS oscillator it is connected to\n"
++	},
++	{0x01730002,
++	 "PMU4: Dbyte %d dqs2dq = %d/32 UI\n"
++	},
++	{0x01740003,
++	 "PMU3:getDqs2Dq set dqs2dq:%d/32 ui (%d ps) from dbyte %d\n"
++	},
++	{0x01750003,
++	 "PMU3: Setting coarse delay in AtxDly chiplet %d from 0x%02x to 0x%02x \n"
++	},
++	{0x01760003,
++	 "PMU3: Clearing coarse delay in AtxDly chiplet %d from 0x%02x to 0x%02x \n"
++	},
++	{0x01770000,
++	 "PMU3: Performing DDR4 geardown sync sequence\n"
++	},
++	{0x01780000,
++	 "PMU1: Enter self refresh\n"
++	},
++	{0x01790000,
++	 "PMU1: Exit self refresh\n"
++	},
++	{0x017a0000,
++	 "PMU: Error: No dbiEnable with lp4\n"
++	},
++	{0x017b0000,
++	 "PMU: Error: No dbiDisable with lp4\n"
++	},
++	{0x017c0001,
++	 "PMU1: DDR4 update Rx DBI Setting disable %d\n"
++	},
++	{0x017d0001,
++	 "PMU1: DDR4 update 2nCk WPre Setting disable %d\n"
++	},
++	{0x017e0005,
++	 "PMU1: read_delay: db%d lane%d delays[%2d] = 0x%02x (max 0x%02x)\n"
++	},
++	{0x017f0004,
++	 "PMU1: write_delay: db%d lane%d delays[%2d] = 0x%04x\n"
++	},
++	{0x01800001,
++	 "PMU5: ID=%d -- db0  db1  db2  db3  db4  db5  db6  db7  db8  db9 --\n"
++	},
++	{0x0181000b,
++	 "PMU5: [%d]:0x %4x %4x %4x %4x %4x %4x %4x %4x %4x %4x\n"
++	},
++	{0x01820003,
++	 "PMU2: dump delays - pstate=%d dimm=%d csn=%d\n"
++	},
++	{0x01830000,
++	 "PMU3: Printing Mid-Training Delay Information\n"
++	},
++	{0x01840001,
++	 "PMU5: CS%d <<KEY>> 0 TrainingCntr <<KEY>> coarse(15:10) fine(9:0)\n"
++	},
++	{0x01850001,
++	 "PMU5: CS%d <<KEY>> 0 RxEnDly, 1 RxClkDly <<KEY>> coarse(10:6) fine(5:0)\n"
++	},
++	{0x01860001,
++	 "PMU5: CS%d <<KEY>> 0 TxDqsDly, 1 TxDqDly <<KEY>> coarse(9:6) fine(5:0)\n"
++	},
++	{0x01870001,
++	 "PMU5: CS%d <<KEY>> 0 RxPBDly <<KEY>> 1 Delay Unit ~= 7ps \n"
++	},
++	{0x01880000,
++	 "PMU5: all CS <<KEY>> 0 DFIMRL <<KEY>> Units = DFI clocks\n"
++	},
++	{0x01890000,
++	 "PMU5: all CS <<KEY>> VrefDACs <<KEY>> DAC(6:0)\n"
++	},
++	{0x018a0000,
++	 "PMU1: Set DMD in MR13 and wrDBI in MR3 for training\n"
++	},
++	{0x018b0000,
++	 "PMU: Error: getMaxRxen() failed to find largest rxen nibble delay\n"
++	},
++	{0x018c0003,
++	 "PMU2: getMaxRxen(): maxDly %d maxTg %d maxNib %d\n"
++	},
++	{0x018d0003,
++	 "PMU2: getRankMaxRxen(): maxDly %d Tg %d maxNib %d\n"
++	},
++	{0x018e0000,
++	 "PMU1: skipping CDD calculation in 2D image\n"
++	},
++	{0x018f0001,
++	 "PMU3: Calculating CDDs for pstate %d\n"
++	},
++	{0x01900003,
++	 "PMU3: rxFromDly[%d][%d] = %d\n"
++	},
++	{0x01910003,
++	 "PMU3: rxToDly  [%d][%d] = %d\n"
++	},
++	{0x01920003,
++	 "PMU3: rxDly    [%d][%d] = %d\n"
++	},
++	{0x01930003,
++	 "PMU3: txDly    [%d][%d] = %d\n"
++	},
++	{0x01940003,
++	 "PMU3: allFine CDD_RR_%d_%d = %d\n"
++	},
++	{0x01950003,
++	 "PMU3: allFine CDD_WW_%d_%d = %d\n"
++	},
++	{0x01960003,
++	 "PMU3: CDD_RR_%d_%d = %d\n"
++	},
++	{0x01970003,
++	 "PMU3: CDD_WW_%d_%d = %d\n"
++	},
++	{0x01980003,
++	 "PMU3: allFine CDD_RW_%d_%d = %d\n"
++	},
++	{0x01990003,
++	 "PMU3: allFine CDD_WR_%d_%d = %d\n"
++	},
++	{0x019a0003,
++	 "PMU3: CDD_RW_%d_%d = %d\n"
++	},
++	{0x019b0003,
++	 "PMU3: CDD_WR_%d_%d = %d\n"
++	},
++	{0x019c0004,
++	 "PMU3: F%dBC2x_B%d_D%d = 0x%02x\n"
++	},
++	{0x019d0004,
++	 "PMU3: F%dBC3x_B%d_D%d = 0x%02x\n"
++	},
++	{0x019e0004,
++	 "PMU3: F%dBC4x_B%d_D%d = 0x%02x\n"
++	},
++	{0x019f0004,
++	 "PMU3: F%dBC5x_B%d_D%d = 0x%02x\n"
++	},
++	{0x01a00004,
++	 "PMU3: F%dBC8x_B%d_D%d = 0x%02x\n"
++	},
++	{0x01a10004,
++	 "PMU3: F%dBC9x_B%d_D%d = 0x%02x\n"
++	},
++	{0x01a20004,
++	 "PMU3: F%dBCAx_B%d_D%d = 0x%02x\n"
++	},
++	{0x01a30004,
++	 "PMU3: F%dBCBx_B%d_D%d = 0x%02x\n"
++	},
++	{0x01a40000,
++	 "PMU10: Entering context_switch_postamble\n"
++	},
++	{0x01a50003,
++	 "PMU10: context_switch_postamble is enabled for DIMM %d, RC0A=0x%x, RC3x=0x%x\n"
++	},
++	{0x01a60000,
++	 "PMU10: Setting bcw fspace 0\n"
++	},
++	{0x01a70001,
++	 "PMU10: Sending BC0A = 0x%x\n"
++	},
++	{0x01a80001,
++	 "PMU10: Sending BC6x = 0x%x\n"
++	},
++	{0x01a90001,
++	 "PMU10: Sending RC0A = 0x%x\n"
++	},
++	{0x01aa0001,
++	 "PMU10: Sending RC3x = 0x%x\n"
++	},
++	{0x01ab0001,
++	 "PMU10: Sending RC0A = 0x%x\n"
++	},
++	{0x01ac0001,
++	 "PMU1: enter_lp3: DEBUG: pstate = %d\n"
++	},
++	{0x01ad0001,
++	 "PMU1: enter_lp3: DEBUG: dfifreqxlat_pstate = %d\n"
++	},
++	{0x01ae0001,
++	 "PMU1: enter_lp3: DEBUG: pllbypass = %d\n"
++	},
++	{0x01af0001,
++	 "PMU1: enter_lp3: DEBUG: forcecal = %d\n"
++	},
++	{0x01b00001,
++	 "PMU1: enter_lp3: DEBUG: pllmaxrange = 0x%x\n"
++	},
++	{0x01b10001,
++	 "PMU1: enter_lp3: DEBUG: dacval_out = 0x%x\n"
++	},
++	{0x01b20001,
++	 "PMU1: enter_lp3: DEBUG: pllctrl3 = 0x%x\n"
++	},
++	{0x01b30000,
++	 "PMU3: Loading DRAM with BIOS supplied MR values and entering self refresh prior to exiting PMU code.\n"
++	},
++	{0x01b40002,
++	 "PMU3: Setting DataBuffer function space of dimmcs 0x%02x to %d\n"
++	},
++	{0x01b50002,
++	 "PMU4: Setting RCW FxRC%Xx = 0x%02x\n"
++	},
++	{0x01b60002,
++	 "PMU4: Setting RCW FxRC%02X = 0x%02x\n"
++	},
++	{0x01b70001,
++	 "PMU1: DDR4 update Rd Pre Setting disable %d\n"
++	},
++	{0x01b80002,
++	 "PMU2: Setting BCW FxBC%Xx = 0x%02x\n"
++	},
++	{0x01b90002,
++	 "PMU2: Setting BCW BC%02X = 0x%02x\n"
++	},
++	{0x01ba0002,
++	 "PMU2: Setting BCW PBA mode FxBC%Xx = 0x%02x\n"
++	},
++	{0x01bb0002,
++	 "PMU2: Setting BCW PBA mode BC%02X = 0x%02x\n"
++	},
++	{0x01bc0003,
++	 "PMU4: BCW value for dimm %d, fspace %d, addr 0x%04x\n"
++	},
++	{0x01bd0002,
++	 "PMU4: DB %d, value 0x%02x\n"
++	},
++	{0x01be0000,
++	 "PMU6: WARNING MREP underflow, set to min value -2 coarse, 0 fine\n"
++	},
++	{0x01bf0004,
++	 "PMU6: LRDIMM Writing final data buffer fine delay value nib %2d, trainDly %3d, fineDly code %2d, new MREP fine %2d\n"
++	},
++	{0x01c00003,
++	 "PMU6: LRDIMM Writing final data buffer fine delay value nib %2d, trainDly %3d, fineDly code %2d\n"
++	},
++	{0x01c10003,
++	 "PMU6: LRDIMM Writing data buffer fine delay type %d nib %2d, code %2d\n"
++	},
++	{0x01c20002,
++	 "PMU6: Writing final data buffer coarse delay value dbyte %2d, coarse = 0x%02x\n"
++	},
++	{0x01c30003,
++	 "PMU4: data 0x%04x at MB addr 0x%08x saved at CSR addr 0x%08x\n"
++	},
++	{0x01c40003,
++	 "PMU4: data 0x%04x at MB addr 0x%08x restored from CSR addr 0x%08x\n"
++	},
++	{0x01c50003,
++	 "PMU4: data 0x%04x at MB addr 0x%08x saved at CSR addr 0x%08x\n"
++	},
++	{0x01c60003,
++	 "PMU4: data 0x%04x at MB addr 0x%08x restored from CSR addr 0x%08x\n"
++	},
++	{0x01c70001,
++	 "PMU3: Update BC00, BC01, BC02 for rank-dimm 0x%02x\n"
++	},
++	{0x01c80000,
++	 "PMU3: Writing D4 RDIMM RCD Control words F0RC00 -> F0RC0F\n"
++	},
++	{0x01c90000,
++	 "PMU3: Disable parity in F0RC0E\n"
++	},
++	{0x01ca0000,
++	 "PMU3: Writing D4 RDIMM RCD Control words F1RC00 -> F1RC05\n"
++	},
++	{0x01cb0000,
++	 "PMU3: Writing D4 RDIMM RCD Control words F1RC1x -> F1RC9x\n"
++	},
++	{0x01cc0000,
++	 "PMU3: Writing D4 Data buffer Control words BC00 -> BC0E\n"
++	},
++	{0x01cd0002,
++	 "PMU1: setAltCL Sending MR0 0x%x cl=%d\n"
++	},
++	{0x01ce0002,
++	 "PMU1: restoreFromAltCL Sending MR0 0x%x cl=%d\n"
++	},
++	{0x01cf0002,
++	 "PMU1: restoreAcsmFromAltCL Sending MR0 0x%x cl=%d\n"
++	},
++	{0x01d00002,
++	 "PMU2: Setting D3R RC%d = 0x%01x\n"
++	},
++	{0x01d10000,
++	 "PMU3: Writing D3 RDIMM RCD Control words RC0 -> RC11\n"
++	},
++	{0x01d20002,
++	 "PMU0: VrefDAC0/1 vddqStart %d dacToVddq %d\n"
++	},
++	{0x01d30001,
++	 "PMU: Error: Messageblock phyVref=0x%x is above the limit for TSMC28's attenuated LPDDR4 receivers. Please see the pub databook\n"
++	},
++	{0x01d40001,
++	 "PMU: Error: Messageblock phyVref=0x%x is above the limit for TSMC28's attenuated DDR4 receivers. Please see the pub databook\n"
++	},
++	{0x01d50001,
++	 "PMU0: PHY VREF @ (%d/1000) VDDQ\n"
++	},
++	{0x01d60002,
++	 "PMU0: initalizing phy vrefDacs to %d ExtVrefRange %x\n"
++	},
++	{0x01d70002,
++	 "PMU0: initalizing global vref to %d range %d\n"
++	},
++	{0x01d80002,
++	 "PMU4: Setting initial device vrefDQ for CS%d to MR6 = 0x%04x\n"
++	},
++	{0x01d90003,
++	 "PMU1: In write_level_fine() csn=%d dimm=%d pstate=%d\n"
++	},
++	{0x01da0000,
++	 "PMU3: Fine write leveling hardware search increasing TxDqsDly until full bursts are seen\n"
++	},
++	{0x01db0000,
++	 "PMU4: WL normalized pos   : ........................|........................\n"
++	},
++	{0x01dc0007,
++	 "PMU4: WL margin for nib %2d: %08x%08x%08x%08x%08x%08x\n"
++	},
++	{0x01dd0000,
++	 "PMU4: WL normalized pos   : ........................|........................\n"
++	},
++	{0x01de0000,
++	 "PMU3: Exiting write leveling mode\n"
++	},
++	{0x01df0001,
++	 "PMU3: got %d for cl in load_wrlvl_acsm\n"
++	},
++	{0x01e00003,
++	 "PMU1: In write_level_coarse() csn=%d dimm=%d pstate=%d\n"
++	},
++	{0x01e10003,
++	 "PMU3: left eye edge search db:%d ln:%d dly:0x%x\n"
++	},
++	{0x01e20003,
++	 "PMU3: right eye edge search db:%d ln:%d dly:0x%x\n"
++	},
++	{0x01e30004,
++	 "PMU3: eye center db:%d ln:%d dly:0x%x (maxdq:%x)\n"
++	},
++	{0x01e40003,
++	 "PMU3: Wrote to TxDqDly db:%d ln:%d dly:0x%x\n"
++	},
++	{0x01e50003,
++	 "PMU3: Wrote to TxDqDly db:%d ln:%d dly:0x%x\n"
++	},
++	{0x01e60002,
++	 "PMU3: Coarse write leveling dbyte%2d is still failing for TxDqsDly=0x%04x\n"
++	},
++	{0x01e70002,
++	 "PMU4: Coarse write leveling iteration %d saw %d data miscompares across the entire phy\n"
++	},
++	{0x01e80000,
++	 "PMU: Error: Failed write leveling coarse\n"
++	},
++	{0x01e90001,
++	 "PMU3: got %d for cl in load_wrlvl_acsm\n"
++	},
++	{0x01ea0003,
++	 "PMU3: In write_level_coarse() csn=%d dimm=%d pstate=%d\n"
++	},
++	{0x01eb0003,
++	 "PMU3: left eye edge search db:%d ln:%d dly:0x%x\n"
++	},
++	{0x01ec0003,
++	 "PMU3: right eye edge search db: %d ln: %d dly: 0x%x\n"
++	},
++	{0x01ed0004,
++	 "PMU3: eye center db: %d ln: %d dly: 0x%x (maxdq: 0x%x)\n"
++	},
++	{0x01ee0003,
++	 "PMU3: Wrote to TxDqDly db: %d ln: %d dly: 0x%x\n"
++	},
++	{0x01ef0003,
++	 "PMU3: Wrote to TxDqDly db: %d ln: %d dly: 0x%x\n"
++	},
++	{0x01f00002,
++	 "PMU3: Coarse write leveling nibble%2d is still failing for TxDqsDly=0x%04x\n"
++	},
++	{0x01f10002,
++	 "PMU4: Coarse write leveling iteration %d saw %d data miscompares across the entire phy\n"
++	},
++	{0x01f20000,
++	 "PMU: Error: Failed write leveling coarse\n"
++	},
++	{0x01f30000,
++	 "PMU4: WL normalized pos   : ................................|................................\n"
++	},
++	{0x01f40009,
++	 "PMU4: WL margin for nib %2d: %08x%08x%08x%08x%08x%08x%08x%08x\n"
++	},
++	{0x01f50000,
++	 "PMU4: WL normalized pos   : ................................|................................\n"
++	},
++	{0x01f60001,
++	 "PMU8: Adjust margin after WL coarse to be larger than %d\n"
++	},
++	{0x01f70001,
++	 "PMU: Error: All margin after write leveling coarse are smaller than minMargin %d\n"
++	},
++	{0x01f80002,
++	 "PMU8: Decrement nib %d TxDqsDly by %d fine step\n"
++	},
++	{0x01f90003,
++	 "PMU3: In write_level_coarse() csn=%d dimm=%d pstate=%d\n"
++	},
++	{0x01fa0005,
++	 "PMU2: Write level: dbyte %d nib%d dq/dmbi %2d dqsfine 0x%04x dqDly 0x%04x\n"
++	},
++	{0x01fb0002,
++	 "PMU3: Coarse write leveling nibble%2d is still failing for TxDqsDly=0x%04x\n"
++	},
++	{0x01fc0002,
++	 "PMU4: Coarse write leveling iteration %d saw %d data miscompares across the entire phy\n"
++	},
++	{0x01fd0000,
++	 "PMU: Error: Failed write leveling coarse\n"
++	},
++	{0x01fe0001,
++	 "PMU3: DWL delay = %d\n"
++	},
++	{0x01ff0003,
++	 "PMU3: Errcnt for DWL nib %2d delay = %2d is %d\n"
++	},
++	{0x02000002,
++	 "PMU3: DWL nibble %d sampled a 1 at delay %d\n"
++	},
++	{0x02010003,
++	 "PMU3: DWL nibble %d passed at delay %d. Rising edge was at %d\n"
++	},
++	{0x02020000,
++	 "PMU2: DWL did nto find a rising edge of memclk for all nibbles. Failing nibbles assumed to have rising edge close to fine delay 63\n"
++	},
++	{0x02030002,
++	 "PMU2:  Rising edge found in alias window, setting wrlvlDly for nibble %d = %d\n"
++	},
++	{0x02040002,
++	 "PMU: Error: Failed DWL for nib %d with %d one\n"
++	},
++	{0x02050003,
++	 "PMU2:  Rising edge not found in alias window with %d one, leaving wrlvlDly for nibble %d = %d\n"
++	},
++	{0x04000000,
++	 "PMU: Error:Mailbox Buffer Overflowed.\n"
++	},
++	{0x04010000,
++	 "PMU: Error:Mailbox Buffer Overflowed.\n"
++	},
++	{0x04020000,
++	 "PMU: ***** Assertion Error - terminating *****\n"
++	},
++	{0x04030002,
++	 "PMU1: swapByte db %d by %d\n"
++	},
++	{0x04040003,
++	 "PMU3: get_cmd_dly max(%d ps, %d memclk) = %d\n"
++	},
++	{0x04050002,
++	 "PMU0: Write CSR 0x%06x 0x%04x\n"
++	},
++	{0x04060002,
++	 "PMU0: hwt_init_ppgc_prbs(): Polynomial: %x, Deg: %d\n"
++	},
++	{0x04070001,
++	 "PMU: Error: acsm_set_cmd to non existant instruction adddress %d\n"
++	},
++	{0x04080001,
++	 "PMU: Error: acsm_set_cmd with unknown ddr cmd 0x%x\n"
++	},
++	{0x0409000c,
++	 "PMU1: acsm_addr %02x, acsm_flgs %04x, ddr_cmd %02x, cmd_dly %02x, ddr_addr %04x, ddr_bnk %02x, ddr_cs %02x, cmd_rcnt %02x, AcsmSeq0/1/2/3 %04x %04x %04x %04x\n"
++	},
++	{0x040a0000,
++	 "PMU: Error: Polling on ACSM done failed to complete in acsm_poll_done()...\n"
++	},
++	{0x040b0000,
++	 "PMU1: acsm RUN\n"
++	},
++	{0x040c0000,
++	 "PMU1: acsm STOPPED\n"
++	},
++	{0x040d0002,
++	 "PMU1: acsm_init: acsm_mode %04x mxrdlat %04x\n"
++	},
++	{0x040e0002,
++	 "PMU: Error: setAcsmCLCWL: cl and cwl must be each >= 2 and 5, resp. CL=%d CWL=%d\n"
++	},
++	{0x040f0002,
++	 "PMU: Error: setAcsmCLCWL: cl and cwl must be each >= 5. CL=%d CWL=%d\n"
++	},
++	{0x04100002,
++	 "PMU1: setAcsmCLCWL: CASL %04d WCASL %04d\n"
++	},
++	{0x04110001,
++	 "PMU: Error: Reserved value of register F0RC0F found in message block: 0x%04x\n"
++	},
++	{0x04120001,
++	 "PMU3: Written MRS to CS=0x%02x\n"
++	},
++	{0x04130001,
++	 "PMU3: Written MRS to CS=0x%02x\n"
++	},
++	{0x04140000,
++	 "PMU3: Entering Boot Freq Mode.\n"
++	},
++	{0x04150001,
++	 "PMU: Error: Boot clock divider setting of %d is too small\n"
++	},
++	{0x04160000,
++	 "PMU3: Exiting Boot Freq Mode.\n"
++	},
++	{0x04170002,
++	 "PMU3: Writing MR%d OP=%x\n"
++	},
++	{0x04180000,
++	 "PMU: Error: Delay too large in slomo\n"
++	},
++	{0x04190001,
++	 "PMU3: Written MRS to CS=0x%02x\n"
++	},
++	{0x041a0000,
++	 "PMU3: Enable Channel A\n"
++	},
++	{0x041b0000,
++	 "PMU3: Enable Channel B\n"
++	},
++	{0x041c0000,
++	 "PMU3: Enable All Channels\n"
++	},
++	{0x041d0002,
++	 "PMU2: Use PDA mode to set MR%d with value 0x%02x\n"
++	},
++	{0x041e0001,
++	 "PMU3: Written Vref with PDA to CS=0x%02x\n"
++	},
++	{0x041f0000,
++	 "PMU1: start_cal: DEBUG: setting CalRun to 1\n"
++	},
++	{0x04200000,
++	 "PMU1: start_cal: DEBUG: setting CalRun to 0\n"
++	},
++	{0x04210001,
++	 "PMU1: lock_pll_dll: DEBUG: pstate = %d\n"
++	},
++	{0x04220001,
++	 "PMU1: lock_pll_dll: DEBUG: dfifreqxlat_pstate = %d\n"
++	},
++	{0x04230001,
++	 "PMU1: lock_pll_dll: DEBUG: pllbypass = %d\n"
++	},
++	{0x04240001,
++	 "PMU3: SaveLcdlSeed: Saving seed seed %d\n"
++	},
++	{0x04250000,
++	 "PMU1: in phy_defaults()\n"
++	},
++	{0x04260003,
++	 "PMU3: ACXConf:%d MaxNumDbytes:%d NumDfi:%d\n"
++	},
++	{0x04270005,
++	 "PMU1: setAltAcsmCLCWL setting cl=%d cwl=%d\n"
++	},
++};
++#endif /* DEBUG */
++#endif

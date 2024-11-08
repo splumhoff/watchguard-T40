@@ -1,0 +1,179 @@
+WatchGuard patches to sources for jitterentropy-rngd-1.1.0 as of
+Mon May  9 13:54:35 PDT 2022
+The patches shown here have been applied to source .tar.gz 
+files supplied with the WatchGuard Open Source Archive.
+
+==========================================================================
+--- jitterentropy-rngd-1.1.0/jitterentropy-base-user.h.orig	2022-05-09 13:54:34.901876492 -0700
++++ jitterentropy-rngd-1.1.0/jitterentropy-base-user.h	2022-05-09 13:54:34.981873247 -0700
+@@ -86,6 +86,15 @@
+ #include <unistd.h>
+ #endif
+ 
++#ifdef __x86_64__ // FBX-20061: Found JRNGD fault on Hyper-V FireboxV
++static inline void jent_get_nstime(uint64_t *out)
++{
++        unsigned low, high;
++        asm volatile("rdtsc" : "=a" (low), "=b" (high));
++        *out = ((low) | ((uint64_t)(high) << 32));
++}
++#else
++
+ static inline void jent_get_nstime(uint64_t *out)
+ {
+ 	/* OSX does not have clock_gettime -- taken from
+@@ -119,6 +128,7 @@
+ 	*out = tmp;
+ #endif /* __MACH__ */
+ }
++#endif
+ 
+ static inline void *jent_zalloc(size_t len)
+ {
+@@ -192,6 +202,5 @@
+ 	return (word << shift) | (word >> (64 - shift));
+ }
+ 
+-
+ #endif /* _JITTERENTROPY_BASE_USER_H */
+ 
+--- jitterentropy-rngd-1.1.0/jitterentropy-rngd.c.orig	2022-05-09 13:54:34.905876330 -0700
++++ jitterentropy-rngd-1.1.0/jitterentropy-rngd.c	2022-05-09 13:54:34.993872760 -0700
+@@ -66,6 +66,8 @@
+ 
+ static int Verbosity = 0;
+ 
++static int Daemonize = 1;
++
+ struct kernel_rng {
+ 	int fd;
+ 	struct rand_data *ec;
+@@ -98,7 +100,7 @@
+ 
+ #define ENTROPYBYTES 32
+ #define OVERSAMPLINGFACTOR 2
+-#define ENTROPYTHRESH 1024
++#define ENTROPYTHRESH 3072
+ #define ENTROPYAVAIL "/proc/sys/kernel/random/entropy_avail"
+ #define LRNG_FILE "/proc/sys/kernel/random/lrng_type"
+ 
+@@ -124,11 +126,12 @@
+ 	fprintf(stderr, "Version %s\n\n", version);
+ 	fprintf(stderr, "Reported numeric version number of jent library %u\n\n", ver);
+ 	fprintf(stderr, "Usage:\n");
++	fprintf(stderr, "\t-d --debug\tVerbose output, multiple -d increase verbosity\n");
++	fprintf(stderr, "\t\t\tVerbose output implies --foreground\n");
++	fprintf(stderr, "\t-f --foreground\tRun in foreground\n");
+ 	fprintf(stderr, "\t-h --help\tThis help information\n");
+-	fprintf(stderr, "\t   --version\tPrint version\n");
+-	fprintf(stderr, "\t-v --verbose\tVerbose logging, multiple options increase verbosity\n");
+-	fprintf(stderr, "\t\t\tVerbose logging implies running in foreground\n");
+ 	fprintf(stderr, "\t-p --pid\tWrite daemon PID to file\n");
++	fprintf(stderr, "\t-v --version\tPrint version\n");
+ 	exit(1);
+ }
+ 
+@@ -140,46 +143,36 @@
+ 	while (1) {
+ 		int opt_index = 0;
+ 		static struct option opts[] = {
+-			{"verbose", 0, 0, 0},
+-			{"pid", 1, 0, 0},
+-			{"help", 0, 0, 0},
+-			{"version", 0, 0, 0},
++			{"debug", 0, 0, 'd'},
++			{"pid", 1, 0, 'p'},
++			{"help", 0, 0, 'h'},
++			{"foreground", 0, 0, 'f'},
++			{"version", 0, 0, 'v'},
+ 			{0, 0, 0, 0}
+ 		};
+-		c = getopt_long(argc, argv, "vp:h", opts, &opt_index);
+-		if (-1 == c)
++		c = getopt_long(argc, argv, "dp:hfv", opts, &opt_index);
++		if (-1 == c) {
+ 			break;
++		}
+ 		switch (c) {
+-		case 0:
+-			switch (opt_index) {
+-			case 0:
++		case 'd':
++			if (Verbosity < 4) {
+ 				Verbosity++;
+-				break;
+-			case 1:
+-				Pidfile = optarg;
+-				break;
+-			case 2:
+-				usage();
+-				break;
+-			case 3:
+-				jentrng_versionstring(version, sizeof(version));
+-				fprintf(stderr, "Version %s\n", version);
+-				fprintf(stderr, "Version Jitterentropy Core %u\n", jent_version());
+-				exit(0);
+-				break;
+-			default:
+-				usage();
+ 			}
+ 			break;
+-		case 'v':
+-			Verbosity++;
+-			break;
+ 		case 'p':
+ 			Pidfile = optarg;
+ 			break;
+-		case 'h':
+-			usage();
++		case 'f':
++			Daemonize = 0;
+ 			break;
++		case 'v':
++			jentrng_versionstring(version, sizeof(version));
++			fprintf(stderr, "Version %s\n", version);
++			fprintf(stderr, "Version Jitterentropy Core %u\n", jent_version());
++			exit(0);
++			break;
++		case 'h':
+ 		default:
+ 			usage();
+ 		}
+@@ -356,11 +349,24 @@
+ static int lrng_present(void)
+ {
+ 	struct stat buf;
+-	int ret = stat(LRNG_FILE, &buf);
++	static int ret = -1;
++	static int rc = 0;
+ 
+-	if (ret == -1 && errno == ENOENT)
+-		return 0;
+-	return 1;
++	if (ret < 0) {
++		/* remember if LRNG present or not */
++		if (stat(LRNG_FILE, &buf) == -1) {
++			if (errno == ENOENT) {
++				/* no not present */
++				ret = 0;
++				rc = 0;
++			} 
++		} else {
++			/* yes is present */
++			ret = 1;
++			rc = 1;
++		}
++	}
++	return rc;
+ }
+ 
+ /* terminate the daemon cleanly */
+@@ -583,7 +589,7 @@
+ 		dolog(LOG_ERR, "Program must start as root!");
+ 
+ 	alloc();
+-	if (0 == Verbosity)
++	if (0 == Verbosity && Daemonize)
+ 		daemonize();
+ 	install_term();
+ 	install_alarm();

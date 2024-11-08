@@ -1,0 +1,1206 @@
+WatchGuard patches to sources for compat-wireless-2.6-backports-4.20.17-1 as of
+Mon May  9 13:49:06 PDT 2022
+The patches shown here have been applied to source .tar.gz 
+files supplied with the WatchGuard Open Source Archive.
+
+==========================================================================
+--- compat-wireless-2.6-backports-4.20.17-1/net/wireless/certs/sforshee.hex.orig	2022-05-09 13:48:47.967954308 -0700
++++ compat-wireless-2.6-backports-4.20.17-1/net/wireless/certs/sforshee.hex	1969-12-31 16:00:00.000000000 -0800
+@@ -1,86 +0,0 @@
+-/* Seth Forshee's regdb certificate */
+-0x30, 0x82, 0x02, 0xa4, 0x30, 0x82, 0x01, 0x8c,
+-0x02, 0x09, 0x00, 0xb2, 0x8d, 0xdf, 0x47, 0xae,
+-0xf9, 0xce, 0xa7, 0x30, 0x0d, 0x06, 0x09, 0x2a,
+-0x86, 0x48, 0x86, 0xf7, 0x0d, 0x01, 0x01, 0x0b,
+-0x05, 0x00, 0x30, 0x13, 0x31, 0x11, 0x30, 0x0f,
+-0x06, 0x03, 0x55, 0x04, 0x03, 0x0c, 0x08, 0x73,
+-0x66, 0x6f, 0x72, 0x73, 0x68, 0x65, 0x65, 0x30,
+-0x20, 0x17, 0x0d, 0x31, 0x37, 0x31, 0x30, 0x30,
+-0x36, 0x31, 0x39, 0x34, 0x30, 0x33, 0x35, 0x5a,
+-0x18, 0x0f, 0x32, 0x31, 0x31, 0x37, 0x30, 0x39,
+-0x31, 0x32, 0x31, 0x39, 0x34, 0x30, 0x33, 0x35,
+-0x5a, 0x30, 0x13, 0x31, 0x11, 0x30, 0x0f, 0x06,
+-0x03, 0x55, 0x04, 0x03, 0x0c, 0x08, 0x73, 0x66,
+-0x6f, 0x72, 0x73, 0x68, 0x65, 0x65, 0x30, 0x82,
+-0x01, 0x22, 0x30, 0x0d, 0x06, 0x09, 0x2a, 0x86,
+-0x48, 0x86, 0xf7, 0x0d, 0x01, 0x01, 0x01, 0x05,
+-0x00, 0x03, 0x82, 0x01, 0x0f, 0x00, 0x30, 0x82,
+-0x01, 0x0a, 0x02, 0x82, 0x01, 0x01, 0x00, 0xb5,
+-0x40, 0xe3, 0x9c, 0x28, 0x84, 0x39, 0x03, 0xf2,
+-0x39, 0xd7, 0x66, 0x2c, 0x41, 0x38, 0x15, 0xac,
+-0x7e, 0xa5, 0x83, 0x71, 0x25, 0x7e, 0x90, 0x7c,
+-0x68, 0xdd, 0x6f, 0x3f, 0xd9, 0xd7, 0x59, 0x38,
+-0x9f, 0x7c, 0x6a, 0x52, 0xc2, 0x03, 0x2a, 0x2d,
+-0x7e, 0x66, 0xf4, 0x1e, 0xb3, 0x12, 0x70, 0x20,
+-0x5b, 0xd4, 0x97, 0x32, 0x3d, 0x71, 0x8b, 0x3b,
+-0x1b, 0x08, 0x17, 0x14, 0x6b, 0x61, 0xc4, 0x57,
+-0x8b, 0x96, 0x16, 0x1c, 0xfd, 0x24, 0xd5, 0x0b,
+-0x09, 0xf9, 0x68, 0x11, 0x84, 0xfb, 0xca, 0x51,
+-0x0c, 0xd1, 0x45, 0x19, 0xda, 0x10, 0x44, 0x8a,
+-0xd9, 0xfe, 0x76, 0xa9, 0xfd, 0x60, 0x2d, 0x18,
+-0x0b, 0x28, 0x95, 0xb2, 0x2d, 0xea, 0x88, 0x98,
+-0xb8, 0xd1, 0x56, 0x21, 0xf0, 0x53, 0x1f, 0xf1,
+-0x02, 0x6f, 0xe9, 0x46, 0x9b, 0x93, 0x5f, 0x28,
+-0x90, 0x0f, 0xac, 0x36, 0xfa, 0x68, 0x23, 0x71,
+-0x57, 0x56, 0xf6, 0xcc, 0xd3, 0xdf, 0x7d, 0x2a,
+-0xd9, 0x1b, 0x73, 0x45, 0xeb, 0xba, 0x27, 0x85,
+-0xef, 0x7a, 0x7f, 0xa5, 0xcb, 0x80, 0xc7, 0x30,
+-0x36, 0xd2, 0x53, 0xee, 0xec, 0xac, 0x1e, 0xe7,
+-0x31, 0xf1, 0x36, 0xa2, 0x9c, 0x63, 0xc6, 0x65,
+-0x5b, 0x7f, 0x25, 0x75, 0x68, 0xa1, 0xea, 0xd3,
+-0x7e, 0x00, 0x5c, 0x9a, 0x5e, 0xd8, 0x20, 0x18,
+-0x32, 0x77, 0x07, 0x29, 0x12, 0x66, 0x1e, 0x36,
+-0x73, 0xe7, 0x97, 0x04, 0x41, 0x37, 0xb1, 0xb1,
+-0x72, 0x2b, 0xf4, 0xa1, 0x29, 0x20, 0x7c, 0x96,
+-0x79, 0x0b, 0x2b, 0xd0, 0xd8, 0xde, 0xc8, 0x6c,
+-0x3f, 0x93, 0xfb, 0xc5, 0xee, 0x78, 0x52, 0x11,
+-0x15, 0x1b, 0x7a, 0xf6, 0xe2, 0x68, 0x99, 0xe7,
+-0xfb, 0x46, 0x16, 0x84, 0xe3, 0xc7, 0xa1, 0xe6,
+-0xe0, 0xd2, 0x46, 0xd5, 0xe1, 0xc4, 0x5f, 0xa0,
+-0x66, 0xf4, 0xda, 0xc4, 0xff, 0x95, 0x1d, 0x02,
+-0x03, 0x01, 0x00, 0x01, 0x30, 0x0d, 0x06, 0x09,
+-0x2a, 0x86, 0x48, 0x86, 0xf7, 0x0d, 0x01, 0x01,
+-0x0b, 0x05, 0x00, 0x03, 0x82, 0x01, 0x01, 0x00,
+-0x87, 0x03, 0xda, 0xf2, 0x82, 0xc2, 0xdd, 0xaf,
+-0x7c, 0x44, 0x2f, 0x86, 0xd3, 0x5f, 0x4c, 0x93,
+-0x48, 0xb9, 0xfe, 0x07, 0x17, 0xbb, 0x21, 0xf7,
+-0x25, 0x23, 0x4e, 0xaa, 0x22, 0x0c, 0x16, 0xb9,
+-0x73, 0xae, 0x9d, 0x46, 0x7c, 0x75, 0xd9, 0xc3,
+-0x49, 0x57, 0x47, 0xbf, 0x33, 0xb7, 0x97, 0xec,
+-0xf5, 0x40, 0x75, 0xc0, 0x46, 0x22, 0xf0, 0xa0,
+-0x5d, 0x9c, 0x79, 0x13, 0xa1, 0xff, 0xb8, 0xa3,
+-0x2f, 0x7b, 0x8e, 0x06, 0x3f, 0xc8, 0xb6, 0xe4,
+-0x6a, 0x28, 0xf2, 0x34, 0x5c, 0x23, 0x3f, 0x32,
+-0xc0, 0xe6, 0xad, 0x0f, 0xac, 0xcf, 0x55, 0x74,
+-0x47, 0x73, 0xd3, 0x01, 0x85, 0xb7, 0x0b, 0x22,
+-0x56, 0x24, 0x7d, 0x9f, 0x09, 0xa9, 0x0e, 0x86,
+-0x9e, 0x37, 0x5b, 0x9c, 0x6d, 0x02, 0xd9, 0x8c,
+-0xc8, 0x50, 0x6a, 0xe2, 0x59, 0xf3, 0x16, 0x06,
+-0xea, 0xb2, 0x42, 0xb5, 0x58, 0xfe, 0xba, 0xd1,
+-0x81, 0x57, 0x1a, 0xef, 0xb2, 0x38, 0x88, 0x58,
+-0xf6, 0xaa, 0xc4, 0x2e, 0x8b, 0x5a, 0x27, 0xe4,
+-0xa5, 0xe8, 0xa4, 0xca, 0x67, 0x5c, 0xac, 0x72,
+-0x67, 0xc3, 0x6f, 0x13, 0xc3, 0x2d, 0x35, 0x79,
+-0xd7, 0x8a, 0xe7, 0xf5, 0xd4, 0x21, 0x30, 0x4a,
+-0xd5, 0xf6, 0xa3, 0xd9, 0x79, 0x56, 0xf2, 0x0f,
+-0x10, 0xf7, 0x7d, 0xd0, 0x51, 0x93, 0x2f, 0x47,
+-0xf8, 0x7d, 0x4b, 0x0a, 0x84, 0x55, 0x12, 0x0a,
+-0x7d, 0x4e, 0x3b, 0x1f, 0x2b, 0x2f, 0xfc, 0x28,
+-0xb3, 0x69, 0x34, 0xe1, 0x80, 0x80, 0xbb, 0xe2,
+-0xaf, 0xb9, 0xd6, 0x30, 0xf1, 0x1d, 0x54, 0x87,
+-0x23, 0x99, 0x9f, 0x51, 0x03, 0x4c, 0x45, 0x7d,
+-0x02, 0x65, 0x73, 0xab, 0xfd, 0xcf, 0x94, 0xcc,
+-0x0d, 0x3a, 0x60, 0xfd, 0x3c, 0x14, 0x2f, 0x16,
+-0x33, 0xa9, 0x21, 0x1f, 0xcb, 0x50, 0xb1, 0x8f,
+-0x03, 0xee, 0xa0, 0x66, 0xa9, 0x16, 0x79, 0x14,
+--- compat-wireless-2.6-backports-4.20.17-1/net/wireless/reg.c.orig	2022-05-09 13:48:47.979953822 -0700
++++ compat-wireless-2.6-backports-4.20.17-1/net/wireless/reg.c	2022-05-09 13:48:48.743922812 -0700
+@@ -1024,8 +1024,13 @@
+ 	}
+ 
+ 	rtnl_lock();
+-	if (WARN_ON(regdb && !IS_ERR(regdb))) {
+-		/* just restore and free new db */
++	if (regdb && !IS_ERR(regdb)) {
++		/* negative case - a bug 
++		 * positive case - can happen due to race in case of multiple cb's in
++		 * queue, due to usage of asynchronous callback
++		 *
++		 * Either case, just restore and free new db.
++		 */
+ 	} else if (set_error) {
+ 		regdb = ERR_PTR(set_error);
+ 	} else if (fw) {
+@@ -1660,7 +1665,22 @@
+ 
+ 	request_wiphy = wiphy_idx_to_wiphy(lr->wiphy_idx);
+ 
+-	flags = chan->orig_flags;
++#ifdef CONFIG_WG_PLATFORM
++        /*
++         * This change, originally implemented for the old compat-wireless in 2009
++         * via CL 253221, allows user-defined regulatory domain information to
++         * override anything previously set in the driver.
++         *
++         * This is a hack and kludge that should be removed in favor of using CRDA in
++         * the kernel and setting the regulatory domain in hostapd directly (instead
++         * of via libwireless).
++         *
++         * WG:BP
++         */
++        flags = 0;
++#else
++        flags = chan->orig_flags;
++#endif /* CONFIG_WG_PLATFORM */
+ 
+ 	reg_rule = freq_reg_info(wiphy, MHZ_TO_KHZ(chan->center_freq));
+ 	if (IS_ERR(reg_rule)) {
+--- compat-wireless-2.6-backports-4.20.17-1/net/mac80211/tx.c.orig	2022-05-09 13:48:47.955954796 -0700
++++ compat-wireless-2.6-backports-4.20.17-1/net/mac80211/tx.c	2022-05-09 13:48:48.731923300 -0700
+@@ -2455,6 +2455,7 @@
+ 	bool tdls_peer;
+ 	bool multicast;
+ 	u16 info_id = 0;
++	const int empty_mac[ETH_ALEN] = {0};
+ 	struct ieee80211_chanctx_conf *chanctx_conf;
+ 	struct ieee80211_sub_if_data *ap_sdata;
+ 	enum nl80211_band band;
+@@ -2463,6 +2464,13 @@
+ 	if (IS_ERR(sta))
+ 		sta = NULL;
+ 
++	/* drop this skb when source mac or destination mac is empty */
++	if (!memcmp(skb->data, empty_mac, ETH_ALEN) ||
++		!memcmp(skb->data + ETH_ALEN, empty_mac, ETH_ALEN)) {
++		ret = -ENOTCONN;
++		goto free;
++	}
++
+ 	/* convert Ethernet header to proper 802.11 header (based on
+ 	 * operation mode) */
+ 	ethertype = (skb->data[12] << 8) | skb->data[13];
+@@ -3390,6 +3398,7 @@
+ 	struct ieee80211_local *local = sdata->local;
+ 	u16 ethertype = (skb->data[12] << 8) | skb->data[13];
+ 	int extra_head = fast_tx->hdr_len - (ETH_HLEN - 2);
++	const int empty_mac[ETH_ALEN] = {0};
+ 	int hw_headroom = sdata->local->hw.extra_tx_headroom;
+ 	struct ethhdr eth;
+ 	struct ieee80211_tx_info *info;
+@@ -3411,6 +3420,11 @@
+ 	if (skb->sk && skb_shinfo(skb)->tx_flags & SKBTX_WIFI_STATUS)
+ 		return false;
+ 
++	/* drop this skb when source mac or destination mac is empty */
++	if (!memcmp(skb->data, empty_mac, ETH_ALEN) ||
++		!memcmp(skb->data + ETH_ALEN, empty_mac, ETH_ALEN))
++		return false;
++
+ 	if (hdr->frame_control & cpu_to_le16(IEEE80211_STYPE_QOS_DATA)) {
+ 		tid = skb->priority & IEEE80211_QOS_CTL_TAG1D_MASK;
+ 		tid_tx = rcu_dereference(sta->ampdu_mlme.tid_tx[tid]);
+@@ -4255,12 +4269,20 @@
+ 	struct ieee80211_local *local = hw_to_local(hw);
+ 	struct beacon_data *beacon = NULL;
+ 	struct sk_buff *skb = NULL;
++	struct sk_buff *skb_twe = NULL;
+ 	struct ieee80211_tx_info *info;
+ 	struct ieee80211_sub_if_data *sdata = NULL;
+ 	enum nl80211_band band;
+ 	struct ieee80211_tx_rate_control txrc;
+ 	struct ieee80211_chanctx_conf *chanctx_conf;
+ 	int csa_off_base = 0;
++	int alloc_len = 0;
++	u8* skb_twe_ie_scan;
++	struct ieee80211_mgmt* beacon_twe_ptr;
++	struct timespec64 timespec;
++	s64 ts;
++    int ii;
++    u8* ptr;
+ 
+ 	rcu_read_lock();
+ 
+@@ -4296,9 +4318,13 @@
+ 			if (!skb)
+ 				goto out;
+ 
++			alloc_len = local->tx_headroom +
++						beacon->head_len +
++						beacon->tail_len + 256 +
++						local->hw.extra_beacon_tailroom;
++
+ 			skb_reserve(skb, local->tx_headroom);
+ 			skb_put_data(skb, beacon->head, beacon->head_len);
+-
+ 			ieee80211_beacon_add_tim(sdata, &ap->ps, skb,
+ 						 is_template);
+ 
+@@ -4329,11 +4355,14 @@
+ 
+ 			ieee80211_set_csa(sdata, beacon);
+ 		}
+-
+ 		skb = dev_alloc_skb(local->tx_headroom + beacon->head_len +
+ 				    local->hw.extra_beacon_tailroom);
+ 		if (!skb)
+ 			goto out;
++
++		alloc_len = local->tx_headroom + beacon->head_len +
++			local->hw.extra_beacon_tailroom;
++
+ 		skb_reserve(skb, local->tx_headroom);
+ 		skb_put_data(skb, beacon->head, beacon->head_len);
+ 
+@@ -4361,7 +4390,6 @@
+ 
+ 		if (ifmsh->sync_ops)
+ 			ifmsh->sync_ops->adjust_tsf(sdata, beacon);
+-
+ 		skb = dev_alloc_skb(local->tx_headroom +
+ 				    beacon->head_len +
+ 				    256 + /* TIM IE */
+@@ -4369,6 +4397,13 @@
+ 				    local->hw.extra_beacon_tailroom);
+ 		if (!skb)
+ 			goto out;
++
++        alloc_len = local->tx_headroom +
++                    beacon->head_len +
++                    256 + /* TIM IE */
++                    beacon->tail_len +
++                    local->hw.extra_beacon_tailroom;
++
+ 		skb_reserve(skb, local->tx_headroom);
+ 		skb_put_data(skb, beacon->head, beacon->head_len);
+ 		ieee80211_beacon_add_tim(sdata, &ifmsh->ps, skb, is_template);
+@@ -4421,6 +4456,132 @@
+ 	info->flags |= IEEE80211_TX_CTL_CLEAR_PS_FILT |
+ 			IEEE80211_TX_CTL_ASSIGN_SEQ |
+ 			IEEE80211_TX_CTL_FIRST_FRAGMENT;
++
++    if (create_watchguard_hash)
++    {
++        //Create another skb buffer of a large size
++        skb_twe = dev_alloc_skb(alloc_len + 2 + WATCHGUARD_LENGTH);
++        if (!skb_twe)
++        {
++            printk("Failed to allocate skb_twe\n");
++            goto out;
++        }
++        skb_reserve(skb_twe, local->tx_headroom);
++
++        //copy the original skb buffer in
++        beacon_twe_ptr = (struct ieee80211_mgmt*)skb_put(skb_twe, skb->len + 2 + WATCHGUARD_LENGTH);
++        memcpy(beacon_twe_ptr, skb->data, skb->len);
++
++        skb_twe_ie_scan = &beacon_twe_ptr->u.beacon.variable[0];
++        
++        //Several information information elements must to be set to know values
++        //so we can decrypt the hash.  The reason we must so this is that some radio
++        //change these values.
++        while((skb_twe_ie_scan[0] != WLAN_EID_HT_OPERATION) &&
++                ((skb_twe_ie_scan - ((u8*)beacon_twe_ptr)) < alloc_len))
++        {
++            skb_twe_ie_scan += skb_twe_ie_scan[1] + 2;
++        }
++
++        if ((skb_twe_ie_scan[0] == WLAN_EID_HT_OPERATION) && 
++            (skb_twe_ie_scan[1] == sizeof(struct ieee80211_ht_operation)))
++        {
++            for(ii = 0; ii < sizeof(struct ieee80211_ht_operation); ii++)
++            {
++                skb_twe_ie_scan[ii+2] = ii;
++            }
++        }
++
++        skb_twe_ie_scan = &beacon_twe_ptr->u.beacon.variable[0];
++
++        while((skb_twe_ie_scan[0] != WLAN_EID_TPC_REPORT) &&
++             ((skb_twe_ie_scan - ((u8*)beacon_twe_ptr)) < alloc_len))
++        {
++             skb_twe_ie_scan += skb_twe_ie_scan[1] + 2;
++        }
++
++        if ((skb_twe_ie_scan[0] == WLAN_EID_TPC_REPORT) &&
++            (skb_twe_ie_scan[1] == sizeof(struct ieee80211_tpc_report_ie)))
++        {
++            for(ii = 0; ii < sizeof(struct ieee80211_tpc_report_ie); ii++)
++            {
++                skb_twe_ie_scan[ii+2] = ii + 0xA5;
++            }
++        }
++
++        skb_twe_ie_scan = &beacon_twe_ptr->u.beacon.variable[0];
++
++        while((skb_twe_ie_scan[0] != WLAN_EID_EXTENSION) &&
++                (skb_twe_ie_scan[2] != WLAN_EID_EXT_HE_MU_EDCA) &&
++                ((skb_twe_ie_scan - ((u8*)beacon_twe_ptr)) < alloc_len)) 
++        {
++            skb_twe_ie_scan += skb_twe_ie_scan[1] + 2;
++        }
++
++        if ((skb_twe_ie_scan[0] == WLAN_EID_TPC_REPORT) &&
++            (skb_twe_ie_scan[2] == WLAN_EID_EXT_HE_MU_EDCA) &&  
++            (skb_twe_ie_scan[1] == (sizeof(struct ieee80211_mu_edca_param_set)+1)))
++        {
++            for(ii = 0; ii < (sizeof(struct ieee80211_mu_edca_param_set) + 1); ii++)
++            {
++                skb_twe_ie_scan[ii+2] = ii | 0x30;
++            }
++        }
++
++        skb_twe_ie_scan = &beacon_twe_ptr->u.beacon.variable[0];
++
++        while((skb_twe_ie_scan[0] != WLAN_EID_TIM) &&
++            ((skb_twe_ie_scan - ((u8*)beacon_twe_ptr)) < alloc_len))
++        {
++            skb_twe_ie_scan += skb_twe_ie_scan[1] + 2;
++        }
++
++        if ((skb_twe_ie_scan[0] == WLAN_EID_TIM) &&
++            (skb_twe_ie_scan[1] == sizeof(struct ieee80211_tim_ie)))
++        {
++            for(ii = 0; ii < (sizeof(struct ieee80211_tim_ie)); ii++)
++            {
++                if (ii != 1)
++                {
++                    skb_twe_ie_scan[ii+2] = 0;
++                }
++            }
++        }
++
++        ptr = (u8*)beacon_twe_ptr;
++        ptr[skb->len] = WLAN_EID_VENDOR_SPECIFIC;
++        ptr[skb->len+1] = WATCHGUARD_LENGTH;
++        ptr[skb->len+2] = WATCHGUARD_VENDOR_OUI_1;
++        ptr[skb->len+3] = WATCHGUARD_VENDOR_OUI_2;
++        ptr[skb->len+4] = WATCHGUARD_VENDOR_OUI_3;
++        ptr[skb->len+5] = WATCHGUARD_VENDOR_OUI_SUBTYPE;
++
++        ktime_get_real_ts64(&timespec);
++        ts = timespec.tv_sec * 1000000;
++        ts += timespec.tv_nsec/1000;
++        memcpy(&ptr[skb->len+6], &ts, 8);
++
++        if (create_watchguard_hash(sdata->wdev.ssid, sdata->wdev.ssid_len,
++	        &ptr[skb->len + 2 + WATCHGUARD_LENGTH - WATCHGUARD_HASH_SIZE], 
++	        WATCHGUARD_HASH_SIZE,
++	        (u8*)&beacon_twe_ptr->u.beacon.beacon_int, 
++            skb->len + (2+ WATCHGUARD_LENGTH - WATCHGUARD_HASH_SIZE) - (((u8*)&beacon_twe_ptr->u.beacon.beacon_int) - ptr)))
++        {
++            //We must restore the new buffer to the original value, free the original buffer, and point
++            //skb at the new buffer.
++            memcpy(beacon_twe_ptr, skb->data, skb->len);
++            kfree_skb(skb);
++            skb = skb_twe;
++        }
++        else
++	    {
++            //If we fail to add the hash, free the new buffer
++            kfree_skb(skb_twe);
++	    }
++    }
++
++    txrc.skb = skb;
++
+  out:
+ 	rcu_read_unlock();
+ 	return skb;
+--- compat-wireless-2.6-backports-4.20.17-1/net/mac80211/ieee80211_i.h.orig	2022-05-09 13:48:47.891957393 -0700
++++ compat-wireless-2.6-backports-4.20.17-1/net/mac80211/ieee80211_i.h	2022-05-09 13:48:48.719923786 -0700
+@@ -1417,7 +1417,7 @@
+ 	rcu_read_lock();
+ 	chanctx_conf = rcu_dereference(sdata->vif.chanctx_conf);
+ 
+-	if (WARN_ON(!chanctx_conf)) {
++	if (!chanctx_conf) {
+ 		rcu_read_unlock();
+ 		return NULL;
+ 	}
+--- compat-wireless-2.6-backports-4.20.17-1/net/mac80211/wme.c.orig	2022-05-09 13:48:47.963954472 -0700
++++ compat-wireless-2.6-backports-4.20.17-1/net/mac80211/wme.c	2022-05-09 13:48:48.735923136 -0700
+@@ -157,6 +157,16 @@
+ 		return 0;
+ 	}
+ 
++#ifdef CONFIG_WG_NETFILTER_TC //WG:Daniel Ma
++        /*
++         * if this packet has been classified by WG, reverse the priority
++         * to apply WG traffic management
++         */
++        if (skb->priority & 0xffff0000) {
++            return IEEE80211_AC_BE;
++        }
++#endif
++
+ 	rcu_read_lock();
+ 	switch (sdata->vif.type) {
+ 	case NL80211_IFTYPE_AP_VLAN:
+--- compat-wireless-2.6-backports-4.20.17-1/net/mac80211/offchannel.c.orig	2022-05-09 13:48:47.903956907 -0700
++++ compat-wireless-2.6-backports-4.20.17-1/net/mac80211/offchannel.c	2022-05-09 13:48:48.723923624 -0700
+@@ -17,6 +17,9 @@
+ #include "ieee80211_i.h"
+ #include "driver-ops.h"
+ 
++bool (*create_watchguard_hash)(const uint8_t* ssid, uint8_t ssid_size, uint8_t* hash, size_t hash_size, uint8_t* hash_data, size_t hash_data_size );
++EXPORT_SYMBOL(create_watchguard_hash);
++
+ /*
+  * Tell our hardware to disable PS.
+  * Optionally inform AP that we will go to sleep so that it will buffer
+@@ -785,6 +788,9 @@
+ 	const struct ieee80211_mgmt *mgmt = (void *)params->buf;
+ 	bool need_offchan = false;
+ 	u32 flags;
++    struct timespec64 timespec; 
++    u8* tmp;
++    s64 ts;
+ 	int ret;
+ 	u8 *data;
+ 
+@@ -880,15 +886,65 @@
+ 		goto out_unlock;
+ 	}
+ 
+-	skb = dev_alloc_skb(local->hw.extra_tx_headroom + params->len);
+-	if (!skb) {
+-		ret = -ENOMEM;
+-		goto out_unlock;
+-	}
+-	skb_reserve(skb, local->hw.extra_tx_headroom);
+ 
+-	data = skb_put_data(skb, params->buf, params->len);
++    //Check if need to add the evil twin security hash
++    if ((create_watchguard_hash) && (
++            ((params->buf[0] & IEEE80211_FCTL_STYPE) == IEEE80211_STYPE_PROBE_RESP) ||
++            ((params->buf[0] & IEEE80211_FCTL_STYPE) == IEEE80211_STYPE_ASSOC_RESP) ||
++            ((params->buf[0] & IEEE80211_FCTL_STYPE) == IEEE80211_STYPE_REASSOC_RESP)
++       ))
++    {
++        //We need to create a large skb buffer for the hash
++        skb = dev_alloc_skb(local->hw.extra_tx_headroom + params->len + 2 + WATCHGUARD_LENGTH);
++	    if (!skb) {
++		    ret = -ENOMEM;
++		    goto out_unlock;
++	    }
++	    skb_reserve(skb, local->hw.extra_tx_headroom);
++	   
++        tmp = (u8*)skb_put(skb, params->len + 2 + WATCHGUARD_LENGTH);
++        memcpy(tmp, params->buf, params->len);
++
++        tmp[params->len] = WLAN_EID_VENDOR_SPECIFIC;
++        tmp[params->len+1] = WATCHGUARD_LENGTH;
++        tmp[params->len+2] = WATCHGUARD_VENDOR_OUI_1;
++        tmp[params->len+3] = WATCHGUARD_VENDOR_OUI_2;
++        tmp[params->len+4] = WATCHGUARD_VENDOR_OUI_3;
++        tmp[params->len+5] = WATCHGUARD_VENDOR_OUI_SUBTYPE;
++
++
++        ktime_get_real_ts64(&timespec);
++        ts = timespec.tv_sec * 1000000;
++        ts += timespec.tv_nsec/1000;
++        memcpy(&tmp[params->len+6], &ts, 8);
++         
++        if (!create_watchguard_hash(wdev->ssid, wdev->ssid_len, 
++                    &tmp[params->len + 2 + WATCHGUARD_LENGTH - WATCHGUARD_HASH_SIZE], 
++                    WATCHGUARD_HASH_SIZE, tmp, params->len + 2 + WATCHGUARD_LENGTH - WATCHGUARD_HASH_SIZE))
++        {
++            //If we fail to add the hash, we need to free and re-create the skb buffer
++            kfree_skb(skb);
++            skb = dev_alloc_skb(local->hw.extra_tx_headroom + params->len);
++            if (!skb) {
++                ret = -ENOMEM;
++                goto out_unlock;
++            }
++            skb_reserve(skb, local->hw.extra_tx_headroom);
++
++            data = skb_put_data(skb, params->buf, params->len);
++        }
++    }
++    else
++    {
++        skb = dev_alloc_skb(local->hw.extra_tx_headroom + params->len);
++        if (!skb) {
++            ret = -ENOMEM;
++            goto out_unlock;
++        }
++        skb_reserve(skb, local->hw.extra_tx_headroom);
+ 
++        data = skb_put_data(skb, params->buf, params->len);
++    }
+ 	/* Update CSA counters */
+ 	if (sdata->vif.csa_active &&
+ 	    (sdata->vif.type == NL80211_IFTYPE_AP ||
+--- compat-wireless-2.6-backports-4.20.17-1/net/mac80211/util.c.orig	2022-05-09 13:48:47.955954796 -0700
++++ compat-wireless-2.6-backports-4.20.17-1/net/mac80211/util.c	2022-05-09 13:48:48.735923136 -0700
+@@ -1287,6 +1287,12 @@
+ 		wmm_ac = &rrule->wmm_rule.ap[ac];
+ 	else
+ 		wmm_ac = &rrule->wmm_rule.client[ac];
++
++	if (wmm_ac->cw_min == 0 || wmm_ac->cw_min > wmm_ac->cw_max) {
++	    rcu_read_unlock();
++	    return;
++	}
++        
+ 	qparam->cw_min = max_t(u16, qparam->cw_min, wmm_ac->cw_min);
+ 	qparam->cw_max = max_t(u16, qparam->cw_max, wmm_ac->cw_max);
+ 	qparam->aifs = max_t(u8, qparam->aifs, wmm_ac->aifsn);
+@@ -2455,7 +2461,7 @@
+ 	chanctx_conf = rcu_dereference_protected(sdata->vif.chanctx_conf,
+ 					lockdep_is_held(&local->chanctx_mtx));
+ 
+-	if (WARN_ON_ONCE(!chanctx_conf))
++	if (!chanctx_conf)
+ 		goto unlock;
+ 
+ 	chanctx = container_of(chanctx_conf, struct ieee80211_chanctx, conf);
+--- compat-wireless-2.6-backports-4.20.17-1/include/net/fq_impl.h.orig	2022-05-09 13:48:47.851959017 -0700
++++ compat-wireless-2.6-backports-4.20.17-1/include/net/fq_impl.h	2022-05-09 13:48:48.699924598 -0700
+@@ -118,7 +118,7 @@
+ 
+ 	lockdep_assert_held(&fq->lock);
+ 
+-	hash = skb_get_hash_perturb(skb, fq->perturbation);
++	hash = skb_get_hash_perturb(skb, &fq->perturbation);
+ 	idx = reciprocal_scale(hash, fq->flows_cnt);
+ 	flow = &fq->flows[idx];
+ 
+@@ -307,7 +307,7 @@
+ 	INIT_LIST_HEAD(&fq->backlogs);
+ 	spin_lock_init(&fq->lock);
+ 	fq->flows_cnt = max_t(u32, flows_cnt, 1);
+-	fq->perturbation = prandom_u32();
++	get_random_bytes(&fq->perturbation, sizeof(fq->perturbation));
+ 	fq->quantum = 300;
+ 	fq->limit = 8192;
+ 	fq->memory_limit = 16 << 20; /* 16 MBytes */
+--- compat-wireless-2.6-backports-4.20.17-1/include/net/mac80211.h.orig	2022-05-09 13:48:47.867958367 -0700
++++ compat-wireless-2.6-backports-4.20.17-1/include/net/mac80211.h	2022-05-09 13:48:48.703924435 -0700
+@@ -848,6 +848,13 @@
+ 	IEEE80211_TX_RC_160_MHZ_WIDTH		= BIT(10),
+ };
+ 
++#define WATCHGUARD_LENGTH               0x2c
++#define WATCHGUARD_VENDOR_OUI_1         0x00
++#define WATCHGUARD_VENDOR_OUI_2         0x01
++#define WATCHGUARD_VENDOR_OUI_3         0x21
++#define WATCHGUARD_VENDOR_OUI_SUBTYPE   0x54     
++#define WATCHGUARD_HASH_SIZE            32
++
+ 
+ /* there are 40 bytes if you don't need the rateset to be kept */
+ #define IEEE80211_TX_INFO_DRIVER_DATA_SIZE 40
+@@ -6141,4 +6148,24 @@
+ 			      struct cfg80211_nan_match_params *match,
+ 			      gfp_t gfp);
+ 
++/**
++ * create_watchguard_hash  - adds the watchguard hash
++ *
++ * This is a function pointer to the function in wghash.ko that will add the evil
++ * twin to the security hash to beacons, probe responses, and association responses.
++ *
++ * @ssid: Pointer to the protected ssid
++ * @ssid_size: The size of the ssid in bytes
++ * @hash: Pointer to uint8_t array to receive the hash
++ * @hash_size: The size fo the array to receive the hash
++ * @hash_data: The data to derive the hash over
++ * @hash_data_size:  The size of the data to derive the hash over
++ *
++ * Returns in true if successful and false otherwise.
++ */
++extern bool (*create_watchguard_hash)(const uint8_t* ssid, uint8_t ssid_size, uint8_t* hash, size_t hash_size, uint8_t* hash_data, size_t hash_data_size );
++
++
++
++
+ #endif /* MAC80211_H */
+--- compat-wireless-2.6-backports-4.20.17-1/include/net/fq.h.orig	2022-05-09 13:48:47.847959179 -0700
++++ compat-wireless-2.6-backports-4.20.17-1/include/net/fq.h	2022-05-09 13:48:48.699924598 -0700
+@@ -70,7 +70,7 @@
+ 	struct list_head backlogs;
+ 	spinlock_t lock;
+ 	u32 flows_cnt;
+-	u32 perturbation;
++	siphash_key_t   perturbation;
+ 	u32 limit;
+ 	u32 memory_limit;
+ 	u32 memory_usage;
+--- compat-wireless-2.6-backports-4.20.17-1/drivers/net/wireless/ath/ath9k/ar9330_1p1_initvals.h.orig	2022-05-09 13:48:47.235984020 -0700
++++ compat-wireless-2.6-backports-4.20.17-1/drivers/net/wireless/ath/ath9k/ar9330_1p1_initvals.h	2022-05-09 13:48:48.199944893 -0700
+@@ -38,7 +38,7 @@
+ 	{0x00009e14, 0x31365d5e, 0x3136605e, 0x3136605e, 0x31365d5e},
+ 	{0x00009e18, 0x00000000, 0x00000000, 0x00000000, 0x00000000},
+ 	{0x00009e1c, 0x0001cf9c, 0x0001cf9c, 0x00021f9c, 0x00021f9c},
+-	{0x00009e20, 0x000003b5, 0x000003b5, 0x000003ce, 0x000003ce},
++	{0x00009e20, 0x000003a5, 0x000003a5, 0x000003a5, 0x000003a5},
+ 	{0x00009e2c, 0x0000001c, 0x0000001c, 0x00003221, 0x00003221},
+ 	{0x00009e3c, 0xcf946220, 0xcf946220, 0xcf946220, 0xcf946220},
+ 	{0x00009e44, 0x02321e27, 0x02321e27, 0x02282324, 0x02282324},
+--- compat-wireless-2.6-backports-4.20.17-1/drivers/net/wireless/ath/ath9k/ar9340_initvals.h.orig	2022-05-09 13:48:47.239983857 -0700
++++ compat-wireless-2.6-backports-4.20.17-1/drivers/net/wireless/ath/ath9k/ar9340_initvals.h	2022-05-09 13:48:48.199944893 -0700
+@@ -243,7 +243,7 @@
+ 	{0x00009e14, 0x37b95d5e, 0x37b9605e, 0x3379605e, 0x33795d5e},
+ 	{0x00009e18, 0x00000000, 0x00000000, 0x00000000, 0x00000000},
+ 	{0x00009e1c, 0x0001cf9c, 0x0001cf9c, 0x00021f9c, 0x00021f9c},
+-	{0x00009e20, 0x000003b5, 0x000003b5, 0x000003ce, 0x000003ce},
++	{0x00009e20, 0x000003a5, 0x000003a5, 0x000003a5, 0x000003a5},
+ 	{0x00009e2c, 0x0000001c, 0x0000001c, 0x00000021, 0x00000021},
+ 	{0x00009e3c, 0xcf946220, 0xcf946220, 0xcf946220, 0xcf946220},
+ 	{0x00009e44, 0x02321e27, 0x02321e27, 0x02291e27, 0x02291e27},
+@@ -273,7 +273,7 @@
+ 	{0x0000ae04, 0x001c0000, 0x001c0000, 0x001c0000, 0x001c0000},
+ 	{0x0000ae18, 0x00000000, 0x00000000, 0x00000000, 0x00000000},
+ 	{0x0000ae1c, 0x0000019c, 0x0000019c, 0x0000019c, 0x0000019c},
+-	{0x0000ae20, 0x000001b5, 0x000001b5, 0x000001ce, 0x000001ce},
++	{0x0000ae20, 0x000001a6, 0x000001a6, 0x000001aa, 0x000001aa},
+ 	{0x0000b284, 0x00000000, 0x00000000, 0x00000150, 0x00000150},
+ };
+ 
+--- compat-wireless-2.6-backports-4.20.17-1/drivers/net/wireless/ath/ath9k/ar9580_1p0_initvals.h.orig	2022-05-09 13:48:47.243983694 -0700
++++ compat-wireless-2.6-backports-4.20.17-1/drivers/net/wireless/ath/ath9k/ar9580_1p0_initvals.h	2022-05-09 13:48:48.203944729 -0700
+@@ -1288,7 +1288,7 @@
+ 	{0x00009e14, 0x37b95d5e, 0x37b9605e, 0x3379605e, 0x33795d5e},
+ 	{0x00009e18, 0x00000000, 0x00000000, 0x00000000, 0x00000000},
+ 	{0x00009e1c, 0x0001cf9c, 0x0001cf9c, 0x00021f9c, 0x00021f9c},
+-	{0x00009e20, 0x000003b5, 0x000003b5, 0x000003ce, 0x000003ce},
++	{0x00009e20, 0x000003a5, 0x000003a5, 0x000003a5, 0x000003a5},
+ 	{0x00009e2c, 0x0000001c, 0x0000001c, 0x00000021, 0x00000021},
+ 	{0x00009e3c, 0xcf946220, 0xcf946220, 0xcf946220, 0xcf946220},
+ 	{0x00009e44, 0x02321e27, 0x02321e27, 0x02291e27, 0x02291e27},
+@@ -1318,7 +1318,7 @@
+ 	{0x0000ae04, 0x001c0000, 0x001c0000, 0x001c0000, 0x001c0000},
+ 	{0x0000ae18, 0x00000000, 0x00000000, 0x00000000, 0x00000000},
+ 	{0x0000ae1c, 0x0000019c, 0x0000019c, 0x0000019c, 0x0000019c},
+-	{0x0000ae20, 0x000001b5, 0x000001b5, 0x000001ce, 0x000001ce},
++	{0x0000ae20, 0x000001a6, 0x000001a6, 0x000001aa, 0x000001aa},
+ 	{0x0000b284, 0x00000000, 0x00000000, 0x00000150, 0x00000150},
+ 	{0x0000b830, 0x0000019c, 0x0000019c, 0x0000019c, 0x0000019c},
+ 	{0x0000be04, 0x001c0000, 0x001c0000, 0x001c0000, 0x001c0000},
+--- compat-wireless-2.6-backports-4.20.17-1/drivers/net/wireless/ath/ath9k/ar9565_1p0_initvals.h.orig	2022-05-09 13:48:47.239983857 -0700
++++ compat-wireless-2.6-backports-4.20.17-1/drivers/net/wireless/ath/ath9k/ar9565_1p0_initvals.h	2022-05-09 13:48:48.203944729 -0700
+@@ -345,7 +345,7 @@
+ 	{0x00009e14, 0x37b95d5e, 0x37b9605e, 0x3379605e, 0x33795d5e},
+ 	{0x00009e18, 0x00000000, 0x00000000, 0x00000000, 0x00000000},
+ 	{0x00009e1c, 0x0001cf9c, 0x0001cf9c, 0x00021f9c, 0x00021f9c},
+-	{0x00009e20, 0x000003b5, 0x000003b5, 0x000003a4, 0x000003a4},
++	{0x00009e20, 0x000003a5, 0x000003a5, 0x000003a5, 0x000003a5},
+ 	{0x00009e2c, 0x0000001c, 0x0000001c, 0x00000021, 0x00000021},
+ 	{0x00009e3c, 0xcf946220, 0xcf946220, 0xcf946220, 0xcf946220},
+ 	{0x00009e44, 0xfe321e27, 0xfe321e27, 0xfe291e27, 0xfe291e27},
+--- compat-wireless-2.6-backports-4.20.17-1/drivers/net/wireless/ath/ath9k/hw.c.orig	2022-05-09 13:48:47.263982883 -0700
++++ compat-wireless-2.6-backports-4.20.17-1/drivers/net/wireless/ath/ath9k/hw.c	2022-05-09 13:48:48.211944405 -0700
+@@ -2941,7 +2941,8 @@
+ {
+ 	struct ath_regulatory *reg = ath9k_hw_regulatory(ah);
+ 	struct ieee80211_channel *channel;
+-	int chan_pwr, new_pwr;
++	int chan_pwr, new_pwr, max_gain;
++	int ant_gain, ant_reduction = 0;
+ 	u16 ctl = NO_CTL;
+ 
+ 	if (!chan)
+@@ -2953,9 +2954,14 @@
+ 	channel = chan->chan;
+ 	chan_pwr = min_t(int, channel->max_power * 2, MAX_RATE_POWER);
+ 	new_pwr = min_t(int, chan_pwr, reg->power_limit);
++	max_gain = chan_pwr - new_pwr + channel->max_antenna_gain * 2;
++
++	ant_gain = get_antenna_gain(ah, chan);
++	if (ant_gain > max_gain)
++		ant_reduction = ant_gain - max_gain;
+ 
+ 	ah->eep_ops->set_txpower(ah, chan, ctl,
+-				 get_antenna_gain(ah, chan), new_pwr, test);
++				 ant_reduction, new_pwr, test);
+ }
+ 
+ void ath9k_hw_set_txpowerlimit(struct ath_hw *ah, u32 limit, bool test)
+--- compat-wireless-2.6-backports-4.20.17-1/drivers/net/wireless/ath/ath9k/ar9330_1p2_initvals.h.orig	2022-05-09 13:48:47.239983857 -0700
++++ compat-wireless-2.6-backports-4.20.17-1/drivers/net/wireless/ath/ath9k/ar9330_1p2_initvals.h	2022-05-09 13:48:48.199944893 -0700
+@@ -343,7 +343,7 @@
+ 	{0x00009e14, 0x31395d5e, 0x3139605e, 0x3139605e, 0x31395d5e},
+ 	{0x00009e18, 0x00000000, 0x00000000, 0x00000000, 0x00000000},
+ 	{0x00009e1c, 0x0001cf9c, 0x0001cf9c, 0x00021f9c, 0x00021f9c},
+-	{0x00009e20, 0x000003b5, 0x000003b5, 0x000003ce, 0x000003ce},
++	{0x00009e20, 0x000003a5, 0x000003a5, 0x000003a5, 0x000003a5},
+ 	{0x00009e2c, 0x0000001c, 0x0000001c, 0x00003221, 0x00003221},
+ 	{0x00009e3c, 0xcf946220, 0xcf946220, 0xcf946220, 0xcf946220},
+ 	{0x00009e44, 0x02321e27, 0x02321e27, 0x02282324, 0x02282324},
+--- compat-wireless-2.6-backports-4.20.17-1/drivers/net/wireless/ath/ath9k/ar953x_initvals.h.orig	2022-05-09 13:48:47.239983857 -0700
++++ compat-wireless-2.6-backports-4.20.17-1/drivers/net/wireless/ath/ath9k/ar953x_initvals.h	2022-05-09 13:48:48.199944893 -0700
+@@ -356,7 +356,7 @@
+ 	{0x00009e14, 0x37b95d5e, 0x37b9605e, 0x3379605e, 0x33795d5e},
+ 	{0x00009e18, 0x00000000, 0x00000000, 0x00000000, 0x00000000},
+ 	{0x00009e1c, 0x0001cf9c, 0x0001cf9c, 0x00021f9c, 0x00021f9c},
+-	{0x00009e20, 0x000003b5, 0x000003b5, 0x000003ce, 0x000003ce},
++	{0x00009e20, 0x000003a5, 0x000003a5, 0x000003a5, 0x000003a5},
+ 	{0x00009e2c, 0x0000001c, 0x0000001c, 0x00000021, 0x00000021},
+ 	{0x00009e3c, 0xcfa10820, 0xcfa10820, 0xcfa10820, 0xcfa10820},
+ 	{0x00009e44, 0xfe321e27, 0xfe321e27, 0xfe291e27, 0xfe291e27},
+@@ -387,7 +387,7 @@
+ 	{0x0000ae04, 0x001c0000, 0x001c0000, 0x001c0000, 0x001c0000},
+ 	{0x0000ae18, 0x00000000, 0x00000000, 0x00000000, 0x00000000},
+ 	{0x0000ae1c, 0x0000019c, 0x0000019c, 0x0000019c, 0x0000019c},
+-	{0x0000ae20, 0x000001b5, 0x000001b5, 0x000001ce, 0x000001ce},
++	{0x0000ae20, 0x000001a6, 0x000001a6, 0x000001aa, 0x000001aa},
+ 	{0x0000b284, 0x00000000, 0x00000000, 0x00000010, 0x00000010},
+ };
+ 
+@@ -986,7 +986,7 @@
+ 	{0x00009e14, 0x37b95d5e, 0x37b9605e, 0x3379605e, 0x33795d5e},
+ 	{0x00009e18, 0x00000000, 0x00000000, 0x00000000, 0x00000000},
+ 	{0x00009e1c, 0x0001cf9c, 0x0001cf9c, 0x00021f9c, 0x00021f9c},
+-	{0x00009e20, 0x000003b5, 0x000003b5, 0x000003ce, 0x000003ce},
++	{0x00009e20, 0x000003a5, 0x000003a5, 0x000003a5, 0x000003a5},
+ 	{0x00009e2c, 0x0000001c, 0x0000001c, 0x00000021, 0x00000021},
+ 	{0x00009e3c, 0xcfa10820, 0xcfa10820, 0xcf946220, 0xcf946220},
+ 	{0x00009e44, 0xfe321e27, 0xfe321e27, 0xfe291e27, 0xfe291e27},
+@@ -1017,7 +1017,7 @@
+ 	{0x0000ae04, 0x001c0000, 0x001c0000, 0x001c0000, 0x001c0000},
+ 	{0x0000ae18, 0x00000000, 0x00000000, 0x00000000, 0x00000000},
+ 	{0x0000ae1c, 0x0000019c, 0x0000019c, 0x0000019c, 0x0000019c},
+-	{0x0000ae20, 0x000001b5, 0x000001b5, 0x000001ce, 0x000001ce},
++	{0x0000ae20, 0x000001a6, 0x000001a6, 0x000001aa, 0x000001aa},
+ 	{0x0000b284, 0x00000000, 0x00000000, 0x00000010, 0x00000010},
+ };
+ 
+--- compat-wireless-2.6-backports-4.20.17-1/drivers/net/wireless/ath/ath9k/ar9003_2p2_initvals.h.orig	2022-05-09 13:48:47.227984344 -0700
++++ compat-wireless-2.6-backports-4.20.17-1/drivers/net/wireless/ath/ath9k/ar9003_2p2_initvals.h	2022-05-09 13:48:48.191945217 -0700
+@@ -329,7 +329,7 @@
+ 	{0x00009e14, 0x37b95d5e, 0x37b9605e, 0x3379605e, 0x33795d5e},
+ 	{0x00009e18, 0x00000000, 0x00000000, 0x00000000, 0x00000000},
+ 	{0x00009e1c, 0x0001cf9c, 0x0001cf9c, 0x00021f9c, 0x00021f9c},
+-	{0x00009e20, 0x000003b5, 0x000003b5, 0x000003ce, 0x000003ce},
++	{0x00009e20, 0x000003a5, 0x000003a5, 0x000003a5, 0x000003a5},
+ 	{0x00009e2c, 0x0000001c, 0x0000001c, 0x00000021, 0x00000021},
+ 	{0x00009e3c, 0xcf946220, 0xcf946220, 0xcf946220, 0xcf946220},
+ 	{0x00009e44, 0x02321e27, 0x02321e27, 0x02291e27, 0x02291e27},
+@@ -359,7 +359,7 @@
+ 	{0x0000ae04, 0x001c0000, 0x001c0000, 0x001c0000, 0x001c0000},
+ 	{0x0000ae18, 0x00000000, 0x00000000, 0x00000000, 0x00000000},
+ 	{0x0000ae1c, 0x0000019c, 0x0000019c, 0x0000019c, 0x0000019c},
+-	{0x0000ae20, 0x000001b5, 0x000001b5, 0x000001ce, 0x000001ce},
++	{0x0000ae20, 0x000001a6, 0x000001a6, 0x000001aa, 0x000001aa},
+ 	{0x0000b284, 0x00000000, 0x00000000, 0x00000150, 0x00000150},
+ 	{0x0000b830, 0x0000019c, 0x0000019c, 0x0000019c, 0x0000019c},
+ 	{0x0000be04, 0x001c0000, 0x001c0000, 0x001c0000, 0x001c0000},
+--- compat-wireless-2.6-backports-4.20.17-1/drivers/net/wireless/ath/ath9k/ar955x_1p0_initvals.h.orig	2022-05-09 13:48:47.239983857 -0700
++++ compat-wireless-2.6-backports-4.20.17-1/drivers/net/wireless/ath/ath9k/ar955x_1p0_initvals.h	2022-05-09 13:48:48.203944729 -0700
+@@ -61,7 +61,7 @@
+ 	{0x00009e14, 0x37b95d5e, 0x37b9605e, 0x3379605e, 0x33795d5e},
+ 	{0x00009e18, 0x00000000, 0x00000000, 0x00000000, 0x00000000},
+ 	{0x00009e1c, 0x0001cf9c, 0x0001cf9c, 0x00021f9c, 0x00021f9c},
+-	{0x00009e20, 0x000003b5, 0x000003b5, 0x000003ce, 0x000003ce},
++	{0x00009e20, 0x000003a5, 0x000003a5, 0x000003a5, 0x000003a5},
+ 	{0x00009e2c, 0x0000001c, 0x0000001c, 0x00000021, 0x00000021},
+ 	{0x00009e3c, 0xcfa10820, 0xcfa10820, 0xcfa10820, 0xcfa10820},
+ 	{0x00009e44, 0xfe321e27, 0xfe321e27, 0xfe291e27, 0xfe291e27},
+@@ -92,7 +92,7 @@
+ 	{0x0000ae04, 0x001c0000, 0x001c0000, 0x001c0000, 0x001c0000},
+ 	{0x0000ae18, 0x00000000, 0x00000000, 0x00000000, 0x00000000},
+ 	{0x0000ae1c, 0x0000019c, 0x0000019c, 0x0000019c, 0x0000019c},
+-	{0x0000ae20, 0x000001b5, 0x000001b5, 0x000001ce, 0x000001ce},
++	{0x0000ae20, 0x000001a6, 0x000001a6, 0x000001aa, 0x000001aa},
+ 	{0x0000b284, 0x00000000, 0x00000000, 0x00000010, 0x00000010},
+ 	{0x0000b830, 0x0000019c, 0x0000019c, 0x0000019c, 0x0000019c},
+ 	{0x0000be04, 0x001c0000, 0x001c0000, 0x001c0000, 0x001c0000},
+--- compat-wireless-2.6-backports-4.20.17-1/drivers/net/wireless/ath/ath10k/mac.c.orig	2022-05-09 13:48:47.159987104 -0700
++++ compat-wireless-2.6-backports-4.20.17-1/drivers/net/wireless/ath/ath10k/mac.c	2022-05-09 13:48:48.155946678 -0700
+@@ -8273,7 +8273,8 @@
+ 						   ath10k_get_arvif_iter,
+ 						   &arvif_iter);
+ 	if (!arvif_iter.arvif) {
+-		ath10k_warn(ar, "No VIF found for vdev %d\n", vdev_id);
++		ath10k_dbg(ar, ATH10K_DBG_BOOT,
++			    "No VIF found for vdev %d\n", vdev_id);
+ 		return NULL;
+ 	}
+ 
+--- compat-wireless-2.6-backports-4.20.17-1/drivers/net/wireless/ath/ath10k/wmi.c.orig	2022-05-09 13:48:47.191985805 -0700
++++ compat-wireless-2.6-backports-4.20.17-1/drivers/net/wireless/ath/ath10k/wmi.c	2022-05-09 13:48:48.167946191 -0700
+@@ -3675,7 +3675,8 @@
+ 
+ 		arvif = ath10k_get_arvif(ar, vdev_id);
+ 		if (arvif == NULL) {
+-			ath10k_warn(ar, "no vif for vdev_id %d found\n",
++			ath10k_dbg(ar, ATH10K_DBG_MGMT, 
++					"no vif for vdev_id %d found\n",
+ 				    vdev_id);
+ 			continue;
+ 		}
+@@ -6266,7 +6267,8 @@
+ 	struct sk_buff *skb;
+ 
+ 	if (id == WMI_PDEV_PARAM_UNSUPPORTED) {
+-		ath10k_warn(ar, "pdev param %d not supported by firmware\n",
++		ath10k_dbg(ar, ATH10K_DBG_WMI, 
++			    "pdev param %d not supported by firmware\n",
+ 			    id);
+ 		return ERR_PTR(-EOPNOTSUPP);
+ 	}
+--- compat-wireless-2.6-backports-4.20.17-1/drivers/net/wireless/ath/ath10k/hw.c.orig	2022-05-09 13:48:47.131988241 -0700
++++ compat-wireless-2.6-backports-4.20.17-1/drivers/net/wireless/ath/ath10k/hw.c	2022-05-09 13:48:48.155946678 -0700
+@@ -169,7 +169,7 @@
+ };
+ 
+ const struct ath10k_hw_values qca99x0_values = {
+-	.rtc_state_val_on		= 5,
++	.rtc_state_val_on		= 7,
+ 	.ce_count			= 12,
+ 	.msi_assign_ce_max		= 12,
+ 	.num_target_ce_config_wlan	= 10,
+--- compat-wireless-2.6-backports-4.20.17-1/drivers/net/wireless/ath/ath10k/core.c.orig	2022-05-09 13:48:47.095989702 -0700
++++ compat-wireless-2.6-backports-4.20.17-1/drivers/net/wireless/ath/ath10k/core.c	2022-05-09 13:48:48.151946840 -0700
+@@ -1905,8 +1905,11 @@
+ 	int ret, i;
+ 	char fw_name[100];
+ 
++#ifndef CONFIG_WG_PLATFORM
++        //WG JQ, don't need to load calibration file in XTM wireless.
+ 	/* calibration file is optional, don't check for any errors */
+ 	ath10k_fetch_cal_file(ar);
++#endif
+ 
+ 	for (i = ATH10K_FW_API_MAX; i >= ATH10K_FW_API_MIN; i--) {
+ 		ar->fw_api = i;
+--- compat-wireless-2.6-backports-4.20.17-1/drivers/net/wireless/ath/ath10k/htc.c.orig	2022-05-09 13:48:47.107989215 -0700
++++ compat-wireless-2.6-backports-4.20.17-1/drivers/net/wireless/ath/ath10k/htc.c	2022-05-09 13:48:48.151946840 -0700
+@@ -809,7 +809,8 @@
+ 						&ep->ul_pipe_id,
+ 						&ep->dl_pipe_id);
+ 	if (status) {
+-		ath10k_warn(ar, "unsupported HTC service id: %d\n",
++		ath10k_dbg(ar, ATH10K_DBG_BOOT,
++			    "unsupported HTC service id: %d\n",
+ 			    ep->service_id);
+ 		return status;
+ 	}
+@@ -887,7 +888,9 @@
+ 						&ul_pipe_id,
+ 						&dl_pipe_id);
+ 	if (status) {
+-		ath10k_warn(ar, "unsupported HTC service id: %d\n",
++		
++		ath10k_dbg(ar, ATH10K_DBG_HTC,
++			    "unsupported HTC service id: %d\n",
+ 			    ATH10K_HTC_SVC_ID_HTT_LOG_MSG);
+ 
+ 		return false;
+--- compat-wireless-2.6-backports-4.20.17-1/drivers/net/wireless/ath/ath10k/htt_rx.c.orig	2022-05-09 13:48:47.123988565 -0700
++++ compat-wireless-2.6-backports-4.20.17-1/drivers/net/wireless/ath/ath10k/htt_rx.c	2022-05-09 13:48:48.155946678 -0700
+@@ -2085,7 +2085,8 @@
+ 	spin_lock_bh(&ar->data_lock);
+ 	peer = ath10k_peer_find_by_id(ar, peer_id);
+ 	if (!peer) {
+-		ath10k_warn(ar, "received addba event for invalid peer_id: %hu\n",
++		ath10k_dbg(ar, ATH10K_DBG_HTT,
++			    "received addba event for invalid peer_id: %hu\n",
+ 			    peer_id);
+ 		spin_unlock_bh(&ar->data_lock);
+ 		return;
+@@ -2093,7 +2094,8 @@
+ 
+ 	arvif = ath10k_get_arvif(ar, peer->vdev_id);
+ 	if (!arvif) {
+-		ath10k_warn(ar, "received addba event for invalid vdev_id: %u\n",
++		ath10k_dbg(ar, ATH10K_DBG_HTT,
++			    "received addba event for invalid vdev_id: %u\n",
+ 			    peer->vdev_id);
+ 		spin_unlock_bh(&ar->data_lock);
+ 		return;
+@@ -2821,7 +2823,8 @@
+ 	ppdu_len = resp->peer_tx_stats.ppdu_len * sizeof(__le32);
+ 
+ 	if (skb->len < sizeof(struct htt_resp_hdr) + num_ppdu * ppdu_len) {
+-		ath10k_warn(ar, "Invalid peer stats buf length %d\n", skb->len);
++		ath10k_dbg(ar, ATH10K_DBG_HTT,
++			    "Invalid peer stats buf length %d\n", skb->len);
+ 		return;
+ 	}
+ 
+@@ -2833,7 +2836,8 @@
+ 	spin_lock_bh(&ar->data_lock);
+ 	peer = ath10k_peer_find_by_id(ar, peer_id);
+ 	if (!peer || !peer->sta) {
+-		ath10k_warn(ar, "Invalid peer id %d peer stats buffer\n",
++		ath10k_dbg(ar, ATH10K_DBG_HTT, 
++			    "Invalid peer id %d peer stats buffer\n",
+ 			    peer_id);
+ 		goto out;
+ 	}
+@@ -2886,7 +2890,8 @@
+ 	spin_lock_bh(&ar->data_lock);
+ 	peer = ath10k_peer_find_by_id(ar, peer_id);
+ 	if (!peer || !peer->sta) {
+-		ath10k_warn(ar, "Invalid peer id %d in peer stats buffer\n",
++		ath10k_dbg(ar, ATH10K_DBG_HTT,
++				"Invalid peer id %d in peer stats buffer\n",
+ 			    peer_id);
+ 		goto out;
+ 	}
+--- compat-wireless-2.6-backports-4.20.17-1/backport-include/linux/skbuff.h.orig	2022-05-09 13:48:47.047991650 -0700
++++ compat-wireless-2.6-backports-4.20.17-1/backport-include/linux/skbuff.h	2022-05-09 13:48:48.119948139 -0700
+@@ -325,16 +325,7 @@
+ #else
+ #include <net/flow_keys.h>
+ #include <linux/jhash.h>
+-
+-static inline u32 skb_get_hash_perturb(struct sk_buff *skb, u32 key)
+-{
+-	struct flow_keys keys;
+-
+-	skb_flow_dissect(skb, &keys);
+-	return jhash_3words((__force u32)keys.dst,
+-			    (__force u32)keys.src ^ keys.ip_proto,
+-			    (__force u32)keys.ports, key);
+-}
++__u32 skb_get_hash_perturb(const struct sk_buff *skb, const siphash_key_t *perturb);
+ #endif /* LINUX_VERSION_IS_LESS(3,3,0) */
+ #endif /* LINUX_VERSION_IS_LESS(4,2,0) */
+ 
+--- compat-wireless-2.6-backports-4.20.17-1/backport-include/linux/netdevice.h.orig	2022-05-09 13:48:47.035992137 -0700
++++ compat-wireless-2.6-backports-4.20.17-1/backport-include/linux/netdevice.h	2022-05-09 13:48:48.115948301 -0700
+@@ -345,6 +345,19 @@
+ #endif
+ 
+ #if LINUX_VERSION_IS_LESS(4,15,0)
++#ifdef CONFIG_WG_PLATFORM
++static inline int _bp_netdev_upper_dev_link(struct net_device *dev,
++					    struct net_device *upper_dev, struct netlink_ext_ack *extack)
++{
++	return netdev_upper_dev_link(dev, upper_dev, extack);
++}
++#define netdev_upper_dev_link3(dev, upper, extack) \
++	netdev_upper_dev_link(dev, upper, extack)
++#define netdev_upper_dev_link2(dev, upper, extack) \
++	netdev_upper_dev_link(dev, upper, extack)
++#define netdev_upper_dev_link(...) \
++	macro_dispatcher(netdev_upper_dev_link, __VA_ARGS__)(__VA_ARGS__)
++#else
+ static inline int _bp_netdev_upper_dev_link(struct net_device *dev,
+ 					    struct net_device *upper_dev)
+ {
+@@ -356,6 +369,7 @@
+ 	netdev_upper_dev_link(dev, upper)
+ #define netdev_upper_dev_link(...) \
+ 	macro_dispatcher(netdev_upper_dev_link, __VA_ARGS__)(__VA_ARGS__)
++#endif	
+ #endif
+ 
+ #endif /* __BACKPORT_NETDEVICE_H */
+--- compat-wireless-2.6-backports-4.20.17-1/defconfigs/ath10k.orig	2022-05-09 13:48:47.071990676 -0700
++++ compat-wireless-2.6-backports-4.20.17-1/defconfigs/ath10k	2022-05-09 13:48:48.139947327 -0700
+@@ -1,7 +1,7 @@
+ CPTCFG_CFG80211=m
+ CPTCFG_CFG80211_WEXT=y
+ CPTCFG_MAC80211=m
+-CPTCFG_MAC80211_LEDS=y
++CPTCFG_MAC80211_LEDS=n
+ CPTCFG_MAC80211_MESH=y
+ CPTCFG_WLAN=y
+ CPTCFG_WLAN_VENDOR_ATH=y
+@@ -11,3 +11,8 @@
+ CPTCFG_ATH10K=m
+ CPTCFG_ATH10K_DEBUG=y
+ CPTCFG_ATH10K_DEBUGFS=y
++CPTCFG_BPAUTO_SYSTEM_DATA_VERIFICATION=y
++CPTCFG_BPAUTO_BUILD_SYSTEM_DATA_VERIFICATION=y
++CPTCFG_BPAUTO_PUBLIC_KEY=y
++CPTCFG_BPAUTO_ASN1_DECODER=y
++CPTCFG_BPAUTO_PKCS7=y
+--- compat-wireless-2.6-backports-4.20.17-1/defconfigs/ath9k.orig	2022-05-09 13:48:47.071990676 -0700
++++ compat-wireless-2.6-backports-4.20.17-1/defconfigs/ath9k	2022-05-09 13:48:48.139947327 -0700
+@@ -7,3 +7,10 @@
+ CPTCFG_WLAN_VENDOR_ATH=y
+ CPTCFG_ATH9K=m
+ CPTCFG_ATH9K_HTC=m
++CPTCFG_ATH9K_DEBUGFS=y
++CPTCFG_ATH9K_COMMON_DEBUG=y
++CPTCFG_BPAUTO_SYSTEM_DATA_VERIFICATION=y
++CPTCFG_BPAUTO_BUILD_SYSTEM_DATA_VERIFICATION=y
++CPTCFG_BPAUTO_PUBLIC_KEY=y
++CPTCFG_BPAUTO_ASN1_DECODER=y
++CPTCFG_BPAUTO_PKCS7=y
+--- compat-wireless-2.6-backports-4.20.17-1/Makefile.real.orig	2022-05-09 13:48:47.011993111 -0700
++++ compat-wireless-2.6-backports-4.20.17-1/Makefile.real	2022-05-09 13:48:48.107948626 -0700
+@@ -94,13 +94,13 @@
+ 		modules_install
+ 	@./scripts/blacklist.sh $(KLIB)/ $(KLIB)/$(KMODDIR)
+ 	@./scripts/compress_modules.sh $(KLIB)/$(KMODDIR)
+-	@./scripts/check_depmod.sh
+-	@/sbin/depmod -a
+-	@./scripts/update-initramfs.sh $(KLIB)
+-	@echo
+-	@echo Your backported driver modules should be installed now.
+-	@echo Reboot.
+-	@echo
++	# @./scripts/check_depmod.sh
++	# @/sbin/depmod -a
++	# @./scripts/update-initramfs.sh $(KLIB)
++	# @echo
++	# @echo Your backported driver modules should be installed now.
++	# @echo Reboot.
++	# @echo
+ 
+ .PHONY: modules_install
+ modules_install: install
+--- compat-wireless-2.6-backports-4.20.17-1/net/wireless/certs/sforshee.hex.bak.orig	1969-12-31 16:00:00.000000000 -0800
++++ compat-wireless-2.6-backports-4.20.17-1/net/wireless/certs/sforshee.hex.bak	2022-05-09 13:48:48.735923136 -0700
+@@ -0,0 +1,86 @@
++/* Seth Forshee's regdb certificate */
++0x30, 0x82, 0x02, 0xa4, 0x30, 0x82, 0x01, 0x8c,
++0x02, 0x09, 0x00, 0xb2, 0x8d, 0xdf, 0x47, 0xae,
++0xf9, 0xce, 0xa7, 0x30, 0x0d, 0x06, 0x09, 0x2a,
++0x86, 0x48, 0x86, 0xf7, 0x0d, 0x01, 0x01, 0x0b,
++0x05, 0x00, 0x30, 0x13, 0x31, 0x11, 0x30, 0x0f,
++0x06, 0x03, 0x55, 0x04, 0x03, 0x0c, 0x08, 0x73,
++0x66, 0x6f, 0x72, 0x73, 0x68, 0x65, 0x65, 0x30,
++0x20, 0x17, 0x0d, 0x31, 0x37, 0x31, 0x30, 0x30,
++0x36, 0x31, 0x39, 0x34, 0x30, 0x33, 0x35, 0x5a,
++0x18, 0x0f, 0x32, 0x31, 0x31, 0x37, 0x30, 0x39,
++0x31, 0x32, 0x31, 0x39, 0x34, 0x30, 0x33, 0x35,
++0x5a, 0x30, 0x13, 0x31, 0x11, 0x30, 0x0f, 0x06,
++0x03, 0x55, 0x04, 0x03, 0x0c, 0x08, 0x73, 0x66,
++0x6f, 0x72, 0x73, 0x68, 0x65, 0x65, 0x30, 0x82,
++0x01, 0x22, 0x30, 0x0d, 0x06, 0x09, 0x2a, 0x86,
++0x48, 0x86, 0xf7, 0x0d, 0x01, 0x01, 0x01, 0x05,
++0x00, 0x03, 0x82, 0x01, 0x0f, 0x00, 0x30, 0x82,
++0x01, 0x0a, 0x02, 0x82, 0x01, 0x01, 0x00, 0xb5,
++0x40, 0xe3, 0x9c, 0x28, 0x84, 0x39, 0x03, 0xf2,
++0x39, 0xd7, 0x66, 0x2c, 0x41, 0x38, 0x15, 0xac,
++0x7e, 0xa5, 0x83, 0x71, 0x25, 0x7e, 0x90, 0x7c,
++0x68, 0xdd, 0x6f, 0x3f, 0xd9, 0xd7, 0x59, 0x38,
++0x9f, 0x7c, 0x6a, 0x52, 0xc2, 0x03, 0x2a, 0x2d,
++0x7e, 0x66, 0xf4, 0x1e, 0xb3, 0x12, 0x70, 0x20,
++0x5b, 0xd4, 0x97, 0x32, 0x3d, 0x71, 0x8b, 0x3b,
++0x1b, 0x08, 0x17, 0x14, 0x6b, 0x61, 0xc4, 0x57,
++0x8b, 0x96, 0x16, 0x1c, 0xfd, 0x24, 0xd5, 0x0b,
++0x09, 0xf9, 0x68, 0x11, 0x84, 0xfb, 0xca, 0x51,
++0x0c, 0xd1, 0x45, 0x19, 0xda, 0x10, 0x44, 0x8a,
++0xd9, 0xfe, 0x76, 0xa9, 0xfd, 0x60, 0x2d, 0x18,
++0x0b, 0x28, 0x95, 0xb2, 0x2d, 0xea, 0x88, 0x98,
++0xb8, 0xd1, 0x56, 0x21, 0xf0, 0x53, 0x1f, 0xf1,
++0x02, 0x6f, 0xe9, 0x46, 0x9b, 0x93, 0x5f, 0x28,
++0x90, 0x0f, 0xac, 0x36, 0xfa, 0x68, 0x23, 0x71,
++0x57, 0x56, 0xf6, 0xcc, 0xd3, 0xdf, 0x7d, 0x2a,
++0xd9, 0x1b, 0x73, 0x45, 0xeb, 0xba, 0x27, 0x85,
++0xef, 0x7a, 0x7f, 0xa5, 0xcb, 0x80, 0xc7, 0x30,
++0x36, 0xd2, 0x53, 0xee, 0xec, 0xac, 0x1e, 0xe7,
++0x31, 0xf1, 0x36, 0xa2, 0x9c, 0x63, 0xc6, 0x65,
++0x5b, 0x7f, 0x25, 0x75, 0x68, 0xa1, 0xea, 0xd3,
++0x7e, 0x00, 0x5c, 0x9a, 0x5e, 0xd8, 0x20, 0x18,
++0x32, 0x77, 0x07, 0x29, 0x12, 0x66, 0x1e, 0x36,
++0x73, 0xe7, 0x97, 0x04, 0x41, 0x37, 0xb1, 0xb1,
++0x72, 0x2b, 0xf4, 0xa1, 0x29, 0x20, 0x7c, 0x96,
++0x79, 0x0b, 0x2b, 0xd0, 0xd8, 0xde, 0xc8, 0x6c,
++0x3f, 0x93, 0xfb, 0xc5, 0xee, 0x78, 0x52, 0x11,
++0x15, 0x1b, 0x7a, 0xf6, 0xe2, 0x68, 0x99, 0xe7,
++0xfb, 0x46, 0x16, 0x84, 0xe3, 0xc7, 0xa1, 0xe6,
++0xe0, 0xd2, 0x46, 0xd5, 0xe1, 0xc4, 0x5f, 0xa0,
++0x66, 0xf4, 0xda, 0xc4, 0xff, 0x95, 0x1d, 0x02,
++0x03, 0x01, 0x00, 0x01, 0x30, 0x0d, 0x06, 0x09,
++0x2a, 0x86, 0x48, 0x86, 0xf7, 0x0d, 0x01, 0x01,
++0x0b, 0x05, 0x00, 0x03, 0x82, 0x01, 0x01, 0x00,
++0x87, 0x03, 0xda, 0xf2, 0x82, 0xc2, 0xdd, 0xaf,
++0x7c, 0x44, 0x2f, 0x86, 0xd3, 0x5f, 0x4c, 0x93,
++0x48, 0xb9, 0xfe, 0x07, 0x17, 0xbb, 0x21, 0xf7,
++0x25, 0x23, 0x4e, 0xaa, 0x22, 0x0c, 0x16, 0xb9,
++0x73, 0xae, 0x9d, 0x46, 0x7c, 0x75, 0xd9, 0xc3,
++0x49, 0x57, 0x47, 0xbf, 0x33, 0xb7, 0x97, 0xec,
++0xf5, 0x40, 0x75, 0xc0, 0x46, 0x22, 0xf0, 0xa0,
++0x5d, 0x9c, 0x79, 0x13, 0xa1, 0xff, 0xb8, 0xa3,
++0x2f, 0x7b, 0x8e, 0x06, 0x3f, 0xc8, 0xb6, 0xe4,
++0x6a, 0x28, 0xf2, 0x34, 0x5c, 0x23, 0x3f, 0x32,
++0xc0, 0xe6, 0xad, 0x0f, 0xac, 0xcf, 0x55, 0x74,
++0x47, 0x73, 0xd3, 0x01, 0x85, 0xb7, 0x0b, 0x22,
++0x56, 0x24, 0x7d, 0x9f, 0x09, 0xa9, 0x0e, 0x86,
++0x9e, 0x37, 0x5b, 0x9c, 0x6d, 0x02, 0xd9, 0x8c,
++0xc8, 0x50, 0x6a, 0xe2, 0x59, 0xf3, 0x16, 0x06,
++0xea, 0xb2, 0x42, 0xb5, 0x58, 0xfe, 0xba, 0xd1,
++0x81, 0x57, 0x1a, 0xef, 0xb2, 0x38, 0x88, 0x58,
++0xf6, 0xaa, 0xc4, 0x2e, 0x8b, 0x5a, 0x27, 0xe4,
++0xa5, 0xe8, 0xa4, 0xca, 0x67, 0x5c, 0xac, 0x72,
++0x67, 0xc3, 0x6f, 0x13, 0xc3, 0x2d, 0x35, 0x79,
++0xd7, 0x8a, 0xe7, 0xf5, 0xd4, 0x21, 0x30, 0x4a,
++0xd5, 0xf6, 0xa3, 0xd9, 0x79, 0x56, 0xf2, 0x0f,
++0x10, 0xf7, 0x7d, 0xd0, 0x51, 0x93, 0x2f, 0x47,
++0xf8, 0x7d, 0x4b, 0x0a, 0x84, 0x55, 0x12, 0x0a,
++0x7d, 0x4e, 0x3b, 0x1f, 0x2b, 0x2f, 0xfc, 0x28,
++0xb3, 0x69, 0x34, 0xe1, 0x80, 0x80, 0xbb, 0xe2,
++0xaf, 0xb9, 0xd6, 0x30, 0xf1, 0x1d, 0x54, 0x87,
++0x23, 0x99, 0x9f, 0x51, 0x03, 0x4c, 0x45, 0x7d,
++0x02, 0x65, 0x73, 0xab, 0xfd, 0xcf, 0x94, 0xcc,
++0x0d, 0x3a, 0x60, 0xfd, 0x3c, 0x14, 0x2f, 0x16,
++0x33, 0xa9, 0x21, 0x1f, 0xcb, 0x50, 0xb1, 0x8f,
++0x03, 0xee, 0xa0, 0x66, 0xa9, 0x16, 0x79, 0x14,
+--- compat-wireless-2.6-backports-4.20.17-1/net/wireless/certs/wg.hex.orig	1969-12-31 16:00:00.000000000 -0800
++++ compat-wireless-2.6-backports-4.20.17-1/net/wireless/certs/wg.hex	2022-05-09 13:48:48.735923136 -0700
+@@ -0,0 +1,86 @@
++/* Watchguard's regdb certificate */
++0x30, 0x82, 0x02, 0xA4, 0x30, 0x82, 0x01, 0x8C, 
++0x02, 0x09, 0x00, 0x88, 0x1A, 0x08, 0x2F, 0x24, 
++0x5A, 0xAE, 0xE8, 0x30, 0x0D, 0x06, 0x09, 0x2A, 
++0x86, 0x48, 0x86, 0xF7, 0x0D, 0x01, 0x01, 0x0B, 
++0x05, 0x00, 0x30, 0x13, 0x31, 0x11, 0x30, 0x0F, 
++0x06, 0x03, 0x55, 0x04, 0x03, 0x0C, 0x08, 0x73, 
++0x66, 0x6F, 0x72, 0x73, 0x68, 0x65, 0x65, 0x30, 
++0x20, 0x17, 0x0D, 0x31, 0x39, 0x30, 0x37, 0x30, 
++0x34, 0x30, 0x39, 0x30, 0x34, 0x30, 0x35, 0x5A, 
++0x18, 0x0F, 0x32, 0x31, 0x31, 0x39, 0x30, 0x36, 
++0x31, 0x30, 0x30, 0x39, 0x30, 0x34, 0x30, 0x35, 
++0x5A, 0x30, 0x13, 0x31, 0x11, 0x30, 0x0F, 0x06, 
++0x03, 0x55, 0x04, 0x03, 0x0C, 0x08, 0x73, 0x66, 
++0x6F, 0x72, 0x73, 0x68, 0x65, 0x65, 0x30, 0x82, 
++0x01, 0x22, 0x30, 0x0D, 0x06, 0x09, 0x2A, 0x86, 
++0x48, 0x86, 0xF7, 0x0D, 0x01, 0x01, 0x01, 0x05, 
++0x00, 0x03, 0x82, 0x01, 0x0F, 0x00, 0x30, 0x82, 
++0x01, 0x0A, 0x02, 0x82, 0x01, 0x01, 0x00, 0x95, 
++0x86, 0x8B, 0x8F, 0x35, 0x50, 0x36, 0x88, 0x22, 
++0xFB, 0xB7, 0xC2, 0x93, 0x62, 0x96, 0xA7, 0x38, 
++0x7C, 0xEA, 0x82, 0xA9, 0x72, 0xC4, 0xC8, 0xF2, 
++0x95, 0x9B, 0x8B, 0x2B, 0x92, 0x1A, 0x9D, 0xC7, 
++0x6F, 0x03, 0x7A, 0xDF, 0x39, 0x9F, 0x48, 0x27, 
++0x86, 0x5B, 0xCA, 0x86, 0x4B, 0xC3, 0x73, 0xDA, 
++0x3C, 0xB7, 0xF6, 0x83, 0xFC, 0x64, 0xEE, 0x71, 
++0x1F, 0xAE, 0xCF, 0x7F, 0xEA, 0xAC, 0x17, 0x85, 
++0xBE, 0xBE, 0xED, 0x39, 0xA6, 0x60, 0x43, 0xCE, 
++0x32, 0x39, 0x8C, 0xE8, 0x5B, 0x7F, 0x04, 0x7F, 
++0x2A, 0xA3, 0xA9, 0x88, 0xF3, 0xF8, 0x59, 0x6A, 
++0x38, 0x52, 0xB5, 0x53, 0x87, 0x03, 0xE2, 0xDF, 
++0x50, 0xE4, 0xBB, 0x2C, 0x30, 0xCB, 0x4D, 0xCB, 
++0x80, 0x63, 0xD3, 0xAB, 0xA0, 0x31, 0xB7, 0xF5, 
++0x59, 0xC5, 0x5F, 0xC0, 0xB8, 0x11, 0x67, 0xB8, 
++0xBD, 0x5A, 0x92, 0x24, 0x6D, 0xA1, 0x95, 0x39, 
++0x4C, 0xD3, 0x69, 0x94, 0x2F, 0xEE, 0x4E, 0xA4, 
++0xA4, 0x6A, 0x6A, 0x38, 0x3C, 0xC9, 0xB4, 0x41, 
++0x34, 0x74, 0xE4, 0xA4, 0x00, 0x91, 0x81, 0x72, 
++0xE2, 0xA1, 0x12, 0x0B, 0xB5, 0xC7, 0xCD, 0x83, 
++0xF4, 0xAF, 0x34, 0x97, 0xB5, 0x9D, 0x8C, 0xEF, 
++0xAE, 0x14, 0x23, 0x89, 0xDD, 0xFC, 0x3A, 0x2F, 
++0x1D, 0xCF, 0x3D, 0x6C, 0x20, 0x74, 0x1F, 0x68, 
++0xFA, 0x85, 0xC6, 0xC6, 0xB6, 0x17, 0x2E, 0x1E, 
++0x7A, 0x5D, 0xFF, 0x42, 0xC5, 0xDD, 0x12, 0xAC, 
++0x86, 0x42, 0xDF, 0x8E, 0xFE, 0x91, 0x35, 0x43, 
++0xB9, 0x08, 0xF2, 0x8C, 0x8B, 0xA0, 0x79, 0x40, 
++0x69, 0xC1, 0x50, 0xC4, 0x4B, 0xC8, 0xA4, 0xA2, 
++0xED, 0x73, 0xAF, 0x73, 0x4B, 0x1C, 0x69, 0x0B, 
++0x46, 0x72, 0xE4, 0xBF, 0xEF, 0xB8, 0x79, 0xBA, 
++0x5A, 0xA2, 0x71, 0x4E, 0x90, 0x57, 0x7A, 0x3E, 
++0x11, 0xC9, 0xCA, 0x6E, 0x49, 0x08, 0x39, 0x02, 
++0x03, 0x01, 0x00, 0x01, 0x30, 0x0D, 0x06, 0x09, 
++0x2A, 0x86, 0x48, 0x86, 0xF7, 0x0D, 0x01, 0x01, 
++0x0B, 0x05, 0x00, 0x03, 0x82, 0x01, 0x01, 0x00, 
++0x1C, 0xA9, 0x39, 0x6D, 0xD0, 0xA4, 0x96, 0x1A, 
++0xB2, 0x50, 0x7A, 0xDE, 0x4D, 0x26, 0xC1, 0x72, 
++0x2A, 0x1F, 0xE9, 0x69, 0x9F, 0xE5, 0x49, 0x21, 
++0xC9, 0x08, 0x43, 0x1E, 0x96, 0x2F, 0x79, 0x1D, 
++0xDD, 0x3E, 0x04, 0x56, 0x73, 0x72, 0x4C, 0x4B, 
++0x12, 0x20, 0xE7, 0x4A, 0x07, 0xBF, 0x92, 0xCF, 
++0x50, 0x00, 0x0E, 0x7F, 0x5A, 0x9C, 0xB1, 0x47, 
++0x69, 0xF9, 0xD5, 0x88, 0x74, 0x77, 0xB0, 0x57, 
++0x0F, 0x62, 0x1C, 0xD1, 0xBE, 0x64, 0x40, 0xA8, 
++0x9E, 0x42, 0xBE, 0xE2, 0x15, 0x3F, 0xA6, 0x17, 
++0xF0, 0xEB, 0x36, 0xBC, 0x6E, 0x77, 0x83, 0x0A, 
++0xFD, 0x88, 0x78, 0xFF, 0x0A, 0x35, 0xB7, 0x42, 
++0xAF, 0xE3, 0xBA, 0xC7, 0x0E, 0xC5, 0x4D, 0xBF, 
++0x6C, 0x23, 0x5B, 0x0C, 0x04, 0x93, 0x98, 0x05, 
++0xFF, 0xBC, 0xA4, 0xC7, 0xFA, 0x8A, 0x29, 0xE2, 
++0x0A, 0xB7, 0xEB, 0xB4, 0x1D, 0x33, 0xC6, 0x95, 
++0xFD, 0x5D, 0xBF, 0xE2, 0x28, 0x9B, 0x0C, 0x04, 
++0x56, 0x30, 0xA0, 0x27, 0x54, 0x8A, 0xEF, 0x9C, 
++0xB6, 0x65, 0xDC, 0x28, 0x3D, 0xD4, 0xAF, 0x1D, 
++0xF7, 0x9B, 0x0B, 0x92, 0xF2, 0x45, 0x61, 0xCC, 
++0xB8, 0x17, 0x55, 0x49, 0x60, 0x3B, 0x15, 0x62, 
++0xC6, 0x12, 0x64, 0x77, 0x42, 0x2D, 0x8F, 0x7B, 
++0x74, 0x3B, 0x24, 0xFC, 0xEF, 0xB4, 0xBC, 0x11, 
++0xD7, 0x9D, 0x62, 0x1D, 0x3F, 0x3D, 0x72, 0xDE, 
++0x0D, 0x9C, 0x3B, 0xB5, 0xC3, 0xEE, 0x7A, 0xDA, 
++0xF8, 0xA2, 0x07, 0x2E, 0x10, 0xE8, 0xB6, 0x2C, 
++0xEE, 0xDE, 0xD3, 0x39, 0x7E, 0x93, 0x88, 0xBB, 
++0x29, 0xEC, 0x0B, 0x9F, 0x38, 0x62, 0xF7, 0xFA, 
++0x89, 0xE3, 0x88, 0xC0, 0x97, 0x51, 0x87, 0x33, 
++0xA1, 0xEC, 0xD0, 0xDE, 0x16, 0x77, 0x35, 0xA6, 
++0xA8, 0x8E, 0x28, 0x5B, 0x8B, 0x16, 0xD5, 0x2F, 
++0x45, 0x0F, 0x51, 0x7C, 0xF1, 0x07, 0x09, 0x00, 

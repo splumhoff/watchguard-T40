@@ -1,0 +1,285 @@
+WatchGuard patches to sources for dmalloc-5.5.2 as of
+Mon May  9 13:50:31 PDT 2022
+The patches shown here have been applied to source .tar.gz 
+files supplied with the WatchGuard Open Source Archive.
+
+==========================================================================
+--- dmalloc-5.5.2/Makefile.in.orig	2022-05-09 13:50:30.551790855 -0700
++++ dmalloc-5.5.2/Makefile.in	2022-05-09 13:50:30.791781116 -0700
+@@ -174,66 +174,67 @@
+ #	rm -f configure
+ 
+ installdirs :
+-	$(srcdir)/mkinstalldirs $(includedir) $(libdir) $(bindir)
++	$(srcdir)/mkinstalldirs $(DESTDIR)/$(includedir) $(DESTDIR)/$(libdir) $(DESTDIR)/$(bindir)
+ 
+ installincs : $(HFLS)
+-	$(srcdir)/mkinstalldirs $(includedir)
+-	$(INSTALL_DATA) $(HFLS) $(includedir)
++	$(srcdir)/mkinstalldirs $(DESTDIR)/$(includedir)
++	$(INSTALL_DATA) $(HFLS) $(DESTDIR)/$(includedir)
+ 
+ installthsl : $(LIB_TH_SL)
+-	$(srcdir)/mkinstalldirs $(libdir)
+-	$(INSTALL_PROGRAM) $(LIB_TH_SL) $(libdir)
++	$(srcdir)/mkinstalldirs $(DESTDIR)/$(libdir)
++	$(INSTALL_PROGRAM) $(LIB_TH_SL) $(DESTDIR)/$(libdir)
+ 
+ installth : $(INSTALL_THREADS)
+-	$(srcdir)/mkinstalldirs $(libdir)
+-	$(INSTALL_PROGRAM) $(LIB_TH) $(libdir)
++	$(srcdir)/mkinstalldirs $(DESTDIR)/$(libdir)
++	$(INSTALL_PROGRAM) $(LIB_TH) $(DESTDIR)/$(libdir)
+ @CXX_OFF@	@echo "Enter 'make installthcxx' to install the threaded C++ library"
+ @SL_OFF@	@echo "Enter 'make installthsl' to install the threaded shared-library"
+ 
+ installthcxxsl : $(LIB_TH_CXX_SL)
+-	$(srcdir)/mkinstalldirs $(shlibdir)
+-	$(INSTALL_PROGRAM) $(LIB_TH_CXX_SL) $(shlibdir)
++	$(srcdir)/mkinstalldirs $(DESTDIR)/$(shlibdir)
++	$(INSTALL_PROGRAM) $(LIB_TH_CXX_SL) $(DESTDIR)/$(shlibdir)
+ 
+ installthcxx : $(INSTALL_TH_CXX)
+-	$(srcdir)/mkinstalldirs $(libdir)
+-	$(INSTALL_PROGRAM) $(LIB_TH_CXX) $(libdir)
++	$(srcdir)/mkinstalldirs $(DESTDIR)/$(libdir)
++	$(INSTALL_PROGRAM) $(LIB_TH_CXX) $(DESTDIR)/$(libdir)
+ @SL_OFF@	@echo "Enter 'make installthcxxsl' to install the threaded C++ shared-library"
+ 
+ installcxxsl : $(LIB_CXX_SL)
+-	$(srcdir)/mkinstalldirs $(libdir)
+-	$(INSTALL_PROGRAM) $(LIB_CXX_SL) $(libdir)
++	$(srcdir)/mkinstalldirs $(DESTDIR)/$(libdir)
++	$(INSTALL_PROGRAM) $(LIB_CXX_SL) $(DESTDIR)/$(libdir)
+ 
+ installcxx : $(INSTALL_CXX)
+-	$(srcdir)/mkinstalldirs $(libdir)
+-	$(INSTALL_PROGRAM) $(LIB_CXX) $(libdir)
++	$(srcdir)/mkinstalldirs $(DESTDIR)/$(libdir)
++	$(INSTALL_PROGRAM) $(LIB_CXX) $(DESTDIR)/$(libdir)
+ @TH_OFF@	@echo "Enter 'make installthcxx' to install the threaded C++ library"
+ @SL_OFF@	@echo "Enter 'make installcxxsl' to install the C++ shared-library"
+ 
+ installsl : $(LIB_SL)
+-	$(srcdir)/mkinstalldirs $(shlibdir)
+-	$(INSTALL_PROGRAM) $(LIB_SL) $(shlibdir)
++	$(srcdir)/mkinstalldirs $(DESTDIR)/$(shlibdir)
++	$(INSTALL_PROGRAM) $(LIB_SL) $(DESTDIR)/$(shlibdir)
+ @CXX_OFF@	@echo "Enter 'make installcxxsl' to install the C++ shared-library"
+ @TH_OFF@	@echo "Enter 'make installthsl' to install thread shared-library"
+ 
+ installlib : $(INSTALL_LIB)
+-	$(srcdir)/mkinstalldirs $(libdir)
+-	$(INSTALL_PROGRAM) $(LIBRARY) $(libdir)
+-	@RANLIB@ $(libdir)/$(LIBRARY)
++	$(srcdir)/mkinstalldirs $(DESTDIR)/$(libdir)
++	$(INSTALL_PROGRAM) $(LIBRARY) $(DESTDIR)/$(libdir)
++	@RANLIB@ $(DESTDIR)/$(libdir)/$(LIBRARY)
+ @SL_OFF@	@echo "Enter 'make installsl' to install $(LIB_SL) in $(shlibdir)"
+ @CXX_OFF@	@echo "Enter 'make installcxx' to install the C++ library"
+ @TH_OFF@	@echo "Enter 'make installth' to install thread library"
+ 
+ installdocs : $(srcdir)/docs/$(HTMLFILE) $(srcdir)/docs/$(TEXIFILE) \
+ 		$(srcdir)/docs/$(PDFFILE)
+-	$(srcdir)/mkinstalldirs $(docdir)
+-	$(INSTALL_DATA) $(srcdir)/docs/$(HTMLFILE) $(docdir)
+-	$(INSTALL_DATA) $(srcdir)/docs/$(TEXIFILE) $(docdir)
+-	$(INSTALL_DATA) $(srcdir)/docs/$(PDFFILE) $(docdir)
+-
+-install : installincs installlib $(UTIL)
+-	$(srcdir)/mkinstalldirs $(bindir)
+-	$(INSTALL_PROGRAM) $(UTIL) $(bindir)
+-	@echo "Enter 'make installdocs' to install $(DOCFILES) in $(docdir)"
++	$(srcdir)/mkinstalldirs $(DESTDIR)/$(docdir)
++	$(INSTALL_DATA) $(srcdir)/docs/$(HTMLFILE) $(DESTDIR)/$(docdir)
++	$(INSTALL_DATA) $(srcdir)/docs/$(TEXIFILE) $(DESTDIR)/$(docdir)
++	$(INSTALL_DATA) $(srcdir)/docs/$(PDFFILE) $(DESTDIR)/$(docdir)
++
++installutil : $(UTIL)
++	$(srcdir)/mkinstalldirs $(DESTDIR)/$(bindir)
++	$(INSTALL_PROGRAM) $(UTIL) $(DESTDIR)/$(bindir)
++
++install : installincs installlib installutil installdocs
+ 
+ dmalloc.h.2 : $(srcdir)/configure
+ 	$(SHELL) $(srcdir)/configure
+@@ -257,7 +258,7 @@
+ # via: http://256.com/gray/email.html
+ $(LIB_SL) : $(LIBRARY)
+ 	rm -f $@ $@.t
+-	@shlinkargs@ $(LIBRARY) $(OBJS) $(NORMAL_OBJS)
++	@shlinkargs@ $(LIBRARY)
+ 	mv $@.t $@
+ 
+ $(LIBRARY) : $(OBJS) $(NORMAL_OBJS)
+@@ -270,7 +271,7 @@
+ 
+ $(LIB_TH_SL) : $(LIB_TH)
+ 	rm -f $@ $@.t
+-	@shlinkargs@ $(LIB_TH) $(OBJS) $(THREAD_OBJS)
++	@shlinkargs@ $(LIB_TH)
+ 	mv $@.t $@
+ 
+ $(LIB_CXX) : $(OBJS) $(NORMAL_OBJS) $(CXX_OBJS)
+@@ -279,7 +280,7 @@
+ 
+ $(LIB_CXX_SL) : $(LIB_CXX)
+ 	rm -f $@ $@.t
+-	@shlinkargs@ $(LIB_CXX) $(OBJS) $(NORMAL_OBJS) $(CXX_OBJS)
++	@shlinkargs@ $(LIB_CXX)
+ 	mv $@.t $@
+ 
+ $(LIB_TH_CXX) : $(OBJS) $(THREAD_OBJS) $(CXX_OBJS)
+@@ -288,7 +289,7 @@
+ 
+ $(LIB_TH_CXX_SL) : $(LIB_TH_CXX)
+ 	rm -f $@ $@.t
+-	@shlinkargs@ $(LIB_TH_CXX) $(OBJS) $(THREAD_OBJS) $(CXX_OBJS)
++	@shlinkargs@ $(LIB_TH_CXX)
+ 	mv $@.t $@
+ 
+ threadssl : $(LIB_TH_SL)
+--- dmalloc-5.5.2/return.h.orig	2022-05-09 13:50:30.531791667 -0700
++++ dmalloc-5.5.2/return.h	2022-05-09 13:50:30.803780628 -0700
+@@ -106,26 +106,16 @@
+ /*************************************/
+ 
+ /*
+- * For DEC Mips machines running Ultrix
++ * For Mips machines running Linux
+  */
+ #if __mips
+ 
+ /*
+- * I have no idea how to get inline assembly with the default cc.
+- * Anyone know how?
+- */
+-
+-#if 0
+-
+-/*
+  * NOTE: we assume here that file is global.
+  *
+- * $31 is the frame pointer.  $2 looks to be the return address but maybe
+- * not consistently.
++ * $31 is the return address.
+  */
+-#define GET_RET_ADDR(file)	asm("sw $2, file")
+-
+-#endif
++#define GET_RET_ADDR(file)	asm("sw $31, %0" : "=m" (file))
+ 
+ #endif /* __mips */
+ 
+@@ -261,8 +251,7 @@
+ 
+ #define GET_RET_ADDR(file) \
+ do { \
+-  asm("mflr 0"); \
+-  asm("stw 0,%0" : "=g" (file)); \
++  asm("mflr %0" : "=r"(file)); \
+ } while(0)
+ 
+ #endif /* __powerpc__ && __GNUC__ && !__OPTIMIZE__ */
+--- dmalloc-5.5.2/configure.orig	2022-05-09 13:50:30.587789394 -0700
++++ dmalloc-5.5.2/configure	2022-05-09 13:50:30.783781440 -0700
+@@ -2643,7 +2643,7 @@
+ 
+ 
+ # see if we actually have a CXX program
+-if test "$ac_cv_prog_CXX" = "" -o ! -x "$ac_cv_prog_CXX"; then
++if test "$ac_cv_prog_CXX" = "" -o ! -x `which "$ac_cv_prog_CXX"`; then
+     { echo "$as_me:$LINENO: WARNING: could not find C++ compiler $ac_cv_prog_CXX" >&5
+ echo "$as_me: WARNING: could not find C++ compiler $ac_cv_prog_CXX" >&2;}
+     enable_cxx=no
+@@ -4418,14 +4418,14 @@
+   (exit $ac_status); }; }; then
+ 
+ 	# so now we try to create an archive from the compiled .o file
+-	(ar cr conftest.a conftest.o) 2>&5
++	(${AR} cr conftest.a conftest.o) 2>&5
+ 	# see which shared-library ld commands work
+ 	#
+ 	# Darwin/Mac OS X - Terry Teague
+ 	# username terry_teague at domain users.sourceforge.net
+ 	ac_cv_shared_lib_link_objs=no
+ 	if test `uname` = "Darwin"; then
+-          if (ld -dylib -o conftest.so.t -lc conftest.a) 2>&5; then
++          if (${LD} -dylib -o conftest.so.t -lc conftest.a) 2>&5; then
+             # By convention on some platforms
+             # libLLL.so, libLLL.X.so are symlinks to libLLL.X.Y.Z.so
+             # where X.Y.Z is version # (major.minor.increment) of the library
+@@ -4443,12 +4443,12 @@
+             ac_cv_shared_link_args='# Could not configure shlib linking'
+             enable_shlib=no
+           fi
+-       elif (ld -shared --whole-archive -soname conftest.so -o conftest.so.t conftest.a) 2>&5; then
+-		ac_cv_shared_link_args='ld -shared --whole-archive -soname $@ -o $@.t'
+-	elif (ld -shared -o conftest.so.t -all -soname conftest.so.t -none -lc -all conftest.a) 2>&5; then
+-		ac_cv_shared_link_args='ld -shared -o $@.t -all -soname $@ -none -lc -all'
+-	elif (ld -G -o conftest.so.t conftest.a) 2>&5; then
+-		ac_cv_shared_link_args='ld -G -o $@.t'
++       elif (${LD} -shared --whole-archive -soname conftest.so -o conftest.so.t conftest.a) 2>&5; then
++		ac_cv_shared_link_args="${LD}"' -shared --whole-archive -soname $@ -o $@.t'
++	elif (${LD} -shared -o conftest.so.t -all -soname conftest.so.t -none -lc -all conftest.a) 2>&5; then
++		ac_cv_shared_link_args="${LD}"' -shared -o $@.t -all -soname $@ -none -lc -all'
++	elif (${LD} -G -o conftest.so.t conftest.a) 2>&5; then
++		ac_cv_shared_link_args="${LD}"' -G -o $@.t'
+ 	else
+ 		# oh well, toss an error
+ 		ac_cv_shared_link_args='# Could not configure shlib linking'
+@@ -4691,8 +4691,35 @@
+ echo "$as_me:$LINENO: checking strdup macro" >&5
+ echo $ECHO_N "checking strdup macro... $ECHO_C" >&6
+ if test "$cross_compiling" = yes; then
+-  ac_cv_strdup_macro=no
++  cat >conftest.$ac_ext <<_ACEOF
++/* confdefs.h */
++_ACEOF
++cat confdefs.h >>conftest.$ac_ext
++cat >>conftest.$ac_ext <<_ACEOF
++/* end confdefs.h.  */
++
++#if HAVE_STDLIB_H
++#  include <string.h>
++#endif
++
++#ifndef strdup
++       choke me
++#endif
++
++main() { exit(0); }
+ 
++_ACEOF
++rm -f conftest.o conftest.obj
++if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
++  (eval $ac_compile) 2>&5
++  ac_status=$?
++  echo "$as_me:$LINENO: \$? = $ac_status" >&5
++  (exit $ac_status); }; then
++  ac_cv_strdup_macro=yes
++else
++  ac_cv_strdup_macro=no
++fi
++  
+ else
+   cat >conftest.$ac_ext <<_ACEOF
+ /* confdefs.h.  */
+@@ -5306,7 +5333,7 @@
+ 
+ echo "$as_me:$LINENO: checking basic-block size" >&5
+ echo $ECHO_N "checking basic-block size... $ECHO_C" >&6
+-ac_cv_page_size=0
++ac_cv_page_size=12
+ if test $ac_cv_page_size = 0; then
+    if test "$cross_compiling" = yes; then
+   { { echo "$as_me:$LINENO: error: cannot run test program while cross compiling
+@@ -7107,7 +7134,7 @@
+ echo $ECHO_N "checking return.h macros work... $ECHO_C" >&6
+ if test "$cross_compiling" = yes; then
+    cat >>confdefs.h <<\_ACEOF
+-#define RETURN_MACROS_WORK 0
++#define RETURN_MACROS_WORK 1
+ _ACEOF
+  echo "$as_me:$LINENO: result: no" >&5
+ echo "${ECHO_T}no" >&6

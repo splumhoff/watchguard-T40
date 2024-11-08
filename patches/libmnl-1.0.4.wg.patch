@@ -1,0 +1,16 @@
+WatchGuard patches to sources for libmnl-1.0.4 as of
+Mon May  9 13:56:07 PDT 2022
+The patches shown here have been applied to source .tar.gz 
+files supplied with the WatchGuard Open Source Archive.
+
+==========================================================================
+--- libmnl-1.0.4/include/linux/netfilter/nfnetlink_conntrack.h.orig	2022-05-09 13:56:06.990140832 -0700
++++ libmnl-1.0.4/include/linux/netfilter/nfnetlink_conntrack.h	2022-05-09 13:56:07.042138723 -0700
+@@ -51,6 +51,7 @@
+ 	CTA_MARK_MASK,
+ 	CTA_LABELS,
+ 	CTA_LABELS_MASK,
++	CTA_WG,
+ 	__CTA_MAX
+ };
+ #define CTA_MAX (__CTA_MAX - 1)

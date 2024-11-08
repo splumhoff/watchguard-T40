@@ -1,0 +1,204 @@
+3654
+3704
+trying to patch file: patchfile:hello/3654-nvme-pci-unquiesce-admin-queue-on-shutdown.patch
+Checking patch drivers/nvme/host/pci.c...
+git apply status: 0
+trying to patch file: patchfile:hello/3655-ALSA-hda-Register-irq-handler-after-the-chip-initial.patch
+Checking patch sound/pci/hda/hda_intel.c...
+git apply status: 0
+trying to patch file: patchfile:hello/3656-nvmem-core-fix-read-buffer-in-place.patch
+Checking patch drivers/nvmem/core.c...
+git apply status: 0
+trying to patch file: patchfile:hello/3657-fuse-retrieve-cap-requested-size-to-negotiated-max_w.patch
+Checking patch fs/fuse/dev.c...
+git apply status: 0
+trying to patch file: patchfile:hello/3658-nfsd-allow-fh_want_write-to-be-called-twice.patch
+Checking patch fs/nfsd/vfs.h...
+git apply status: 0
+trying to patch file: patchfile:hello/3659-vfio-Fix-WARNING-do-not-call-blocking-ops-when-TASK_.patch
+Checking patch drivers/vfio/vfio.c...
+git apply status: 0
+trying to patch file: patchfile:hello/3660-x86-PCI-Fix-PCI-IRQ-routing-table-memory-leak.patch
+Checking patch arch/x86/pci/irq.c...
+git apply status: 0
+trying to patch file: patchfile:hello/3661-platform-chrome-cros_ec_proto-check-for-NULL-transfe.patch
+Checking patch drivers/platform/chrome/cros_ec_proto.c...
+git apply status: 0
+trying to patch file: patchfile:hello/3662-PCI-keystone-Prevent-ARM32-specific-code-to-be-compi.patch
+Checking patch drivers/pci/dwc/pci-keystone.c...
+git apply status: 0
+trying to patch file: patchfile:hello/3663-soc-mediatek-pwrap-Zero-initialize-rdata-in-pwrap_in.patch
+Checking patch drivers/soc/mediatek/mtk-pmic-wrap.c...
+git apply status: 0
+trying to patch file: patchfile:hello/3664-clk-rockchip-Turn-on-aclk_dmac1-for-suspend-on-rk328.patch
+Checking patch drivers/clk/rockchip/clk-rk3288.c...
+git apply status: 0
+trying to patch file: patchfile:hello/3665-soc-rockchip-Set-the-proper-PWM-for-rk3288.patch
+Checking patch drivers/soc/rockchip/grf.c...
+git apply status: 0
+trying to patch file: patchfile:hello/3666-ARM-dts-imx51-Specify-IMX5_CLK_IPG-as-ahb-clock-to-S.patch
+Checking patch arch/arm/boot/dts/imx51.dtsi...
+git apply status: 0
+trying to patch file: patchfile:hello/3667-ARM-dts-imx50-Specify-IMX5_CLK_IPG-as-ahb-clock-to-S.patch
+Checking patch arch/arm/boot/dts/imx50.dtsi...
+git apply status: 0
+trying to patch file: patchfile:hello/3668-ARM-dts-imx53-Specify-IMX5_CLK_IPG-as-ahb-clock-to-S.patch
+Checking patch arch/arm/boot/dts/imx53.dtsi...
+git apply status: 0
+trying to patch file: patchfile:hello/3669-ARM-dts-imx6sx-Specify-IMX6SX_CLK_IPG-as-ahb-clock-t.patch
+Checking patch arch/arm/boot/dts/imx6sl.dtsi...
+git apply status: 0
+trying to patch file: patchfile:hello/3670-ARM-dts-imx7d-Specify-IMX7D_CLK_IPG-as-ipg-clock-to-.patch
+Checking patch arch/arm/boot/dts/imx7s.dtsi...
+git apply status: 0
+trying to patch file: patchfile:hello/3671-ARM-dts-imx6ul-Specify-IMX6UL_CLK_IPG-as-ipg-clock-t.patch
+Checking patch arch/arm/boot/dts/imx6ul.dtsi...
+git apply status: 0
+trying to patch file: patchfile:hello/3672-ARM-dts-imx6sx-Specify-IMX6SX_CLK_IPG-as-ipg-clock-t.patch
+Checking patch arch/arm/boot/dts/imx6sx.dtsi...
+git apply status: 0
+trying to patch file: patchfile:hello/3673-ARM-dts-imx6qdl-Specify-IMX6QDL_CLK_IPG-as-ipg-clock.patch
+Checking patch arch/arm/boot/dts/imx6qdl.dtsi...
+git apply status: 0
+trying to patch file: patchfile:hello/3674-PCI-rpadlpar-Fix-leaked-device_node-references-in-ad.patch
+Checking patch drivers/pci/hotplug/rpadlpar_core.c...
+git apply status: 0
+trying to patch file: patchfile:hello/3675-platform-x86-intel_pmc_ipc-adding-error-handling.patch
+Checking patch drivers/platform/x86/intel_pmc_ipc.c...
+git apply status: 0
+trying to patch file: patchfile:hello/3676-power-supply-max14656-fix-potential-use-before-alloc.patch
+Checking patch drivers/power/supply/max14656_charger_detector.c...
+git apply status: 0
+trying to patch file: patchfile:hello/3677-PCI-rcar-Fix-a-potential-NULL-pointer-dereference.patch
+Checking patch drivers/pci/host/pcie-rcar.c...
+git apply status: 0
+trying to patch file: patchfile:hello/3678-PCI-rcar-Fix-64bit-MSI-message-address-handling.patch
+Checking patch drivers/pci/host/pcie-rcar.c...
+git apply status: 0
+trying to patch file: patchfile:hello/3679-video-hgafb-fix-potential-NULL-pointer-dereference.patch
+Checking patch drivers/video/fbdev/hgafb.c...
+git apply status: 0
+trying to patch file: patchfile:hello/3680-video-imsttfb-fix-potential-NULL-pointer-dereference.patch
+Checking patch drivers/video/fbdev/imsttfb.c...
+git apply status: 0
+trying to patch file: patchfile:hello/3681-block-bfq-increase-idling-for-weight-raised-queues.patch
+Checking patch block/bfq-iosched.c...
+git apply status: 0
+trying to patch file: patchfile:hello/3682-PCI-xilinx-Check-for-__get_free_pages-failure.patch
+Checking patch drivers/pci/host/pcie-xilinx.c...
+git apply status: 0
+trying to patch file: patchfile:hello/3683-gpio-gpio-omap-add-check-for-off-wake-capable-gpios.patch
+Checking patch drivers/gpio/gpio-omap.c...
+git apply status: 0
+trying to patch file: patchfile:hello/3684-dmaengine-idma64-Use-actual-device-for-DMA-transfers.patch
+Checking patch drivers/dma/idma64.c...
+Checking patch drivers/dma/idma64.h...
+Checking patch drivers/spi/spi-pxa2xx.c...
+Checking patch drivers/tty/serial/8250/8250_dw.c...
+git apply status: 0
+trying to patch file: patchfile:hello/3685-pwm-tiehrpwm-Update-shadow-register-for-disabling-PW.patch
+Checking patch drivers/pwm/pwm-tiehrpwm.c...
+git apply status: 0
+trying to patch file: patchfile:hello/3686-ARM-dts-exynos-Always-enable-necessary-APIO_1V8-and-.patch
+Checking patch arch/arm/boot/dts/exynos5420-arndale-octa.dts...
+git apply status: 0
+trying to patch file: patchfile:hello/3687-pwm-Fix-deadlock-warning-when-removing-PWM-device.patch
+Checking patch drivers/pwm/core.c...
+Checking patch drivers/pwm/sysfs.c...
+Checking patch include/linux/pwm.h...
+git apply status: 0
+trying to patch file: patchfile:hello/3688-ARM-exynos-Fix-undefined-instruction-during-Exynos54.patch
+Checking patch arch/arm/mach-exynos/suspend.c...
+git apply status: 0
+trying to patch file: patchfile:hello/3689-usb-typec-fusb302-Check-vconn-is-off-when-we-start-t.patch
+Checking patch drivers/staging/typec/fusb302/fusb302.c...
+git apply status: 0
+trying to patch file: patchfile:hello/3690-gpio-vf610-Do-not-share-irq_chip.patch
+Checking patch drivers/gpio/gpio-vf610.c...
+git apply status: 0
+trying to patch file: patchfile:hello/3691-percpu-do-not-search-past-bitmap-when-allocating-an-.patch
+Checking patch mm/percpu.c...
+git apply status: 0
+trying to patch file: patchfile:hello/3692-Revert-Bluetooth-Align-minimum-encryption-key-size-f.patch
+Checking patch include/net/bluetooth/hci_core.h...
+Checking patch net/bluetooth/hci_conn.c...
+git apply status: 0
+trying to patch file: patchfile:hello/3693-Revert-drm-nouveau-add-kconfig-option-to-turn-off-no.patch
+Checking patch drivers/gpu/drm/nouveau/Kconfig...
+Checking patch drivers/gpu/drm/nouveau/nouveau_drm.c...
+git apply status: 0
+trying to patch file: patchfile:hello/3694-drm-don-t-block-fb-changes-for-async-plane-updates.patch
+Checking patch drivers/gpu/drm/drm_atomic_helper.c...
+Hunk #1 succeeded at 1463 (offset 1 line).
+Hunk #2 succeeded at 1475 (offset 1 line).
+Checking patch include/drm/drm_modeset_helper_vtables.h...
+git apply status: 0
+trying to patch file: patchfile:hello/3695-ALSA-seq-Cover-unsubscribe_port-in-list_mutex.patch
+Checking patch sound/core/seq/seq_ports.c...
+git apply status: 0
+trying to patch file: patchfile:hello/3696-Linux-4.14.126.patch
+Checking patch Makefile...
+git apply status: 0
+trying to patch file: patchfile:hello/3697-tcp-reduce-tcp_fastretrans_alert-verbosity.patch
+Checking patch net/ipv4/tcp_input.c...
+Hunk #1 succeeded at 2894 (offset 84 lines).
+git apply status: 0
+trying to patch file: patchfile:hello/3698-tcp-limit-payload-size-of-sacked-skbs.patch
+Checking patch include/linux/tcp.h...
+error: while searching for:
+
+	return (user_mss && user_mss < mss) ? user_mss : mss;
+}
+#endif	/* _LINUX_TCP_H */
+
+error: patch failed: include/linux/tcp.h:450
+error: include/linux/tcp.h: patch does not apply
+Checking patch include/net/tcp.h...
+error: while searching for:
+
+#define MAX_TCP_HEADER	(128 + MAX_HEADER)
+#define MAX_TCP_OPTION_SPACE 40
+
+/*
+ * Never offer a window over 32767 without using window scaling. Some
+
+error: patch failed: include/net/tcp.h:57
+error: include/net/tcp.h: patch does not apply
+Checking patch net/ipv4/tcp.c...
+error: while searching for:
+	unsigned long limit;
+	unsigned int i;
+
+	BUILD_BUG_ON(sizeof(struct tcp_skb_cb) >
+		     FIELD_SIZEOF(struct sk_buff, cb));
+
+
+error: patch failed: net/ipv4/tcp.c:3480
+error: net/ipv4/tcp.c: patch does not apply
+Checking patch net/ipv4/tcp_input.c...
+error: while searching for:
+	TCP_SKB_CB(skb)->seq += shifted;
+
+	tcp_skb_pcount_add(prev, pcount);
+	BUG_ON(tcp_skb_pcount(skb) < pcount);
+	tcp_skb_pcount_add(skb, -pcount);
+
+	/* When we're adding to gso_segs == 1, gso_size will be zero,
+
+error: patch failed: net/ipv4/tcp_input.c:1329
+error: net/ipv4/tcp_input.c: patch does not apply
+Checking patch net/ipv4/tcp_output.c...
+error: while searching for:
+	mss_now -= icsk->icsk_ext_hdr_len;
+
+	/* Then reserve room for full set of TCP options and 8 bytes of data */
+	if (mss_now < 48)
+		mss_now = 48;
+	return mss_now;
+}
+
+
+error: patch failed: net/ipv4/tcp_output.c:1442
+error: net/ipv4/tcp_output.c: patch does not apply
+git apply test (--check) failed: 3698, commit all changes so far, try just patch with hello/3698-tcp-limit-payload-size-of-sacked-skbs.patch
+tets it yourself: git apply --check -v hello/3698-tcp-limit-payload-size-of-sacked-skbs.patch

@@ -1,0 +1,50 @@
+if TARGET_LX2160ARDB
+
+#Junhao.B
+config WG2010_PX3
+	default 1
+config WG2012_PX4
+	default 1
+#Junhao.E
+
+config SYS_BOARD
+	default "lx2160a"
+
+config SYS_VENDOR
+	default "freescale"
+
+config SYS_SOC
+	default "fsl-layerscape"
+
+config SYS_CONFIG_NAME
+	default "lx2160ardb"
+
+config QSFP_EEPROM
+        bool "Support for reading QSFP+ transceiver eeprom"
+        default y if PHY_CORTINA
+        help
+         This option enables the functionality for reading
+         QSFP+ cable eeprom. It can be used when PHYs are
+         requiring different initialization based on cable
+         type.
+
+source "board/freescale/common/Kconfig"
+endif
+
+if TARGET_LX2160AQDS
+
+config SYS_BOARD
+	default "lx2160a"
+
+config SYS_VENDOR
+	default "freescale"
+
+config SYS_SOC
+	default "fsl-layerscape"
+
+config SYS_CONFIG_NAME
+	default "lx2160aqds"
+
+source "board/freescale/common/Kconfig"
+endif
+

@@ -1,0 +1,158 @@
+3768
+3818
+trying to patch file: patchfile:hello/3768-perf-machine-Guard-against-NULL-in-machine__exit.patch
+Checking patch tools/perf/util/machine.c...
+git apply status: 0
+trying to patch file: patchfile:hello/3769-ax25-fix-inconsistent-lock-state-in-ax25_destroy_tim.patch
+Checking patch net/ax25/ax25_route.c...
+git apply status: 0
+trying to patch file: patchfile:hello/3770-be2net-Fix-number-of-Rx-queues-used-for-flow-hashing.patch
+Checking patch drivers/net/ethernet/emulex/benet/be_ethtool.c...
+git apply status: 0
+trying to patch file: patchfile:hello/3771-ipv6-flowlabel-fl6_sock_lookup-must-use-atomic_inc_n.patch
+Checking patch net/ipv6/ip6_flowlabel.c...
+git apply status: 0
+trying to patch file: patchfile:hello/3772-lapb-fixed-leak-of-control-blocks.patch
+Checking patch net/lapb/lapb_iface.c...
+git apply status: 0
+trying to patch file: patchfile:hello/3773-neigh-fix-use-after-free-read-in-pneigh_get_next.patch
+Checking patch net/core/neighbour.c...
+git apply status: 0
+trying to patch file: patchfile:hello/3774-net-openvswitch-do-not-free-vport-if-register_netdev.patch
+Checking patch net/openvswitch/vport-internal_dev.c...
+git apply status: 0
+trying to patch file: patchfile:hello/3775-sctp-Free-cookie-before-we-memdup-a-new-one.patch
+Checking patch net/sctp/sm_make_chunk.c...
+git apply status: 0
+trying to patch file: patchfile:hello/3776-sunhv-Fix-device-naming-inconsistency-between-sunhv_.patch
+Checking patch drivers/tty/serial/sunhv.c...
+git apply status: 0
+trying to patch file: patchfile:hello/3777-Staging-vc04_services-Fix-a-couple-error-codes.patch
+Checking patch drivers/staging/vc04_services/bcm2835-camera/controls.c...
+git apply status: 0
+trying to patch file: patchfile:hello/3778-perf-x86-intel-ds-Fix-EVENT-vs.-UEVENT-PEBS-constrai.patch
+Checking patch arch/x86/events/intel/ds.c...
+git apply status: 0
+trying to patch file: patchfile:hello/3779-netfilter-nf_queue-fix-reinject-verdict-handling.patch
+Checking patch net/netfilter/nf_queue.c...
+Hunk #1 succeeded at 205 (offset 12 lines).
+git apply status: 0
+trying to patch file: patchfile:hello/3780-ipvs-Fix-use-after-free-in-ip_vs_in.patch
+Checking patch net/netfilter/ipvs/ip_vs_core.c...
+git apply status: 0
+trying to patch file: patchfile:hello/3781-selftests-netfilter-missing-error-check-when-setting.patch
+Checking patch tools/testing/selftests/netfilter/nft_nat.sh...
+warning: tools/testing/selftests/netfilter/nft_nat.sh has type 100644, expected 100755
+warning: tools/testing/selftests/netfilter/nft_nat.sh has type 100644, expected 100755
+git apply status: 0
+trying to patch file: patchfile:hello/3782-clk-ti-clkctrl-Fix-clkdm_clk-handling.patch
+Checking patch drivers/clk/ti/clkctrl.c...
+git apply status: 0
+trying to patch file: patchfile:hello/3783-powerpc-powernv-Return-for-invalid-IMC-domain.patch
+Checking patch arch/powerpc/platforms/powernv/opal-imc.c...
+git apply status: 0
+trying to patch file: patchfile:hello/3784-mISDN-make-sure-device-name-is-NUL-terminated.patch
+Checking patch drivers/isdn/mISDN/socket.c...
+git apply status: 0
+trying to patch file: patchfile:hello/3785-x86-CPU-AMD-Don-t-force-the-CPB-cap-when-running-und.patch
+Checking patch arch/x86/kernel/cpu/amd.c...
+git apply status: 0
+trying to patch file: patchfile:hello/3786-perf-ring_buffer-Fix-exposing-a-temporarily-decrease.patch
+Checking patch kernel/events/ring_buffer.c...
+git apply status: 0
+trying to patch file: patchfile:hello/3787-perf-ring_buffer-Add-ordering-to-rb-nest-increment.patch
+Checking patch kernel/events/ring_buffer.c...
+git apply status: 0
+trying to patch file: patchfile:hello/3788-perf-ring-buffer-Always-use-READ-WRITE-_ONCE-for-rb-.patch
+Checking patch kernel/events/ring_buffer.c...
+git apply status: 0
+trying to patch file: patchfile:hello/3789-gpio-fix-gpio-adp5588-build-errors.patch
+Checking patch drivers/gpio/Kconfig...
+git apply status: 0
+trying to patch file: patchfile:hello/3790-net-tulip-de4x5-Drop-redundant-MODULE_DEVICE_TABLE.patch
+Checking patch drivers/net/ethernet/dec/tulip/de4x5.c...
+git apply status: 0
+trying to patch file: patchfile:hello/3791-net-aquantia-fix-LRO-with-FCS-error.patch
+Checking patch drivers/net/ethernet/aquantia/atlantic/hw_atl/hw_atl_b0.c...
+git apply status: 0
+trying to patch file: patchfile:hello/3792-i2c-dev-fix-potential-memory-leak-in-i2cdev_ioctl_rd.patch
+Checking patch drivers/i2c/i2c-dev.c...
+git apply status: 0
+trying to patch file: patchfile:hello/3793-ALSA-hda-Force-polling-mode-on-CNL-for-fixing-codec-.patch
+Checking patch sound/pci/hda/hda_intel.c...
+git apply status: 0
+trying to patch file: patchfile:hello/3794-configfs-Fix-use-after-free-when-accessing-sd-s_dent.patch
+Checking patch fs/configfs/dir.c...
+git apply status: 0
+trying to patch file: patchfile:hello/3795-perf-data-Fix-strncat-may-truncate-build-failure-wit.patch
+Checking patch tools/perf/util/data-convert-bt.c...
+git apply status: 0
+trying to patch file: patchfile:hello/3796-perf-record-Fix-s390-missing-module-symbol-and-warni.patch
+Checking patch tools/perf/arch/s390/util/machine.c...
+git apply status: 0
+trying to patch file: patchfile:hello/3797-ia64-fix-build-errors-by-exporting-paddr_to_nid.patch
+Checking patch arch/ia64/mm/numa.c...
+git apply status: 0
+trying to patch file: patchfile:hello/3798-KVM-PPC-Book3S-Use-new-mutex-to-synchronize-access-t.patch
+Checking patch arch/powerpc/include/asm/kvm_host.h...
+Checking patch arch/powerpc/kvm/book3s.c...
+Checking patch arch/powerpc/kvm/book3s_rtas.c...
+git apply status: 0
+trying to patch file: patchfile:hello/3799-KVM-PPC-Book3S-HV-Don-t-take-kvm-lock-around-kvm_for.patch
+Checking patch arch/powerpc/kvm/book3s_hv.c...
+git apply status: 0
+trying to patch file: patchfile:hello/3800-net-sh_eth-fix-mdio-access-in-sh_eth_close-for-R-Car.patch
+Checking patch drivers/net/ethernet/renesas/sh_eth.c...
+git apply status: 0
+trying to patch file: patchfile:hello/3801-net-phy-dp83867-Set-up-RGMII-TX-delay.patch
+Checking patch drivers/net/phy/dp83867.c...
+git apply status: 0
+trying to patch file: patchfile:hello/3802-scsi-libcxgbi-add-a-check-for-NULL-pointer-in-cxgbi_.patch
+Checking patch drivers/scsi/cxgbi/libcxgbi.c...
+git apply status: 0
+trying to patch file: patchfile:hello/3803-scsi-smartpqi-properly-set-both-the-DMA-mask-and-the.patch
+Checking patch drivers/scsi/smartpqi/smartpqi_init.c...
+git apply status: 0
+trying to patch file: patchfile:hello/3804-scsi-scsi_dh_alua-Fix-possible-null-ptr-deref.patch
+Checking patch drivers/scsi/device_handler/scsi_dh_alua.c...
+git apply status: 0
+trying to patch file: patchfile:hello/3805-scsi-libsas-delete-sas-port-if-expander-discover-fai.patch
+Checking patch drivers/scsi/libsas/sas_expander.c...
+git apply status: 0
+trying to patch file: patchfile:hello/3806-mlxsw-spectrum-Prevent-force-of-56G.patch
+Checking patch drivers/net/ethernet/mellanox/mlxsw/spectrum.c...
+git apply status: 0
+trying to patch file: patchfile:hello/3807-HID-wacom-Don-t-set-tool-type-until-we-re-in-range.patch
+Checking patch drivers/hid/wacom_wac.c...
+git apply status: 0
+trying to patch file: patchfile:hello/3808-HID-wacom-Don-t-report-anything-prior-to-the-tool-en.patch
+Checking patch drivers/hid/wacom_wac.c...
+git apply status: 0
+trying to patch file: patchfile:hello/3809-HID-wacom-Send-BTN_TOUCH-in-response-to-INTUOSP2_BT-.patch
+Checking patch drivers/hid/wacom_wac.c...
+git apply status: 0
+trying to patch file: patchfile:hello/3810-coredump-fix-race-condition-between-collapse_huge_pa.patch
+Checking patch include/linux/sched/mm.h...
+error: while searching for:
+ * followed by taking the mmap_sem for writing before modifying the
+ * vmas or anything the coredump pretends not to change from under it.
+ *
+ * NOTE: find_extend_vma() called from GUP context is the only place
+ * that can modify the "mm" (notably the vm_start/end) under mmap_sem
+ * for reading and outside the context of the process, so it is also
+
+error: patch failed: include/linux/sched/mm.h:62
+error: include/linux/sched/mm.h: patch does not apply
+Checking patch mm/khugepaged.c...
+error: while searching for:
+	 * handled by the anon_vma lock + PG_lock.
+	 */
+	down_write(&mm->mmap_sem);
+	result = hugepage_vma_revalidate(mm, address, &vma);
+	if (result)
+		goto out;
+
+error: patch failed: mm/khugepaged.c:1006
+error: mm/khugepaged.c: patch does not apply
+git apply test (--check) failed: 3810, commit all changes so far, try just patch with hello/3810-coredump-fix-race-condition-between-collapse_huge_pa.patch
+tets it yourself: git apply --check -v hello/3810-coredump-fix-race-condition-between-collapse_huge_pa.patch

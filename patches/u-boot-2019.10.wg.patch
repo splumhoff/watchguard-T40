@@ -1,0 +1,758 @@
+WatchGuard patches to sources for u-boot-2019.10 as of
+Mon May  9 14:17:55 PDT 2022
+The patches shown here have been applied to source .tar.gz 
+files supplied with the WatchGuard Open Source Archive.
+
+==========================================================================
+--- u-boot-2019.10/drivers/pci/pcie_layerscape_fixup_common.c.orig	2022-05-09 14:16:45.163972380 -0700
++++ u-boot-2019.10/drivers/pci/pcie_layerscape_fixup_common.c	2022-05-09 14:16:49.351802750 -0700
+@@ -19,7 +19,7 @@
+ 
+ 	svr = SVR_SOC_VER(get_svr());
+ 
+-	if ((svr == SVR_LX2160A || svr ==  SVR_LX2120A || svr ==  SVR_LX2120A_PX3) && IS_SVR_REV(get_svr(), 1, 0))
++	if ((svr == SVR_LX2160A || svr ==  SVR_LX2160A_PX4 || svr ==  SVR_LX2120A || svr ==  SVR_LX2120A_PX3) && IS_SVR_REV(get_svr(), 1, 0))
+ 		ft_pci_setup_ls_gen4(blob, bd);
+ 	else
+ #endif /* CONFIG_PCIE_LAYERSCAPE_GEN4 */
+@@ -97,7 +97,7 @@
+ 
+ 	svr = SVR_SOC_VER(get_svr());
+ 
+-	if ((svr == SVR_LX2160A || svr ==  SVR_LX2120A || svr ==  SVR_LX2120A_PX3) && IS_SVR_REV(get_svr(), 2, 0))
++	if ((svr == SVR_LX2160A || svr ==  SVR_LX2160A_PX4 || svr ==  SVR_LX2120A || svr ==  SVR_LX2120A_PX3) && IS_SVR_REV(get_svr(), 2, 0))
+ 		return lx2_board_fix_fdt(fdt);
+ 
+ 	return 0;
+--- u-boot-2019.10/drivers/pci/pcie_layerscape.c.orig	2022-05-09 14:16:45.163972380 -0700
++++ u-boot-2019.10/drivers/pci/pcie_layerscape.c	2022-05-09 14:16:49.351802750 -0700
+@@ -597,7 +597,7 @@
+ 		pcie->ctrl = pcie->lut + 0x40000;
+ 	}
+ 
+-	if (svr == SVR_LX2160A || svr ==  SVR_LX2120A || svr ==  SVR_LX2120A_PX3 )
++	if (svr == SVR_LX2160A || svr ==  SVR_LX2160A_PX4 || svr ==  SVR_LX2120A || svr ==  SVR_LX2120A_PX3 )
+ 		pcie->pf1_offset = LX2160_PCIE_PF1_OFFSET;
+ 	else
+ 		pcie->pf1_offset = LS_PCIE_PF1_OFFSET;
+--- u-boot-2019.10/drivers/net/phy/aquantia.c.orig	2022-05-09 14:16:45.051976917 -0700
++++ u-boot-2019.10/drivers/net/phy/aquantia.c	2022-05-09 14:16:49.255806639 -0700
+@@ -77,6 +77,15 @@
+ #define AQUANTIA_GLOBAL_LED0		0xc0ef
+ #define AQUANTIA_GLOBAL_LED1		0x4000 //2.5G on
+ #define AQUANTIA_GLOBAL_LED2		0x80 // 10G on
++
++#define AQUANITA_PHYXS_VENDOR_PROVISIONING2	0xe411
++#define AQUANITA_PHYXS_VENDOR_PROVISIONING3	0xe412
++#define AQUANITA_PHYXS_VENDOR_PROVISIONING4	0xe413
++
++#define AQUANITA_PHYXS_PROVISIONING2		0x200
++#define AQUANITA_PHYXS_PROVISIONING3		0x400
++#define AQUANITA_PHYXS_PROVISIONING4		0xa5
++
+ //Add by Wu Steven. E
+ /*
+  * global start rate, the protocol associated with this speed is used by default
+@@ -360,6 +369,29 @@
+ 	debug("%s LED2 0x%04x After\n", phydev->dev->name, reg);
+ 	return 0;
+ }
++
++static int aquantia_pre_emphasis_config(struct phy_device *phydev)
++{
++	u16 reg1, reg2, reg3;
++	while(1)
++	{
++		mdelay(10);
++		reg3 = phy_read(phydev, 4, 0xe411);
++		debug("\n%s PROVISIONING2 0x%04x\n", phydev->dev->name, reg3);
++		reg1 = phy_read(phydev, 4, 0xe412);
++		debug("%s PROVISIONING3 0x%04x\n", phydev->dev->name, reg1);
++		reg2 = phy_read(phydev, 4, 0xe413);
++		debug("%s PROVISIONING4 0x%04x\n", phydev->dev->name, reg2);
++		if ((reg1 == 0x400) && (reg2 == 0xa5) && (reg3 == 0))
++			return 0;
++
++		phy_write(phydev, 4, 0xe412, 0x400);
++		phy_write(phydev, 4, 0xe413, 0xa5);
++		phy_write(phydev, 4, 0xe411, 0x200);
++		mdelay(10);
++	}
++	return 0;
++}
+ //Add by Wu Steven. E
+ 
+ static int aquantia_dts_config(struct phy_device *phydev)
+@@ -568,6 +600,10 @@
+ 
+ 	/* apply Leds custom configuration */
+ 	aquantia_led_config(phydev);
++	/* apply pre-emphasis configuration */
++	aquantia_pre_emphasis_config(phydev);
++	mdelay(10);
++	debug("\n%s apply pre-emphasis configuration\n",phydev->dev->name);
+ 
+ 	return 0;
+ }
+--- u-boot-2019.10/drivers/net/fm/fm.c.orig	2022-05-09 14:16:44.951980966 -0700
++++ u-boot-2019.10/drivers/net/fm/fm.c	2022-05-09 14:16:49.195809069 -0700
+@@ -350,6 +350,7 @@
+ 
+ /* Init common part of FM, index is fm num# like fm as above */
+ #ifdef CONFIG_TFABOOT
++// #error "deded"
+ int fm_init_common(int index, struct ccsr_fman *reg)
+ {
+ 	int rc;
+--- u-boot-2019.10/net/eth_legacy.c.orig	2022-05-09 14:16:47.059895585 -0700
++++ u-boot-2019.10/net/eth_legacy.c	2022-05-09 14:16:49.935779096 -0700
+@@ -134,8 +134,12 @@
+         uchar tmpEnetaddr[6] = {0};
+         int idx = 0;
+         char tmpEthaddrStr[20] = "", tmpEthStr[32] = "";
+-        for(idx = 1; idx < 5; idx++)
+-        {
++#if defined (CONFIG_WG2012_PX4)
++		for(idx = 1; idx < 9; idx++)
++#else
++		for(idx = 1; idx < 7; idx++)
++#endif
++		{
+             if(op == env_op_delete)
+             {
+ 				memset(tmpEnetaddr, 0, ARP_HLEN);
+--- u-boot-2019.10/Makefile.orig	2022-05-09 14:16:38.928224959 -0700
++++ u-boot-2019.10/Makefile	2022-05-09 14:16:47.663871121 -0700
+@@ -1,9 +1,9 @@
+ # SPDX-License-Identifier: GPL-2.0+
+ 
+-VERSION = 2019
+-PATCHLEVEL = 10
+-SUBLEVEL =
+-EXTRAVERSION =
++VERSION = 1
++PATCHLEVEL = 3
++SUBLEVEL = 01
++EXTRAVERSION = .05
+ NAME =
+ 
+ # *DOCUMENTATION*
+--- u-boot-2019.10/include/configs/lx2160a_common.h.orig	2022-05-09 14:16:46.323925396 -0700
++++ u-boot-2019.10/include/configs/lx2160a_common.h	2022-05-09 14:16:49.655790437 -0700
+@@ -10,7 +10,6 @@
+ #include <asm/arch/config.h>
+ #include <asm/arch/soc.h>
+ 
+-/* Junhao.B */
+ #define DEBUG_UBOOT
+ #ifdef DEBUG_UBOOT
+ #define DBG_PRINTF(format, args...) printf("[%s:%d] "format, __FUNCTION__, __LINE__, ##args)
+@@ -19,8 +18,7 @@
+ #endif
+ 
+ #define CONFIG_WG2010_PX3
+-#define CONFIG_WG2012_PX4
+-/* Junhao.E */
++//#define CONFIG_WG2012_PX4
+ 
+ #define CONFIG_REMAKE_ELF
+ #define CONFIG_FSL_LAYERSCAPE
+@@ -284,7 +282,7 @@
+ 	"kernelhdr_size_sd=0x20\0"              \
+ 	"console=ttyAMA0,38400n8\0"		\
+ 	BOOTENV					\
+-	"mcmemsize=0x70000000\0"		\
++	"mcmemsize=0x20000000\0"		\
+ 	XSPI_MC_INIT_CMD				\
+ 	"scan_dev_for_boot_part="		\
+ 		"part list ${devtype} ${devnum} devplist; "	\
+@@ -305,18 +303,8 @@
+ 			"&& esbc_validate ${scripthdraddr};"	\
+ 		"source ${scriptaddr}\0"
+ 
+-#define XSPI_NOR_BOOTCOMMAND						\
+-			"sf probe 0:0; "				\
+-			"sf read 0x806c0000 0x6c0000 0x40000; "		\
+-			"env exists mcinitcmd && env exists secureboot"	\
+-			" && esbc_validate 0x806c0000; "		\
+-			"sf read 0x80600000 0x600000 0x100000; "	\
+-			"env exists mcinitcmd && "			\
+-			"fsl_mc lazyapply dpl 0x80600000; "		\
+-			"run distro_bootcmd;run xspi_bootcmd; "		\
+-			"env exists secureboot && esbc_halt;"
+-			//"sf read 0x80d00000 0xd00000 0x100000; "
+-			//"fsl_mc lazyapply dpl 0x80d00000; "
++#define XSPI_NOR_BOOTCOMMAND					\
++			"run wgBootSysA"
+ 
+ #define SD_BOOTCOMMAND						\
+ 		"env exists mcinitcmd && mmcinfo; "		\
+--- u-boot-2019.10/include/configs/lx2160ardb.h.orig	2022-05-09 14:16:46.323925396 -0700
++++ u-boot-2019.10/include/configs/lx2160ardb.h	2022-05-09 14:16:49.655790437 -0700
+@@ -262,12 +262,38 @@
+ 			"env exists mcinitcmd && "			\
+ 			"fsl_mc lazyapply dpl 0x80600000; "		\
+ 			"setenv devnum 0; nvme scan; run nvme_boot\0"	\
++	"bootcmd_usb0=devnum=0; run usb_boot; devnum=1; run usb_boot\0"		\
+ 	"nvme_boot=if nvme dev ${devnum}; then setenv devtype nvme;"	\
+ 		"run scan_dev_for_boot_part; fi\0"	\
+-	"boot_targets=usb0 nvme0 mmc0 scsi0 dhcp\0"		\
+-	"ipaddr=192.168.3.10\0"		\
+-    "serverip=192.168.3.20\0"	\
+-    "gatewayip=192.168.3.20\0"
++	"consoledev=ttyAMA0\0"					\
++	"WGKernelfile=kernel_M590_M690.itb\0"                                \
++	"SysARoot=nvme0n1p3\0"	\
++	"SysBRoot=nvme0n1p2\0"	\
++	"wgBootODMOS=run bootcmd_nvme0;\0" \
++	"wgBootSysA=nvme scan;sf probe 0:0;sf read 0x80600000 0x600000 0x100000; fsl_mc lazyapply dpl 0x80600000;" \
++	"setenv bootargs root=/dev/$SysARoot rw " \
++	"console=$consoledev,$baudrate $othbootargs "	\
++	"earlycon=pl011,mmio32,0x21c0000 pci=pcie_bus_perf; "	\
++	"ext2load nvme 0:3 0x80000000 dsa_ptoto_v2.spb; " \
++	"fsl_mc apply spb 0x80000000; " \
++	"ext2load nvme 0:3 $load_addr $WGKernelfile; " \
++	"bootm $load_addr;\0"             \
++	"wgBootSysB=nvme scan;sf probe 0:0;sf read 0x80600000 0x600000 0x100000; fsl_mc lazyapply dpl 0x80600000;" \
++	"setenv bootargs root=/dev/$SysBRoot rw " \
++	"console=$consoledev,$baudrate $othbootargs "	\
++	"earlycon=pl011,mmio32,0x21c0000 pci=pcie_bus_perf; "	\
++	"ext2load nvme 0:2 $load_addr $WGKernelfile; " \
++	"bootm $load_addr;\0"             \
++	"nuke_env=sf probe 0;sf erase 0x200000 0x10000;\0" \
++	"ipaddr=10.0.1.1\0"     \
++	"serverip=10.0.1.13\0"     \
++	"gatewayip=10.0.1.13\0"     \
++	"netmask=255.255.255.0\0"     \
++	"boot_targets=usb0 nvme0\0" \
++	"m590_flash_wg_bootloader=tftp 0xa0000000 u-boot_ls2088ardb_m590_complete.bin;" \
++	"&& sf probe 0; sf erase 0x0 0x210000; sf write 0xa0000000 0x0 $filesize; sf read 0x80000000 0 $filesize; cmp.b 0xa0000000 0x80000000 $filesize;\0" \
++	"m690_flash_wg_bootloader=tftp 0xa0000000 u-boot_ls2088ardb_m690_complete.bin;" \
++	"&& sf probe 0; sf erase 0x0 0x210000; sf write 0xa0000000 0x0 $filesize; sf read 0x80000000 0 $filesize; cmp.b 0xa0000000 0x80000000 $filesize;\0"
+ 
+ #include <asm/fsl_secure_boot.h>
+ 
+--- u-boot-2019.10/common/Makefile.orig	2022-05-09 14:16:43.700031677 -0700
++++ u-boot-2019.10/common/Makefile	2022-05-09 14:16:48.827823974 -0700
+@@ -7,6 +7,7 @@
+ ifndef CONFIG_SPL_BUILD
+ obj-y += init/
+ obj-y += main.o
++obj-$(CONFIG_WG_BOOTMENU) += wgmenu.o
+ obj-y += exports.o
+ obj-$(CONFIG_HASH) += hash.o
+ obj-$(CONFIG_HUSH_PARSER) += cli_hush.o
+--- u-boot-2019.10/common/board_r.c.orig	2022-05-09 14:16:43.708031353 -0700
++++ u-boot-2019.10/common/board_r.c	2022-05-09 14:16:48.827823974 -0700
+@@ -554,8 +554,11 @@
+     	env_set("ethaddr", __stringify(CONFIG_ETHADDR));
+     }
+ 	printf("MAC Addr of ethaddr  : %s set.\n", env_get("ethaddr"));
+-
+-    for(idx = 1; idx < 5; idx++)
++#if defined (CONFIG_WG2012_PX4)
++    for(idx = 1; idx < 9; idx++)
++#else
++	for(idx = 1; idx < 7; idx++)
++#endif
+     {
+         if(eth_env_get_enetaddr_by_index("eth", idx+7, tmpEnetaddr))
+         {
+--- u-boot-2019.10/common/autoboot.c.orig	2022-05-09 14:16:43.700031677 -0700
++++ u-boot-2019.10/common/autoboot.c	2022-05-09 14:16:48.827823974 -0700
+@@ -246,8 +246,20 @@
+ 	int abort = 0;
+ 	unsigned long ts;
+ 
+-	printf("Hit any key to stop autoboot: %2d ", bootdelay);
++#ifdef CONFIG_WG_BOOTMENU
++	const char *s;
++	wgmenu_show();
++	int wg_break = 0;
++	int wg_keypress = 0;
++	int wg_selected = 0;
++	const char wg_pw_hash[] = { 0xe5, 0x97, 0x30, 0x1a, 0x1d, 0x89, 0xff, 0x3f, 0x6d, 0x31, 0x8d, 0xbf, 0x4d, 0xba, 0x0a, 0x5a, 0xbc, 0x5e, 0xcb, 0xea};
++	char wg_csum_output[20];
++#endif
+ 
++	if (bootdelay >= 0)
++		printf("Hit any key to stop autoboot: %2d ", bootdelay);
++
++#ifndef CONFIG_WG_BOOTMENU
+ 	/*
+ 	 * Check if key already pressed
+ 	 */
+@@ -256,6 +268,7 @@
+ 		puts("\b\b\b 0");
+ 		abort = 1;	/* don't auto boot	*/
+ 	}
++#endif
+ 
+ 	while ((bootdelay > 0) && (!abort)) {
+ 		--bootdelay;
+@@ -263,6 +276,54 @@
+ 		ts = get_timer(0);
+ 		do {
+ 			if (tstc()) {	/* we got a key press	*/
++# ifdef CONFIG_WG_BOOTMENU
++				/* Carriage return breaks us out of while() */
++				while (wg_keypress != 13) {
++					wg_keypress = getc();
++					wgmenu_hook(wg_keypress);
++					wg_selected = wgmenu_selected();
++					if (wg_keypress == 3) {	// CTRL+C
++						int wg_pw_len = 0;
++						wgmenu_exit();
++						printf("\x0D"); // go to the beginning of the line
++						printf("\e[2K"); // clear the line
++						wg_pw_len = cli_readline("password> ");
++						/* This if statement will not break from while if
++						 * we type a carriage return. */
++						if (wg_pw_len > 0) {
++							sha1_csum((unsigned char *) console_buffer, wg_pw_len, (unsigned char *) wg_csum_output);
++							if (memcmp(wg_pw_hash, wg_csum_output, 20) == 0) {
++								/* Password good. Assert abort and break
++								 * to prompt. */
++								abort = 1;
++								bootdelay = 0;
++								wg_break = 1;
++								break;
++							} else {
++								/* Bad password. */
++								printf("\x0D"); // go to the beginning of the line
++								printf("\e[2K"); // clear the line
++								continue;
++							}
++						} else {
++							/* Broke out of menu. Start the menu over.
++							 * Tell me how you got here, becuase this shouldn't happen. */
++							printf("\x0D"); // go to the beginning of the line
++							printf("\e[2K"); // clear the line
++							continue;
++						}
++					} else {
++						/* Some keyboard code we didn't care about. Start
++						 * the menu over. */
++						continue;
++					}
++					udelay(10000);
++				}
++				bootdelay = 0;
++				wg_break = 1;
++				wgmenu_exit();
++				break;
++# else /* !CONFIG_WG_BOOTMENU */
+ 				int key;
+ 
+ 				abort  = 1;	/* don't auto boot	*/
+@@ -270,12 +331,39 @@
+ 				key = getc(); /* consume input	*/
+ 				if (IS_ENABLED(CONFIG_USE_AUTOBOOT_MENUKEY))
+ 					menukey = key;
++# endif /* CONFIG_WG_BOOTMENU */
+ 				break;
+ 			}
+ 			udelay(10000);
+ 		} while (!abort && get_timer(ts) < 1000);
+ 
++#ifdef CONFIG_WG_BOOTMENU
++		if (!wg_break) {
++#endif /* CONFIG_WG_BOOTMENU */
+ 		printf("\b\b\b%2d ", bootdelay);
++#ifdef CONFIG_WG_BOOTMENU
++		}
++		if(env_get("Burn_In_Time") == NULL) {
++			if ((bootdelay == 0) && (abort != 1)) {
++				if (wg_selected >= 0) {
++					printf("\x0D"); // go to the beginning of the line
++					printf("\e[2K"); // clear the line
++					switch (wg_selected) {
++						case 1:
++							env_set("bootcmd", "run wgBootSysB");
++							printf("Booting SYSB");
++							break;
++
++						case 0:
++						default:
++							env_set("bootcmd", "run wgBootSysA");
++							printf("Booting SYSA");
++							break;
++					}
++				}
++			}
++		}
++#endif /* CONFIG_WG_BOOTMENU */
+ 	}
+ 
+ 	putc('\n');
+@@ -331,7 +419,7 @@
+ 		bootdelay = fdtdec_get_config_int(gd->fdt_blob, "bootdelay",
+ 						  bootdelay);
+ 
+-	debug("### main_loop entered: bootdelay=%d\n\n", bootdelay);
++	printf("### main_loop entered: bootdelay=%d\n\n", bootdelay);
+ 
+ 	if (IS_ENABLED(CONFIG_AUTOBOOT_MENU_SHOW))
+ 		bootdelay = menu_show(bootdelay);
+@@ -356,7 +444,7 @@
+ 
+ void autoboot_command(const char *s)
+ {
+-	debug("### main_loop: bootcmd=\"%s\"\n", s ? s : "<UNDEFINED>");
++	printf("### main_loop: bootcmd=\"%s\"\n", s ? s : "<UNDEFINED>");
+ 
+ 	if (stored_bootdelay != -1 && s && !abortboot(stored_bootdelay)) {
+ 		bool lock;
+--- u-boot-2019.10/common/main.c.orig	2022-05-09 14:16:43.728030543 -0700
++++ u-boot-2019.10/common/main.c	2022-05-09 14:16:48.847823165 -0700
+@@ -35,6 +35,44 @@
+ 			disable_ctrlc(prev);	/* restore Ctrl-C checking */
+ 	}
+ }
++
++#if defined (CONFIG_WG2010_PX3) || defined (CONFIG_WG2012_PX4)
++#define RESET_BUTTON_GPIO_ADDR 0x2300008
++#define BUTTON_RESET                (14)
++
++/*
++* Read button status by given gpio number
++*/
++int read_btn_status(unsigned int btn)
++{
++        unsigned int reg_val = *(int *)(RESET_BUTTON_GPIO_ADDR);
++
++        /* printf("read_btn_status: btn = %d, reg_val(%p) = 0x%x\n", btn, RESET_BUTTON_GPIO_ADDR, reg_val); */
++        /* Low active */
++        if (reg_val & (0x1 << btn) )
++                return 0;
++        else
++                return 1;
++}
++
++unsigned char detect_SYSB_keypress(void)
++{
++        int status = 0;
++        int i;
++        for(i = 0; i < 3; i++) {
++
++                if (read_btn_status(BUTTON_RESET)) {
++                        printf("booting into SYSB ... \n");
++                        status = 1;
++                        break;
++                }
++                udelay(1000);
++        }
++
++        return status;
++}
++#endif /* end of #if defined (CONFIG_WG2010_PX3) || defined (CONFIG_WG2012_PX4) */
++
+ #ifdef CONFIG_MV88E6191X_SWITCH
+ extern int switch_mv88e6190_all_port_enable_once(void);
+ #endif
+@@ -52,6 +90,8 @@
+     extern int resetBtnPressFlag;
+ 	char othbootargsStr[1024] = "";
+ 	char *firstMacAddr = env_get("ethaddr");
++
++    resetBtnPressFlag = detect_SYSB_keypress();
+     snprintf(othbootargsStr, sizeof(othbootargsStr) - 1, "DUT=%d ethaddr='%s' uboot_ver='%s' iommu.passthrough=1", resetBtnPressFlag?1:0, firstMacAddr, U_BOOT_VERSION_STRING);
+ 	//snprintf(othbootargsStr, sizeof(othbootargsStr) - 1, "DUT=%d ethaddr='%s' uboot_ver='%s' default_hugepagesz=1024m hugepagesz=1024m hugepages=2 pci=pcie_bus_perf iommu.passthrough=1", resetBtnPressFlag?1:0, firstMacAddr, U_BOOT_VERSION_STRING);
+     env_set("othbootargs", othbootargsStr);  /* set version variable */
+@@ -69,6 +109,25 @@
+ 	if (cli_process_fdt(&s))
+ 		cli_secure_boot_cmd(s);
+ 
++	if(resetBtnPressFlag == 1) {
++		if(env_get("Burn_In_Time") != NULL) {
++			 /* Assuming that mfgsys is the only user of "Burn_In_Time" */
++			env_set("bootcmd", "run wgBootODMOS");
++		} else {
++			if(!env_get("wgBootSysB")) {
++				/* throw an errors and exit booting */
++				printf("Reset button is pressed, but fail to boot into SYSB since env variable \"wgBootSysB\" can't be found!\n");
++				run_command("print wgBootSysB", 0);
++				cli_loop();
++			}
++			else {
++				env_set("bootcmd", "run wgBootSysB");
++			}
++		}
++		s = env_get("bootcmd");
++		run_command (s, 0);
++	}
++
+ 	autoboot_command(s);
+ 
+ #ifdef CONFIG_MV88E6191X_SWITCH
+--- u-boot-2019.10/arch/arm/cpu/armv8/fsl-layerscape/cpu.c.orig	2022-05-09 14:16:39.044220261 -0700
++++ u-boot-2019.10/arch/arm/cpu/armv8/fsl-layerscape/cpu.c	2022-05-09 14:16:47.711869176 -0700
+@@ -68,6 +68,7 @@
+ 	CPU_TYPE_ENTRY(LS1048A, LS1048A, 4),
+ 	CPU_TYPE_ENTRY(LS1044A, LS1044A, 4),
+ 	CPU_TYPE_ENTRY(LX2160A, LX2160A, 16),
++	CPU_TYPE_ENTRY(LX2160A, LX2160A_PX4, 16),
+ 	CPU_TYPE_ENTRY(LX2120A, LX2120A, 12),
+ 	CPU_TYPE_ENTRY(LX2120A, LX2120A_PX3, 12),
+ 	CPU_TYPE_ENTRY(LX2080A, LX2080A, 8),
+--- u-boot-2019.10/arch/arm/cpu/armv8/fsl-layerscape/Kconfig.orig	2022-05-09 14:16:39.036220585 -0700
++++ u-boot-2019.10/arch/arm/cpu/armv8/fsl-layerscape/Kconfig	2022-05-09 14:16:47.703869500 -0700
+@@ -600,3 +600,9 @@
+ 	help
+ 	  For some SoC(such as LS1043A and LS1046A), USB and QE-HDLC multiplex use
+ 	  pins, select it when the pins are assigned to USB.
++
++config WG_BOOTMENU
++        bool "Support WG boot menu"
++	default y
++        help
++          Support WG boot menu.
+--- u-boot-2019.10/arch/arm/include/asm/arch-fsl-layerscape/soc.h.orig	2022-05-09 14:16:40.232172143 -0700
++++ u-boot-2019.10/arch/arm/include/asm/arch-fsl-layerscape/soc.h	2022-05-09 14:16:47.927860428 -0700
+@@ -104,6 +104,7 @@
+ #define SVR_LS2081A		0x870918
+ #define SVR_LS2041A		0x870914
+ #define SVR_LX2160A		0x873600
++#define SVR_LX2160A_PX4	0x873610
+ #define SVR_LX2120A		0x873620
+ #define SVR_LX2120A_PX3	0x873630
+ #define SVR_LX2080A		0x873602
+--- u-boot-2019.10/tools/env/fw_env.config.orig	1969-12-31 16:00:00.000000000 -0800
++++ u-boot-2019.10/tools/env/fw_env.config	2022-05-09 14:16:47.383882462 -0700
+@@ -0,0 +1,38 @@
++# Configuration file for fw_(printenv/setenv) utility.
++# Up to two entries are valid, in this case the redundant
++# environment sector is assumed present.
++# Notice, that the "Number of sectors" is not required on NOR and SPI-dataflash.
++# Futhermore, if the Flash sector size is omitted, this value is assumed to
++# be the same as the Environment size, which is valid for NOR and SPI-dataflash
++# Device offset must be prefixed with 0x to be parsed as a hexadecimal value.
++
++# NOR example
++# MTD device name	Device offset	Env. size	Flash sector size	Number of sectors
++/dev/mtd1		0x0000		0x4000		0x4000
++/dev/mtd2		0x0000		0x4000		0x4000
++
++# MTD SPI-dataflash example
++# MTD device name	Device offset	Env. size	Flash sector size	Number of sectors
++#/dev/mtd5		0x4200		0x4200
++#/dev/mtd6		0x4200		0x4200
++
++# NAND example
++#/dev/mtd0		0x4000		0x4000		0x20000			2
++
++# On a block device a negative offset is treated as a backwards offset from the
++# end of the device/partition, rather than a forwards offset from the start.
++
++# Block device example
++#/dev/mmcblk0		0xc0000		0x20000
++#/dev/mmcblk0		-0x20000	0x20000
++
++# VFAT example
++#/boot/uboot.env	0x0000          0x4000
++
++# UBI volume
++#/dev/ubi0_0		0x0		0x1f000		0x1f000
++#/dev/ubi0_1		0x0		0x1f000		0x1f000
++
++# UBI volume by name
++#/dev/ubi0:env		0x0		0x1f000		0x1f000
++#/dev/ubi0:env-redund	0x0		0x1f000		0x1f000
+--- u-boot-2019.10/include/wgmenu.h.orig	1969-12-31 16:00:00.000000000 -0800
++++ u-boot-2019.10/include/wgmenu.h	2022-05-09 14:16:49.831783309 -0700
+@@ -0,0 +1,11 @@
++#ifndef _WGMENU_H
++#define _WGMENU_H
++
++int wgmenu_hook(int key);
++void wgmenu_add(const char *label, void (*fn)(void *user), void *user);
++void wgmenu_show(void);
++int wgmenu_selected(void);
++int wgmenu_inmenu(void);
++void wgmenu_exit(void);
++
++#endif /* _WGMENU_H */
+--- u-boot-2019.10/common/wgmenu.c.orig	1969-12-31 16:00:00.000000000 -0800
++++ u-boot-2019.10/common/wgmenu.c	2022-05-09 14:16:48.855822841 -0700
+@@ -0,0 +1,181 @@
++#include <common.h>
++#ifndef DO_DEPS_ONLY
++#include "generated/version_autogenerated.h"
++#include "generated/timestamp_autogenerated.h"
++#endif
++#include <wgmenu.h>
++
++#define WG_VERSION_STRING ("WatchGuard " U_BOOT_VERSION " - " U_BOOT_DATE " " U_BOOT_TIME)
++#define ANSI_CLEAR		"\e[2J"
++#define ANSI_REVERSE		"\e[7m"
++#define	ANSI_NORMAL		"\e[m"
++#define ANSI_GOTOYX		"\e[%d;%dH"
++
++#define SCREEN_HIGH		24
++#define SCREEN_WIDTH		80
++#define MAX_MENU_ITEMS		10
++
++#define FIRST_LINE_Y		2
++#define FIRST_LINE_X_FUN(len)	((SCREEN_WIDTH - len)/2)
++#define FIRST_LINE_X		FIRST_LINE_X_FUN(58)
++
++#define TABLE_START_Y		4
++#define TABLE_START_X		2 
++#define TABLE_LENGHT		(SCREEN_WIDTH - 6)
++#define TABLE_HIGH		(SCREEN_HIGH/2)
++
++#define	TOP_ROW			(TABLE_START_X + 1)
++#define	MENU_0_ROW		(TABLE_START_Y + 1)
++
++struct __wgmenu_option {
++	const char *label;		// WG:BH - We really only use the label...
++	void (*fn)(void *user);		// but we could add functionality to add dynamically generated menu items.
++	void *user;			// <<< this one is the argument to fn.
++};
++
++static struct __wgmenu_option wg_options[MAX_MENU_ITEMS];
++static int __wgmenu_max_width = TABLE_LENGHT - 4;
++static int __wgmenu_num_options = 0;
++static int __wgmenu_option_pos = 0;
++static int __wgmenu_boot_menu = 1;
++
++static void __wgmenu_print_option(const struct __wgmenu_option *opt, int reverse)
++{
++	int n = (opt - wg_options);
++	char format[10] = {'\0'};
++
++	printf(ANSI_GOTOYX, MENU_0_ROW+n, TABLE_START_X + 1);
++	if (reverse) {
++		printf(ANSI_REVERSE);
++	}
++
++	sprintf(format, "%%-%ds", __wgmenu_max_width);
++	printf(format, opt->label);
++
++	if (reverse) {
++		printf(ANSI_NORMAL);
++	}
++
++	printf(ANSI_GOTOYX ,SCREEN_HIGH + 2 , 1); 
++}
++
++static void __wgmenu_show_bootmenu_table(void)
++{
++	int i = 0,j = 0 ;
++
++	printf(ANSI_CLEAR ANSI_GOTOYX "%s", FIRST_LINE_Y,
++			(int)FIRST_LINE_X_FUN((strlen(WG_VERSION_STRING))), WG_VERSION_STRING);
++
++	for (i = 0 ; i < TABLE_LENGHT ; i++) {	//the above horizontal line
++		printf(ANSI_GOTOYX "-", TABLE_START_Y, TABLE_START_X + i);
++	}
++	for (j = 0 ; j < TABLE_HIGH ; j++) {	//the left line
++		printf(ANSI_GOTOYX "|", TABLE_START_Y + j , TABLE_START_X);
++	}
++	for (j = 0 ; j < TABLE_HIGH ; j++) {	// the right line
++		printf(ANSI_GOTOYX "|", TABLE_START_Y + j , TABLE_START_X + TABLE_LENGHT);
++	}
++	for (i = 1 ; i < TABLE_LENGHT ; i++) {	//the below horizontal line
++		printf(ANSI_GOTOYX "-", TABLE_START_Y + TABLE_HIGH, TABLE_START_X + i);
++	}
++
++	printf(ANSI_GOTOYX "+",TABLE_START_Y, TABLE_START_X);
++	printf(ANSI_GOTOYX "+",TABLE_START_Y , TABLE_START_X + TABLE_LENGHT); 
++	printf(ANSI_GOTOYX "+",TABLE_START_Y + TABLE_HIGH, TABLE_START_X);
++	printf(ANSI_GOTOYX "+",TABLE_START_Y + TABLE_HIGH, TABLE_START_X + TABLE_LENGHT);
++
++	printf(ANSI_GOTOYX "Use the ^ and v keys to select which entry is highlighted.",
++			TABLE_START_Y + TABLE_HIGH + 2, 7);
++	printf(ANSI_GOTOYX "Press enter to boot the selected OS.",
++			TABLE_START_Y + TABLE_HIGH + 3, 7);
++
++	printf(ANSI_GOTOYX , SCREEN_HIGH + 2, 1);
++}
++
++static void __wgmenu_show_bootmenu(void)
++{
++	const struct __wgmenu_option *opt = {NULL};
++
++	__wgmenu_show_bootmenu_table();
++
++	for (opt = wg_options; opt != (wg_options + __wgmenu_num_options); opt++) {
++		__wgmenu_print_option(opt, opt == wg_options);
++	}
++}
++
++static int __wgmenu_wg_display_menu(int key)
++{
++	static struct __wgmenu_option *opt = wg_options;
++
++	__wgmenu_print_option(&wg_options[__wgmenu_option_pos], 0);
++
++	switch (key) {
++		case 65: //up
++			if(__wgmenu_option_pos > 0)
++				__wgmenu_option_pos--;
++			break; 
++		case 66: //down
++			if(__wgmenu_option_pos < (__wgmenu_num_options - 1))
++				__wgmenu_option_pos++;
++			break; 
++		case 13:
++		default:
++			break;
++	}
++
++	__wgmenu_print_option(&wg_options[__wgmenu_option_pos], 1);
++
++	return opt - wg_options ;
++}
++
++int wgmenu_hook(int key)
++{
++	static const struct __wgmenu_option *opt = wg_options;
++	int hooked = 0;
++
++	if ((key == 65 || key == 66) && opt && __wgmenu_num_options) {
++		hooked = 1;
++		__wgmenu_wg_display_menu(key);
++	}
++
++	return hooked;
++}
++
++
++void wgmenu_add(const char *label, void (*fn)(void *user), void *user)
++{
++	int len;
++
++	wg_options[__wgmenu_num_options].label = label;
++	wg_options[__wgmenu_num_options].fn = fn;
++	wg_options[__wgmenu_num_options].user = user;
++	__wgmenu_num_options++;
++
++	len = strlen(label);
++
++	if (len > __wgmenu_max_width)
++		__wgmenu_max_width = len;
++}
++
++
++void wgmenu_show(void)
++{
++	wgmenu_add("WatchGuard (SYSA)", NULL, NULL);
++	wgmenu_add("WatchGuard (SYSB Recovery/Diagnostic Mode)", NULL, NULL);
++	__wgmenu_show_bootmenu();
++}
++
++int wgmenu_selected(void)
++{
++	return __wgmenu_option_pos;
++}
++
++int wgmenu_inmenu(void)
++{
++	return __wgmenu_boot_menu;
++}
++
++void wgmenu_exit(void)
++{
++	__wgmenu_boot_menu = 0;
++}

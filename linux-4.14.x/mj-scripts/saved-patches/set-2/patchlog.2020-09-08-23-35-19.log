@@ -1,0 +1,143 @@
+1749
+1799
+trying to patch file: patchfile:hello/1749-dpaa_eth-fix-iova-handling-for-sg-frames.patch
+checking file drivers/net/ethernet/freescale/dpaa/dpaa_eth.c
+Hunk #7 succeeded at 2498 (offset -2 lines).
+patching file drivers/net/ethernet/freescale/dpaa/dpaa_eth.c
+Hunk #7 succeeded at 2498 (offset -2 lines).
+patch status: 0
+trying to patch file: patchfile:hello/1750-sdk_dpaa-ls1043a-errata-impose-S-G-frame-realignment.patch
+checking file drivers/net/ethernet/freescale/sdk_dpaa/dpaa_eth.h
+Hunk #1 succeeded at 676 (offset 23 lines).
+checking file drivers/net/ethernet/freescale/sdk_dpaa/dpaa_eth_sg.c
+Hunk #1 succeeded at 790 (offset 18 lines).
+Hunk #2 succeeded at 815 (offset 18 lines).
+patching file drivers/net/ethernet/freescale/sdk_dpaa/dpaa_eth.h
+Hunk #1 succeeded at 676 (offset 23 lines).
+patching file drivers/net/ethernet/freescale/sdk_dpaa/dpaa_eth_sg.c
+Hunk #1 succeeded at 790 (offset 18 lines).
+Hunk #2 succeeded at 815 (offset 18 lines).
+patch status: 0
+trying to patch file: patchfile:hello/1751-sdk_dpaa-remove-the-QM_FQCTRL_PREFERINCACHE-flag.patch
+checking file drivers/net/ethernet/freescale/sdk_dpaa/dpaa_eth_common.c
+Hunk #1 succeeded at 1366 (offset 130 lines).
+patching file drivers/net/ethernet/freescale/sdk_dpaa/dpaa_eth_common.c
+Hunk #1 succeeded at 1366 (offset 130 lines).
+patch status: 0
+trying to patch file: patchfile:hello/1752-soc-fsl-bman-map-FBPR-area-in-the-iommu.patch
+checking file drivers/soc/fsl/qbman/bman_ccsr.c
+patching file drivers/soc/fsl/qbman/bman_ccsr.c
+patch status: 0
+trying to patch file: patchfile:hello/1753-soc-fsl-qman-map-FQD-and-PFDR-areas-in-the-iommu.patch
+checking file drivers/soc/fsl/qbman/qman_ccsr.c
+patching file drivers/soc/fsl/qbman/qman_ccsr.c
+patch status: 0
+trying to patch file: patchfile:hello/1754-soc-fsl-qman-portal-map-CENA-area-in-the-iommu.patch
+checking file drivers/soc/fsl/qbman/qman_portal.c
+patching file drivers/soc/fsl/qbman/qman_portal.c
+patch status: 0
+trying to patch file: patchfile:hello/1755-cpufreq-Use-struct-kobj_attribute-instead-of-struct-.patch
+checking file drivers/cpufreq/cpufreq.c
+checking file drivers/cpufreq/intel_pstate.c
+checking file include/linux/cpufreq.h
+patching file drivers/cpufreq/cpufreq.c
+patching file drivers/cpufreq/intel_pstate.c
+patching file include/linux/cpufreq.h
+patch status: 0
+trying to patch file: patchfile:hello/1756-USB-serial-option-add-Telit-ME910-ECM-composition.patch
+checking file drivers/usb/serial/option.c
+Hunk #1 succeeded at 1172 (offset 21 lines).
+patching file drivers/usb/serial/option.c
+Hunk #1 succeeded at 1172 (offset 21 lines).
+patch status: 0
+trying to patch file: patchfile:hello/1757-USB-serial-cp210x-add-ID-for-Ingenico-3070.patch
+checking file drivers/usb/serial/cp210x.c
+patching file drivers/usb/serial/cp210x.c
+patch status: 0
+trying to patch file: patchfile:hello/1758-USB-serial-ftdi_sio-add-ID-for-Hjelmslund-Electronic.patch
+checking file drivers/usb/serial/ftdi_sio.c
+checking file drivers/usb/serial/ftdi_sio_ids.h
+patching file drivers/usb/serial/ftdi_sio.c
+patching file drivers/usb/serial/ftdi_sio_ids.h
+patch status: 0
+trying to patch file: patchfile:hello/1759-staging-comedi-ni_660x-fix-missing-break-in-switch-s.patch
+checking file drivers/staging/comedi/drivers/ni_660x.c
+patching file drivers/staging/comedi/drivers/ni_660x.c
+patch status: 0
+trying to patch file: patchfile:hello/1760-staging-wilc1000-fix-to-set-correct-value-for-vif_nu.patch
+checking file drivers/staging/wilc1000/linux_wlan.c
+patching file drivers/staging/wilc1000/linux_wlan.c
+patch status: 0
+trying to patch file: patchfile:hello/1761-staging-android-ion-fix-sys-heap-pool-s-gfp_flags.patch
+checking file drivers/staging/android/ion/ion_system_heap.c
+patching file drivers/staging/android/ion/ion_system_heap.c
+patch status: 0
+trying to patch file: patchfile:hello/1762-ip6mr-Do-not-call-__IP6_INC_STATS-from-preemptible-c.patch
+checking file net/ipv6/ip6mr.c
+patching file net/ipv6/ip6mr.c
+patch status: 0
+trying to patch file: patchfile:hello/1763-net-dsa-mv88e6xxx-handle-unknown-duplex-modes-gracef.patch
+checking file drivers/net/dsa/mv88e6xxx/port.c
+patching file drivers/net/dsa/mv88e6xxx/port.c
+patch status: 0
+trying to patch file: patchfile:hello/1764-net-sysfs-Fix-mem-leak-in-netdev_register_kobject.patch
+checking file net/core/net-sysfs.c
+Hunk #1 succeeded at 1441 (offset 39 lines).
+patching file net/core/net-sysfs.c
+Hunk #1 succeeded at 1441 (offset 39 lines).
+patch status: 0
+trying to patch file: patchfile:hello/1765-sky2-Disable-MSI-on-Dell-Inspiron-1545-and-Gateway-P.patch
+checking file drivers/net/ethernet/marvell/sky2.c
+patching file drivers/net/ethernet/marvell/sky2.c
+patch status: 0
+trying to patch file: patchfile:hello/1766-team-Free-BPF-filter-when-unregistering-netdev.patch
+checking file drivers/net/team/team_mode_loadbalance.c
+patching file drivers/net/team/team_mode_loadbalance.c
+patch status: 0
+trying to patch file: patchfile:hello/1767-tipc-fix-RDM-DGRAM-connect-regression.patch
+checking file net/tipc/socket.c
+patching file net/tipc/socket.c
+patch status: 0
+trying to patch file: patchfile:hello/1768-bnxt_en-Drop-oversize-TX-packets-to-prevent-errors.patch
+checking file drivers/net/ethernet/broadcom/bnxt/bnxt.c
+patching file drivers/net/ethernet/broadcom/bnxt/bnxt.c
+patch status: 0
+trying to patch file: patchfile:hello/1769-geneve-correctly-handle-ipv6.disable-module-paramete.patch
+checking file drivers/net/geneve.c
+patching file drivers/net/geneve.c
+patch status: 0
+trying to patch file: patchfile:hello/1770-hv_netvsc-Fix-IP-header-checksum-for-coalesced-packe.patch
+checking file drivers/net/hyperv/netvsc_drv.c
+patching file drivers/net/hyperv/netvsc_drv.c
+patch status: 0
+trying to patch file: patchfile:hello/1771-net-dsa-mv88e6xxx-Fix-u64-statistics.patch
+checking file drivers/net/dsa/mv88e6xxx/chip.c
+Hunk #1 succeeded at 656 (offset 17 lines).
+patching file drivers/net/dsa/mv88e6xxx/chip.c
+Hunk #1 succeeded at 656 (offset 17 lines).
+patch status: 0
+trying to patch file: patchfile:hello/1772-netlabel-fix-out-of-bounds-memory-accesses.patch
+checking file net/ipv4/cipso_ipv4.c
+checking file net/netlabel/netlabel_kapi.c
+patching file net/ipv4/cipso_ipv4.c
+patching file net/netlabel/netlabel_kapi.c
+patch status: 0
+trying to patch file: patchfile:hello/1773-net-netem-fix-skb-length-BUG_ON-in-__skb_to_sgvec.patch
+checking file net/sched/sch_netem.c
+patching file net/sched/sch_netem.c
+patch status: 0
+trying to patch file: patchfile:hello/1774-net-nfc-Fix-NULL-dereference-on-nfc_llcp_build_tlv-f.patch
+checking file net/nfc/llcp_commands.c
+checking file net/nfc/llcp_core.c
+patching file net/nfc/llcp_commands.c
+patching file net/nfc/llcp_core.c
+patch status: 0
+trying to patch file: patchfile:hello/1775-net-phy-phylink-fix-uninitialized-variable-in-phylin.patch
+checking file drivers/net/phy/phylink.c
+patching file drivers/net/phy/phylink.c
+patch status: 0
+trying to patch file: patchfile:hello/1776-net-sit-fix-memory-leak-in-sit_init_net.patch
+checking file net/ipv6/sit.c
+Hunk #1 FAILED at 1856.
+1 out of 1 hunk FAILED
+patch test (--dry-run) failed: 1776, commit all changes so far, try just patch with hello/1776-net-sit-fix-memory-leak-in-sit_init_net.patch

@@ -1,0 +1,269 @@
+1971
+2021
+trying to patch file: patchfile:hello/1971-soc-fsl-dpio-Increase-timeout-for-QBMan-Management-C.patch
+checking file drivers/staging/fsl-mc/bus/dpio/qbman-portal.h
+patching file drivers/staging/fsl-mc/bus/dpio/qbman-portal.h
+patch status: 0
+trying to patch file: patchfile:hello/1972-arm64-dts-ls1043a-add-crypto-node-alias-also-for-qds.patch
+checking file arch/arm64/boot/dts/freescale/fsl-ls1043a-rdb.dts
+checking file arch/arm64/boot/dts/freescale/fsl-ls1043a.dtsi
+patching file arch/arm64/boot/dts/freescale/fsl-ls1043a-rdb.dts
+patching file arch/arm64/boot/dts/freescale/fsl-ls1043a.dtsi
+patch status: 0
+trying to patch file: patchfile:hello/1973-powerpc-dts-fsl-add-crypto-node-alias-for-B4.patch
+checking file arch/powerpc/boot/dts/fsl/b4qds.dtsi
+patching file arch/powerpc/boot/dts/fsl/b4qds.dtsi
+patch status: 0
+trying to patch file: patchfile:hello/1974-i2c-imx-notify-about-real-errors-on-dma-i2c_imx_dma_.patch
+checking file drivers/i2c/busses/i2c-imx.c
+patching file drivers/i2c/busses/i2c-imx.c
+patch status: 0
+trying to patch file: patchfile:hello/1975-i2c-imx-improve-the-error-handling-in-i2c_imx_dma_re.patch
+checking file drivers/i2c/busses/i2c-imx.c
+Hunk #5 succeeded at 1352 (offset -1 lines).
+patching file drivers/i2c/busses/i2c-imx.c
+Hunk #5 succeeded at 1352 (offset -1 lines).
+patch status: 0
+trying to patch file: patchfile:hello/1976-i2c-imx-fix-dma_request_chan-error-handling.patch
+checking file drivers/i2c/busses/i2c-imx.c
+patching file drivers/i2c/busses/i2c-imx.c
+patch status: 0
+trying to patch file: patchfile:hello/1977-i2c-imx-defer-probing-on-dma-channel-request.patch
+checking file drivers/i2c/busses/i2c-imx.c
+Hunk #1 succeeded at 1296 (offset -1 lines).
+Hunk #2 succeeded at 1349 (offset -1 lines).
+patching file drivers/i2c/busses/i2c-imx.c
+Hunk #1 succeeded at 1296 (offset -1 lines).
+Hunk #2 succeeded at 1349 (offset -1 lines).
+patch status: 0
+trying to patch file: patchfile:hello/1978-PCI-controller-dwc-Do-not-let-PCIE_DW_PLAT_HOST-defa.patch
+checking file drivers/pci/dwc/Kconfig
+patching file drivers/pci/dwc/Kconfig
+patch status: 0
+trying to patch file: patchfile:hello/1979-9p-use-inode-i_lock-to-protect-i_size_write-under-32.patch
+checking file fs/9p/v9fs_vfs.h
+checking file fs/9p/vfs_file.c
+checking file fs/9p/vfs_inode.c
+checking file fs/9p/vfs_inode_dotl.c
+checking file fs/9p/vfs_super.c
+patching file fs/9p/v9fs_vfs.h
+patching file fs/9p/vfs_file.c
+patching file fs/9p/vfs_inode.c
+patching file fs/9p/vfs_inode_dotl.c
+patching file fs/9p/vfs_super.c
+patch status: 0
+trying to patch file: patchfile:hello/1980-9p-net-fix-memory-leak-in-p9_client_create.patch
+checking file net/9p/client.c
+patching file net/9p/client.c
+patch status: 0
+trying to patch file: patchfile:hello/1981-ASoC-fsl_esai-fix-register-setting-issue-in-RIGHT_J-.patch
+checking file sound/soc/fsl/fsl_esai.c
+patching file sound/soc/fsl/fsl_esai.c
+patch status: 0
+trying to patch file: patchfile:hello/1982-iio-adc-exynos-adc-Fix-NULL-pointer-exception-on-unb.patch
+checking file drivers/iio/adc/exynos_adc.c
+patching file drivers/iio/adc/exynos_adc.c
+patch status: 0
+trying to patch file: patchfile:hello/1983-stm-class-Fix-an-endless-loop-in-channel-allocation.patch
+checking file drivers/hwtracing/stm/core.c
+patching file drivers/hwtracing/stm/core.c
+patch status: 0
+trying to patch file: patchfile:hello/1984-crypto-caam-fixed-handling-of-sg-list.patch
+checking file drivers/crypto/caam/caamalg.c
+Hunk #1 succeeded at 1248 (offset 151 lines).
+patching file drivers/crypto/caam/caamalg.c
+Hunk #1 succeeded at 1248 (offset 151 lines).
+patch status: 0
+trying to patch file: patchfile:hello/1985-crypto-ahash-fix-another-early-termination-in-hash-w.patch
+checking file crypto/ahash.c
+patching file crypto/ahash.c
+patch status: 0
+trying to patch file: patchfile:hello/1986-crypto-rockchip-fix-scatterlist-nents-error.patch
+checking file drivers/crypto/rockchip/rk3288_crypto.c
+checking file drivers/crypto/rockchip/rk3288_crypto.h
+checking file drivers/crypto/rockchip/rk3288_crypto_ablkcipher.c
+checking file drivers/crypto/rockchip/rk3288_crypto_ahash.c
+patching file drivers/crypto/rockchip/rk3288_crypto.c
+patching file drivers/crypto/rockchip/rk3288_crypto.h
+patching file drivers/crypto/rockchip/rk3288_crypto_ablkcipher.c
+patching file drivers/crypto/rockchip/rk3288_crypto_ahash.c
+patch status: 0
+trying to patch file: patchfile:hello/1987-crypto-rockchip-update-new-iv-to-device-in-multiple-.patch
+checking file drivers/crypto/rockchip/rk3288_crypto.h
+checking file drivers/crypto/rockchip/rk3288_crypto_ablkcipher.c
+patching file drivers/crypto/rockchip/rk3288_crypto.h
+patching file drivers/crypto/rockchip/rk3288_crypto_ablkcipher.c
+patch status: 0
+trying to patch file: patchfile:hello/1988-drm-imx-ignore-plane-updates-on-disabled-crtcs.patch
+checking file drivers/gpu/drm/imx/ipuv3-plane.c
+patching file drivers/gpu/drm/imx/ipuv3-plane.c
+patch status: 0
+trying to patch file: patchfile:hello/1989-gpu-ipu-v3-Fix-i.MX51-CSI-control-registers-offset.patch
+checking file drivers/gpu/ipu-v3/ipu-common.c
+patching file drivers/gpu/ipu-v3/ipu-common.c
+patch status: 0
+trying to patch file: patchfile:hello/1990-drm-imx-imx-ldb-add-missing-of_node_puts.patch
+checking file drivers/gpu/drm/imx/imx-ldb.c
+patching file drivers/gpu/drm/imx/imx-ldb.c
+patch status: 0
+trying to patch file: patchfile:hello/1991-gpu-ipu-v3-Fix-CSI-offsets-for-imx53.patch
+checking file drivers/gpu/ipu-v3/ipu-common.c
+patching file drivers/gpu/ipu-v3/ipu-common.c
+patch status: 0
+trying to patch file: patchfile:hello/1992-s390-dasd-fix-using-offset-into-zero-size-array-erro.patch
+checking file drivers/s390/block/dasd_eckd.c
+patching file drivers/s390/block/dasd_eckd.c
+patch status: 0
+trying to patch file: patchfile:hello/1993-Input-pwm-vibra-prevent-unbalanced-regulator.patch
+checking file drivers/input/misc/pwm-vibra.c
+patching file drivers/input/misc/pwm-vibra.c
+patch status: 0
+trying to patch file: patchfile:hello/1994-Input-pwm-vibra-stop-regulator-after-disabling-pwm-n.patch
+checking file drivers/input/misc/pwm-vibra.c
+patching file drivers/input/misc/pwm-vibra.c
+patch status: 0
+trying to patch file: patchfile:hello/1995-ARM-OMAP2-Variable-reg-in-function-omap4_dsi_mux_pad.patch
+checking file arch/arm/mach-omap2/display.c
+patching file arch/arm/mach-omap2/display.c
+patch status: 0
+trying to patch file: patchfile:hello/1996-ASoC-dapm-fix-out-of-bounds-accesses-to-DAPM-lookup-.patch
+checking file sound/soc/soc-dapm.c
+patching file sound/soc/soc-dapm.c
+patch status: 0
+trying to patch file: patchfile:hello/1997-ASoC-rsnd-fixup-rsnd_ssi_master_clk_start-user-count.patch
+checking file sound/soc/sh/rcar/ssi.c
+patching file sound/soc/sh/rcar/ssi.c
+patch status: 0
+trying to patch file: patchfile:hello/1998-KVM-arm-arm64-Reset-the-VCPU-without-preemption-and-.patch
+checking file arch/arm64/kvm/reset.c
+patching file arch/arm64/kvm/reset.c
+patch status: 0
+trying to patch file: patchfile:hello/1999-ARM-OMAP2-fix-lack-of-timer-interrupts-on-CPU1-after.patch
+checking file arch/arm/mach-omap2/cpuidle44xx.c
+patching file arch/arm/mach-omap2/cpuidle44xx.c
+patch status: 0
+trying to patch file: patchfile:hello/2000-Input-cap11xx-switch-to-using-set_brightness_blockin.patch
+checking file drivers/input/keyboard/cap11xx.c
+patching file drivers/input/keyboard/cap11xx.c
+patch status: 0
+trying to patch file: patchfile:hello/2001-Input-ps2-gpio-flush-TX-work-when-closing-port.patch
+checking file drivers/input/serio/ps2-gpio.c
+patching file drivers/input/serio/ps2-gpio.c
+patch status: 0
+trying to patch file: patchfile:hello/2002-Input-matrix_keypad-use-flush_delayed_work.patch
+checking file drivers/input/keyboard/matrix_keypad.c
+patching file drivers/input/keyboard/matrix_keypad.c
+patch status: 0
+trying to patch file: patchfile:hello/2003-mac80211-Fix-Tx-aggregation-session-tear-down-with-I.patch
+checking file net/mac80211/agg-tx.c
+patching file net/mac80211/agg-tx.c
+patch status: 0
+trying to patch file: patchfile:hello/2004-ipvs-fix-dependency-on-nf_defrag_ipv6.patch
+checking file net/netfilter/ipvs/Kconfig
+checking file net/netfilter/ipvs/ip_vs_core.c
+checking file net/netfilter/ipvs/ip_vs_ctl.c
+patching file net/netfilter/ipvs/Kconfig
+patching file net/netfilter/ipvs/ip_vs_core.c
+patching file net/netfilter/ipvs/ip_vs_ctl.c
+patch status: 0
+trying to patch file: patchfile:hello/2005-floppy-check_events-callback-should-not-return-a-neg.patch
+checking file drivers/block/floppy.c
+patching file drivers/block/floppy.c
+patch status: 0
+trying to patch file: patchfile:hello/2006-NFS-Don-t-use-page_file_mapping-after-removing-the-p.patch
+checking file fs/nfs/write.c
+patching file fs/nfs/write.c
+patch status: 0
+trying to patch file: patchfile:hello/2007-mm-gup-fix-gup_pmd_range-for-dax.patch
+checking file mm/gup.c
+patching file mm/gup.c
+patch status: 0
+trying to patch file: patchfile:hello/2008-Revert-mm-use-early_pfn_to_nid-in-page_ext_init.patch
+checking file init/main.c
+checking file mm/page_ext.c
+patching file init/main.c
+patching file mm/page_ext.c
+patch status: 0
+trying to patch file: patchfile:hello/2009-mm-page_alloc-fix-ref-bias-in-page_frag_alloc-for-1-.patch
+checking file mm/page_alloc.c
+Hunk #1 succeeded at 4348 (offset 23 lines).
+Hunk #2 succeeded at 4368 (offset 23 lines).
+patching file mm/page_alloc.c
+Hunk #1 succeeded at 4348 (offset 23 lines).
+Hunk #2 succeeded at 4368 (offset 23 lines).
+patch status: 0
+trying to patch file: patchfile:hello/2010-net-hns-Fix-object-reference-leaks-in-hns_dsaf_roce_.patch
+checking file drivers/net/ethernet/hisilicon/hns/hns_dsaf_main.c
+patching file drivers/net/ethernet/hisilicon/hns/hns_dsaf_main.c
+patch status: 0
+trying to patch file: patchfile:hello/2011-i2c-cadence-Fix-the-hold-bit-setting.patch
+checking file drivers/i2c/busses/i2c-cadence.c
+patching file drivers/i2c/busses/i2c-cadence.c
+patch status: 0
+trying to patch file: patchfile:hello/2012-i2c-bcm2835-Clear-current-buffer-pointers-and-counts.patch
+checking file drivers/i2c/busses/i2c-bcm2835.c
+patching file drivers/i2c/busses/i2c-bcm2835.c
+patch status: 0
+trying to patch file: patchfile:hello/2013-auxdisplay-ht16k33-fix-potential-user-after-free-on-.patch
+checking file drivers/auxdisplay/ht16k33.c
+patching file drivers/auxdisplay/ht16k33.c
+patch status: 0
+trying to patch file: patchfile:hello/2014-Input-st-keyscan-fix-potential-zalloc-NULL-dereferen.patch
+checking file drivers/input/keyboard/st-keyscan.c
+patching file drivers/input/keyboard/st-keyscan.c
+patch status: 0
+trying to patch file: patchfile:hello/2015-clk-sunxi-ng-v3s-Fix-TCON-reset-de-assert-bit.patch
+checking file drivers/clk/sunxi-ng/ccu-sun8i-v3s.c
+patching file drivers/clk/sunxi-ng/ccu-sun8i-v3s.c
+patch status: 0
+trying to patch file: patchfile:hello/2016-clk-sunxi-A31-Fix-wrong-AHB-gate-number.patch
+checking file drivers/clk/sunxi-ng/ccu-sun6i-a31.c
+patching file drivers/clk/sunxi-ng/ccu-sun6i-a31.c
+patch status: 0
+trying to patch file: patchfile:hello/2017-esp-Skip-TX-bytes-accounting-when-sending-from-a-req.patch
+checking file net/ipv4/esp4.c
+Hunk #1 succeeded at 315 (offset 8 lines).
+checking file net/ipv6/esp6.c
+Hunk #1 succeeded at 285 (offset 10 lines).
+patching file net/ipv4/esp4.c
+Hunk #1 succeeded at 315 (offset 8 lines).
+patching file net/ipv6/esp6.c
+Hunk #1 succeeded at 285 (offset 10 lines).
+patch status: 0
+trying to patch file: patchfile:hello/2018-ARM-8824-1-fix-a-migrating-irq-bug-when-hotplug-cpu.patch
+checking file arch/arm/Kconfig
+checking file arch/arm/include/asm/irq.h
+checking file arch/arm/kernel/irq.c
+checking file arch/arm/kernel/smp.c
+patching file arch/arm/Kconfig
+patching file arch/arm/include/asm/irq.h
+patching file arch/arm/kernel/irq.c
+patching file arch/arm/kernel/smp.c
+patch status: 0
+trying to patch file: patchfile:hello/2019-af_key-unconditionally-clone-on-broadcast.patch
+checking file net/key/af_key.c
+patching file net/key/af_key.c
+patch status: 0
+trying to patch file: patchfile:hello/2020-assoc_array-Fix-shortcut-creation.patch
+checking file lib/assoc_array.c
+patching file lib/assoc_array.c
+patch status: 0
+trying to patch file: patchfile:hello/2021-keys-Fix-dependency-loop-between-construction-record.patch
+checking file fs/nfs/nfs4idmap.c
+checking file include/keys/request_key_auth-type.h
+checking file include/linux/key-type.h
+checking file security/keys/internal.h
+checking file security/keys/keyctl.c
+checking file security/keys/process_keys.c
+checking file security/keys/request_key.c
+checking file security/keys/request_key_auth.c
+patching file fs/nfs/nfs4idmap.c
+patching file include/keys/request_key_auth-type.h
+patching file include/linux/key-type.h
+patching file security/keys/internal.h
+patching file security/keys/keyctl.c
+patching file security/keys/process_keys.c
+patching file security/keys/request_key.c
+patching file security/keys/request_key_auth.c
+patch status: 0
+patch end(2021) reached(2021). 				submit these and comeback and proceed: last patched hello/2021-keys-Fix-dependency-loop-between-construction-record.patch

@@ -1,0 +1,39 @@
+if TARGET_LS1046ARDB_WG_T80
+
+config WG1008_VM1P
+    default 1
+
+config SYS_BOARD
+	default "ls1046ardb_t80"
+
+config SYS_VENDOR
+	default "freescale"
+
+config SYS_SOC
+	default "fsl-layerscape"
+
+config SYS_CONFIG_NAME
+	default "ls1046ardb_t80"
+
+if FSL_LS_PPA
+#Albert.Ke.B
+#config SYS_LS_PPA_FW_ADDR
+#	hex "PPA Firmware Addr"
+#	default 0x40400000 if SYS_LS_PPA_FW_IN_XIP && QSPI_BOOT
+#	default 0x400000 if SYS_LS_PPA_FW_IN_MMC || SYS_LS_PPA_FW_IN_NAND
+config SYS_LS_PPA_FW_ADDR
+	hex "PPA Firmware Addr"
+	default 0x40240000 if SYS_LS_PPA_FW_IN_XIP && QSPI_BOOT
+	default 0x240000 if SYS_LS_PPA_FW_IN_MMC || SYS_LS_PPA_FW_IN_NAND
+#Albert.Ke.E
+
+if CHAIN_OF_TRUST
+config SYS_LS_PPA_ESBC_ADDR
+	hex "PPA Firmware HDR Addr"
+	default 0x40680000 if SYS_LS_PPA_FW_IN_XIP && QSPI_BOOT
+	default 0x680000 if SYS_LS_PPA_FW_IN_MMC || SYS_LS_PPA_FW_IN_NAND
+endif
+endif
+
+source "board/freescale/common/Kconfig"
+endif

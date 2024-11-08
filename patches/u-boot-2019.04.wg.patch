@@ -1,0 +1,4485 @@
+WatchGuard patches to sources for u-boot-2019.04 as of
+Mon May  9 14:15:08 PDT 2022
+The patches shown here have been applied to source .tar.gz 
+files supplied with the WatchGuard Open Source Archive.
+
+==========================================================================
+--- u-boot-2019.04/cmd/gpio.c.orig	2022-05-09 14:14:02.810547835 -0700
++++ u-boot-2019.04/cmd/gpio.c	2022-05-09 14:14:06.910381807 -0700
+@@ -8,13 +8,15 @@
+ 
+ #include <common.h>
+ #include <command.h>
+-
+-#ifdef CONFIG_WG1008_PX1
++#if defined(CONFIG_WG1008_PX1) || defined(CONFIG_WG1008_PX2)
+ extern GPIO_t wg1008_px1_gpio[];
+ extern LED_t wg1008_px1_led[];
++extern GPIO_t wg1008_px2_gpio[];
++extern LED_t wg1008_px2_led[];
+ extern int gpioWrite(u32 gpio_bus, u32 gpio_shift, u32 gpio_type, u32 val);
+ extern int gpioRead(u32 gpio_bus, u32 gpio_shift, u32 gpio_type, u32 *val);
+ extern int wg1008_px1_gpio_init(void);
++extern int wg1008_px2_gpio_init(void);
+ extern int getGpioNumByLedName(char *ledName, u32 *gpioNum, u32 *active_high);
+ extern int setGpioLedAllOnOff(u32 mode);
+ 
+@@ -30,10 +32,17 @@
+     printf("%s led all <on/off/normal>\n", daemonName);
+     printf("%s led list\n", daemonName);
+     printf("Supported <led name>: ");
++#if defined(CONFIG_WG1008_PX1)
+     for(idx =0; wg1008_px1_led[idx].led_name != NULL; idx++)
+     {
+         printf("%s ", wg1008_px1_led[idx].led_name);
+     }
++#elif defined(CONFIG_WG1008_PX2)
++    for(idx =0; wg1008_px2_led[idx].led_name != NULL; idx++)
++    {
++        printf("%s ", wg1008_px2_led[idx].led_name);
++    }
++#endif
+     printf("\n");
+ }
+ 
+@@ -50,7 +59,11 @@
+ 
+     if(argc == 2 && !strncmp(argv[1], "init", strlen("init")))
+     {
++#if defined(CONFIG_WG1008_PX1)
+         return wg1008_px1_gpio_init();
++#elif defined(CONFIG_WG1008_PX2)
++        return wg1008_px2_gpio_init();
++#endif
+     }
+ 
+     if(argc >= 4)
+@@ -159,8 +172,14 @@
+                     printHelp(argv[0]);
+                     return CMD_RET_FAILURE;
+                 }
++#if defined(CONFIG_WG1008_PX1)
+                 gpio_bus = wg1008_px1_gpio[gpioNum].gpio_bus;
+                 gpio_shift = wg1008_px1_gpio[gpioNum].gpio_shift;
++#elif defined(CONFIG_WG1008_PX2)
++                gpio_bus = wg1008_px2_gpio[gpioNum].gpio_bus;
++                gpio_shift = wg1008_px2_gpio[gpioNum].gpio_shift;
++#endif
++
+                 if(gpioWrite(gpio_bus, gpio_shift, GPIO_TYPE_DATA, val))
+                 {
+                     printHelp(argv[0]);
+@@ -179,10 +198,17 @@
+     {
+             if(!strncmp(argv[2], "list", strlen("list")))
+             {
++#if defined(CONFIG_WG1008_PX1)
+                 for(idx =0; wg1008_px1_led[idx].led_name != NULL; idx++)
+                 {
+                     printf("%s ", wg1008_px1_led[idx].led_name);
+                 }
++#elif defined(CONFIG_WG1008_PX2)
++                for(idx =0; wg1008_px2_led[idx].led_name != NULL; idx++)
++                {
++                    printf("%s ", wg1008_px2_led[idx].led_name);
++                }
++#endif
+                 return 0;
+             }
+             else
+@@ -215,6 +241,7 @@
+ 	"gpio led list\t\tshow a list of LEDs"
+ );
+ #else
++
+ #include <errno.h>
+ #include <dm.h>
+ #include <asm/gpio.h>
+--- u-boot-2019.04/cmd/mii.c.orig	2022-05-09 14:14:02.814547673 -0700
++++ u-boot-2019.04/cmd/mii.c	2022-05-09 14:14:06.914381645 -0700
+@@ -12,6 +12,7 @@
+ #include <command.h>
+ #include <miiphy.h>
+ 
++#if !defined(CONFIG_WG1008_PX2)
+ typedef struct _MII_reg_desc_t {
+ 	ushort regno;
+ 	char * name;
+@@ -25,12 +26,13 @@
+ 	{ MII_ADVERTISE, "Autonegotiation advertisement register" },
+ 	{ MII_LPA,       "Autonegotiation partner abilities register" },
+ };
++#endif
+ 
+ typedef struct _MII_field_desc_t {
+ 	ushort hi;
+ 	ushort lo;
+ 	ushort mask;
+-	char * name;
++	const char *name;
+ } MII_field_desc_t;
+ 
+ static const MII_field_desc_t reg_0_desc_tbl[] = {
+@@ -87,7 +89,7 @@
+ 	{  7,  7, 0x01, "100BASE-TX able"              },
+ 	{  6,  6, 0x01, "10BASE-T   full duplex able"  },
+ 	{  5,  5, 0x01, "10BASE-T   able"              },
+-	{  4,  0, 0x1f, "xxx to do"                    },
++	{  4,  0, 0x1f, "selector"                     },
+ };
+ 
+ static const MII_field_desc_t reg_5_desc_tbl[] = {
+@@ -102,8 +104,66 @@
+ 	{  7,  7, 0x01, "100BASE-TX able"              },
+ 	{  6,  6, 0x01, "10BASE-T full duplex able"    },
+ 	{  5,  5, 0x01, "10BASE-T able"                },
+-	{  4,  0, 0x1f, "xxx to do"                    },
++	{  4,  0, 0x1f, "partner selector"             },
++};
++
++#if defined(CONFIG_WG1008_PX2)
++static const MII_field_desc_t reg_9_desc_tbl[] = {
++	{ 15, 13, 0x07, "test mode"		       },
++	{ 12, 12, 0x01, "manual master/slave enable"   },
++	{ 11, 11, 0x01, "manual master/slave value"    },
++	{ 10, 10, 0x01, "multi/single port"            },
++	{  9,  9, 0x01, "1000BASE-T full duplex able"  },
++	{  8,  8, 0x01, "1000BASE-T half duplex able"  },
++	{  7,  7, 0x01, "automatic TDR on link down"   },
++	{  6,  6, 0x7f, "(reserved)"                   },
++};
++
++static const MII_field_desc_t reg_10_desc_tbl[] = {
++	{ 15, 15, 0x01, "master/slave config fault"    },
++	{ 14, 14, 0x01, "master/slave config result"   },
++	{ 13, 13, 0x01, "local receiver status OK"     },
++	{ 12, 12, 0x01, "remote receiver status OK"    },
++	{ 11, 11, 0x01, "1000BASE-T full duplex able"  },
++	{ 10, 10, 0x01, "1000BASE-T half duplex able"  },
++	{  9,  8, 0x03, "(reserved)"                   },
++	{  7,  0, 0xff, "1000BASE-T idle error counter"},
+ };
++
++typedef struct _MII_reg_desc_t {
++	ushort regno;
++	const MII_field_desc_t *pdesc;
++	ushort len;
++	const char *name;
++} MII_reg_desc_t;
++
++static const MII_reg_desc_t mii_reg_desc_tbl[] = {
++	{ MII_BMCR,      reg_0_desc_tbl, ARRAY_SIZE(reg_0_desc_tbl),
++		"PHY control register" },
++	{ MII_BMSR,      reg_1_desc_tbl, ARRAY_SIZE(reg_1_desc_tbl),
++		"PHY status register" },
++	{ MII_PHYSID1,   reg_2_desc_tbl, ARRAY_SIZE(reg_2_desc_tbl),
++		"PHY ID 1 register" },
++	{ MII_PHYSID2,   reg_3_desc_tbl, ARRAY_SIZE(reg_3_desc_tbl),
++		"PHY ID 2 register" },
++	{ MII_ADVERTISE, reg_4_desc_tbl, ARRAY_SIZE(reg_4_desc_tbl),
++		"Autonegotiation advertisement register" },
++	{ MII_LPA,       reg_5_desc_tbl, ARRAY_SIZE(reg_5_desc_tbl),
++		"Autonegotiation partner abilities register" },
++	{ MII_CTRL1000,	 reg_9_desc_tbl, ARRAY_SIZE(reg_9_desc_tbl),
++		"1000BASE-T control register" },
++	{ MII_STAT1000,	 reg_10_desc_tbl, ARRAY_SIZE(reg_10_desc_tbl),
++		"1000BASE-T status register" },
++};
++
++static void dump_reg(
++	ushort             regval,
++	const MII_reg_desc_t *prd);
++
++static bool special_field(ushort regno, const MII_field_desc_t *pdesc,
++			  ushort regval);
++#else
++
+ typedef struct _MII_field_desc_and_len_t {
+ 	const MII_field_desc_t *pdesc;
+ 	ushort len;
+@@ -128,6 +188,21 @@
+ 	const MII_field_desc_t *pdesc,
+ 	ushort regval);
+ 
++#endif
++
++#if defined(CONFIG_WG1008_PX2)
++static void MII_dump(const ushort *regvals, uchar reglo, uchar reghi)
++{
++	ulong i;
++
++	for (i = 0; i < ARRAY_SIZE(mii_reg_desc_tbl); i++) {
++		const uchar reg = mii_reg_desc_tbl[i].regno;
++
++		if (reg >= reglo && reg <= reghi)
++			dump_reg(regvals[reg - reglo], &mii_reg_desc_tbl[i]);
++	}
++}
++#else
+ static void MII_dump_0_to_5(
+ 	ushort regvals[6],
+ 	uchar reglo,
+@@ -141,11 +216,30 @@
+ 				&desc_and_len_tbl[i]);
+ 	}
+ }
++#endif
++
++#if defined(CONFIG_WG1008_PX2)
++/* Print out field position, value, name */
++static void dump_field(const MII_field_desc_t *pdesc, ushort regval)
++{
++	if (pdesc->hi == pdesc->lo)
++		printf("%2u   ", pdesc->lo);
++	else
++		printf("%2u-%2u", pdesc->hi, pdesc->lo);
++
++	printf(" = %5u	  %s", (regval >> pdesc->lo) & pdesc->mask,
++	       pdesc->name);
++}
++#endif
+ 
+ static void dump_reg(
+ 	ushort             regval,
++#if defined(CONFIG_WG1008_PX2)
++	const MII_reg_desc_t *prd)
++#else
+ 	const MII_reg_desc_t *prd,
+ 	const MII_field_desc_and_len_t *pdl)
++#endif
+ {
+ 	ulong i;
+ 	ushort mask_in_place;
+@@ -154,8 +248,13 @@
+ 	printf("%u.     (%04hx)                 -- %s --\n",
+ 		prd->regno, regval, prd->name);
+ 
++#if defined(CONFIG_WG1008_PX2)
++	for (i = 0; i < prd->len; i++) {
++		pdesc = &prd->pdesc[i];
++#else
+ 	for (i = 0; i < pdl->len; i++) {
+ 		pdesc = &pdl->pdesc[i];
++#endif
+ 
+ 		mask_in_place = pdesc->mask << pdesc->lo;
+ 
+@@ -163,7 +262,10 @@
+ 		       mask_in_place,
+ 		       regval & mask_in_place,
+ 		       prd->regno);
+-
++#if defined(CONFIG_WG1008_PX2)
++		if (!special_field(prd->regno, pdesc, regval))
++			dump_field(pdesc, regval);
++#else
+ 		if (special_field(prd->regno, pdesc, regval)) {
+ 		}
+ 		else {
+@@ -175,6 +277,7 @@
+ 				(regval & mask_in_place) >> pdesc->lo,
+ 				pdesc->name);
+ 		}
++#endif
+ 		printf("\n");
+ 
+ 	}
+@@ -190,11 +293,18 @@
+ ** 5.4-0
+ */
+ 
++#if defined(CONFIG_WG1008_PX2)
++static bool special_field(ushort regno, const MII_field_desc_t *pdesc,
++			  ushort regval)
++#else
+ static int special_field(
+ 	ushort regno,
+ 	const MII_field_desc_t *pdesc,
+ 	ushort regval)
++#endif
+ {
++	const ushort sel_bits = (regval >> pdesc->lo) & pdesc->mask;
++
+ 	if ((regno == MII_BMCR) && (pdesc->lo == 6)) {
+ 		ushort speed_bits = regval & (BMCR_SPEED1000 | BMCR_SPEED100);
+ 		printf("%2u,%2u =   b%u%u    speed selection = %s Mbps",
+@@ -208,14 +318,27 @@
+ 	}
+ 
+ 	else if ((regno == MII_BMCR) && (pdesc->lo == 8)) {
++#if defined(CONFIG_WG1008_PX2)
++		dump_field(pdesc, regval);
++		printf(" = %s", ((regval >> pdesc->lo) & 1) ? "full" : "half");
++#else
+ 		printf("%2u    = %5u    duplex = %s",
+ 			pdesc->lo,
+ 			(regval >>  pdesc->lo) & 1,
+ 			((regval >> pdesc->lo) & 1) ? "full" : "half");
++#endif
++
+ 		return 1;
+ 	}
+ 
+ 	else if ((regno == MII_ADVERTISE) && (pdesc->lo == 0)) {
++#if defined(CONFIG_WG1008_PX2)
++		dump_field(pdesc, regval);
++		printf(" = %s",
++		       sel_bits == PHY_ANLPAR_PSB_802_3 ? "IEEE 802.3 CSMA/CD" :
++		       sel_bits == PHY_ANLPAR_PSB_802_9 ?
++		       "IEEE 802.9 ISLAN-16T" : "???");
++#else
+ 		ushort sel_bits = (regval >> pdesc->lo) & pdesc->mask;
+ 		printf("%2u-%2u = %5u    selector = %s",
+ 			pdesc->hi, pdesc->lo, sel_bits,
+@@ -224,10 +347,18 @@
+ 			sel_bits == PHY_ANLPAR_PSB_802_9 ?
+ 				"IEEE 802.9 ISLAN-16T" :
+ 			"???");
++#endif
+ 		return 1;
+ 	}
+ 
+ 	else if ((regno == MII_LPA) && (pdesc->lo == 0)) {
++#if defined(CONFIG_WG1008_PX2)
++		dump_field(pdesc, regval);
++		printf(" = %s",
++		       sel_bits == PHY_ANLPAR_PSB_802_3 ? "IEEE 802.3 CSMA/CD" :
++		       sel_bits == PHY_ANLPAR_PSB_802_9 ?
++		       "IEEE 802.9 ISLAN-16T" : "???");
++#else
+ 		ushort sel_bits = (regval >> pdesc->lo) & pdesc->mask;
+ 		printf("%2u-%2u =     %u    selector = %s",
+ 			pdesc->hi, pdesc->lo, sel_bits,
+@@ -236,6 +367,7 @@
+ 			sel_bits == PHY_ANLPAR_PSB_802_9 ?
+ 				"IEEE 802.9 ISLAN-16T" :
+ 			"???");
++#endif
+ 		return 1;
+ 	}
+ 
+@@ -288,7 +420,7 @@
+ }
+ #endif
+ 
+-#ifdef CONFIG_MV88E6190_SWITCH
++#if defined(CONFIG_MV88E6190_SWITCH) || defined(CONFIG_MV88E6191X_SWITCH)
+ extern int switch_mv88e6190_port_autonego(u16 port, u32 *an, int read);
+ extern int switch_mv88e6190_port_speed(u16 port, u32 *speed, int read); /* speed unit : Mbps */
+ extern int switch_mv88e6190_port_duplex(u16 port, u32 *fullDupex, int read);
+@@ -307,8 +439,13 @@
+ static int do_mii(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+ {
+ 	char		op[2];
++#if defined(CONFIG_MV88E6190_SWITCH)
+     unsigned short	addrlo, addrhi, reglo, reghi;
+     unsigned short	addr, reg;
++#else
++	unsigned char	addrlo, addrhi, reglo, reghi;
++	unsigned char	addr, reg;
++#endif
+ 	unsigned short	data, mask;
+ 	int		rcode = 0;
+ 	const char	*devname;
+@@ -333,8 +470,7 @@
+ 	data   = last_data;
+ 	mask   = last_mask;
+ 
+-    if ((flag & CMD_FLAG_REPEAT) == 0)
+-    {
++	if ((flag & CMD_FLAG_REPEAT) == 0) {
+ 		op[0] = argv[1][0];
+ 		if (strlen(argv[1]) > 1)
+ 			op[1] = argv[1][1];
+@@ -344,44 +480,49 @@
+ 		if (argc >= 3)
+ 			extract_range(argv[2], &addrlo, &addrhi);
+ 		if (argc >= 4)
+-        {
+-#ifdef CONFIG_MV88E6190_SWITCH
+-            if(!strncmp(argv[3], "mvl", strlen("mvl")))
+-            {
+-                extract_range(argv[2], &addrlo, &addrhi);
+-            }
+-            else
++		{
++#if defined(CONFIG_MV88E6190_SWITCH) || defined(CONFIG_MV88E6191X_SWITCH)
++        	if(!strncmp(argv[3], "mvl", strlen("mvl")))
++        	{
++            		extract_range(argv[2], &addrlo, &addrhi);
++        	}
++		else
+ #endif
+-            {
+ 			extract_range(argv[3], &reglo, &reghi);
+-            }
+-        }
++		}
+ 		if (argc >= 5)
+-        {
+-#ifdef CONFIG_MV88E6190_SWITCH
+-            if(!strncmp(argv[4], "mvl", strlen("mvl")))
+-            {
+-                extract_range(argv[3], &reglo, &reghi);
+-            }
+-            else
++		{
++#if defined(CONFIG_MV88E6191X_SWITCH)
++		    if(!strncmp(argv[4], "mvl", strlen("mvl")) || !strncmp(argv[4], "srds", strlen("srds")))
++		    {
++		        extract_range(argv[3], &reglo, &reghi);
++		    }
++		    else
++#elif defined(CONFIG_MV88E6190_SWITCH)
++		    if(!strncmp(argv[4], "mvl", strlen("mvl")))
++		    {
++		        extract_range(argv[3], &reglo, &reghi);
++		    }
++		    else
+ #endif
+-            {
+-			data = simple_strtoul(argv[4], NULL, 16);
+-            }
+-        }
++                data = simple_strtoul(argv[4], NULL, 16);
++		}
+ 		if (argc >= 6)
+-        {
+-#ifdef CONFIG_MV88E6190_SWITCH
+-            if(strncmp(argv[5], "mvl", strlen("mvl")))
++		{
++#if defined(CONFIG_MV88E6191X_SWITCH)
++			if(strncmp(argv[5], "mvl", strlen("mvl")) || strncmp(argv[5], "srds", strlen("srds")))
++#elif defined(CONFIG_MV88E6190_SWITCH)
++			if(strncmp(argv[5], "mvl", strlen("mvl")))
+ #endif
+-            {
+ 			mask = simple_strtoul(argv[5], NULL, 16);
++		}
+ 	}
+-        }
+-    }
+ 
+-    if (addrhi > 31)
+-    {
++#if defined(CONFIG_MV88E6190_SWITCH)
++	if (addrhi > 31) {
++#else
++	if (addrhi > 31 && strncmp(op, "de", 2)) {
++#endif
+ 		printf("Incorrect PHY address. Range should be 0-31\n");
+ 		return CMD_RET_USAGE;
+ 	}
+@@ -392,8 +533,7 @@
+ 	/*
+ 	 * check info/read/write.
+ 	 */
+-    if (op[0] == 'i')
+-    {
++	if (op[0] == 'i') {
+ 		unsigned char j, start, end;
+ 		unsigned int oui;
+ 		unsigned char model;
+@@ -402,21 +542,24 @@
+ 		/*
+ 		 * Look for any and all PHYs.  Valid addresses are 0..31.
+ 		 */
+-        if (argc >= 3)
+-        {
+-            start = addrlo;
+-            end = addrhi;
+-        }
+-        else
+-        {
+-            start = 0;
+-            end = 31;
++#if defined(CONFIG_MV88E6190_SWITCH)
++		if (argc >= 3) {
++			start = addrlo;
++			end = addrhi;
++		} else 	{
++			start = 0;
++			end = 31;
++		}
++#else
++		if (argc >= 3) {
++			start = addrlo; end = addrhi;
++		} else {
++			start = 0; end = 31;
+ 		}
++#endif
+ 
+-        for (j = start; j <= end; j++)
+-        {
+-            if (miiphy_info (devname, j, &oui, &model, &rev) == 0)
+-            {
++		for (j = start; j <= end; j++) {
++			if (miiphy_info (devname, j, &oui, &model, &rev) == 0) {
+ 				printf("PHY 0x%02X: "
+ 					"OUI = 0x%04X, "
+ 					"Model = 0x%02X, "
+@@ -430,8 +573,8 @@
+ 						? "FDX" : "HDX");
+ 			}
+ 		}
+-    }
+-#ifdef CONFIG_MV88E6190_SWITCH
++	}
++#if defined(CONFIG_MV88E6190_SWITCH) || defined(CONFIG_MV88E6191X_SWITCH)
+     else if ((!strncmp(argv[1], "an", 2) || !strncmp(argv[1], "speed", 5) || !strncmp(argv[1], "duplex", 6) || !strncmp(argv[1], "mdi", 3)
+            || !strncmp(argv[1], "ancomp", 6) || !strncmp(argv[1], "coplink", 7) || !strncmp(argv[1], "rtlink", 6) || !strncmp(argv[1], "glblink", 7) 
+            || !strncmp(argv[1], "remflt", 6) || !strncmp(argv[1], "jabdet", 6) || !strncmp(argv[1], "speedrd", 7) || !strncmp(argv[1], "duplexrd", 8) || !strncmp(argv[1], "mdixrd", 6))
+@@ -548,15 +691,12 @@
+             rcode = CMD_RET_USAGE;
+         }
+     }
+-#endif
+-    else if (op[0] == 'r')
+-    {
+-        for (addr = addrlo; addr <= addrhi; addr++)
+-        {
+-            for (reg = reglo; reg <= reghi; reg++)
+-            {
++#endif //  defined(CONFIG_MV88E6190_SWITCH) || defined(CONFIG_MV88E6191X_SWITCH)
++	else if (op[0] == 'r') {
++		for (addr = addrlo; addr <= addrhi; addr++) {
++			for (reg = reglo; reg <= reghi; reg++) {
+ 				data = 0xffff;
+-#ifdef CONFIG_MV88E6190_SWITCH
++#if defined(CONFIG_MV88E6190_SWITCH) || defined(CONFIG_MV88E6191X_SWITCH)
+                 if(!strncmp(argv[4], "mvl", strlen("mvl")))
+                 {
+                     if (marvell_phy_read (addr, reg, &data) != 0)
+@@ -574,79 +714,100 @@
+                         printf("0x%04X\n", data & 0x0000FFFF);
+                     }
+                 }
+-                else
++		else
+ #endif
+-                {
+-                    if (miiphy_read (devname, addr, reg, &data) != 0)
++#if defined(CONFIG_MV88E6191X_SWITCH)
++		if (!strncmp(argv[4], "srds", strlen("srds")))
++		{
++					unsigned short offset= 0x8100 + reg;
++					DBG_PRINTF("reglo: 0x%0x reghi: 0x%0x reg: 0x%0x\n ", reglo, reghi, offset);
++					
++					if (xsmi_read (SMI_I, addr, 30, offset, &data) != 0)
++	                {
++                        printf(
++                            "Error reading from the Marvell PHY addr=0x%02x reg=0x%02x\n",
++                            addr, reg);
++                        rcode = 1;
++                    }
++			else
+                     {
++                        if ((addrlo != addrhi) || (reglo != reghi))
++							printf("Marvell addr=0x%02x reg=0x%02x data=",
++                                    (uint)addr, offset);
++                        printf("0x%0x\n", data);
++                    }
++		}
++		else
++#endif // CONFIG_MV88E6191X_SWITCH
++				if (miiphy_read (devname, addr, reg, &data) != 0) {
+ 					printf(
+ 					"Error reading from the PHY addr=%02x reg=%02x\n",
+ 						addr, reg);
+ 					rcode = 1;
+-                    }
+-                    else
+-                    {
++				} else {
+ 					if ((addrlo != addrhi) || (reglo != reghi))
+ 						printf("addr=%02x reg=%02x data=",
+ 							(uint)addr, (uint)reg);
+ 					printf("%04X\n", data & 0x0000FFFF);
+ 				}
+ 			}
+-            }
+ 			if ((addrlo != addrhi) && (reglo != reghi))
+ 				printf("\n");
+ 		}
+-    }
+-    else if (op[0] == 'w')
+-    {
+-        for (addr = addrlo; addr <= addrhi; addr++)
+-        {
+-            for (reg = reglo; reg <= reghi; reg++)
+-            {
+-#ifdef CONFIG_MV88E6190_SWITCH
+-                if(!strncmp(argv[5], "mvl", strlen("mvl")))
+-                {
+-                    if (marvell_phy_write (addr, reg, data) != 0)
+-                    {
+-                        printf("Error writing to the Marvell PHY addr=%02x reg=%02x\n",
+-                               addr, reg);
+-                        rcode = 1;
+-                    }
+-                }
+-                else
++	} 
++	else if (op[0] == 'w') {
++		for (addr = addrlo; addr <= addrhi; addr++) {
++			for (reg = reglo; reg <= reghi; reg++) {
++#if defined(CONFIG_MV88E6190_SWITCH) || defined(CONFIG_MV88E6191X_SWITCH)
++		        if(!strncmp(argv[5], "mvl", strlen("mvl")))
++		        {
++		            if (marvell_phy_write (addr, reg, data) != 0)
++		            {
++		                printf("Error writing to the Marvell PHY addr=%02x reg=%02x\n",
++		                       addr, reg);
++		                rcode = 1;
++		            }
++		        }
++			else
+ #endif
+-                {
+-                    if (miiphy_write (devname, addr, reg, data) != 0)
+-                    {
+-					printf("Error writing to the PHY addr=%02x reg=%02x\n",
+-						addr, reg);
+-					rcode = 1;
++#if defined(CONFIG_MV88E6191X_SWITCH)
++		        if (!strncmp(argv[5], "srds", strlen("srds")))
++			{
++				unsigned short offset= 0x8100 + reg;
++				DBG_PRINTF("reglo: 0x%0x reghi: 0x%0x reg: 0x%0x data: 0x%0x\n ", reglo, reghi, offset, data);
++				printf("Input Offset range: 0x8100~0x8199\n");
++				
++				if (xsmi_write (SMI_I, addr, 30, offset, data) != 0)
++				{
++		                printf("Error writing to the Marvell PHY addr=%02x reg=%02x\n",
++		                       addr, reg);
++		                rcode = 1;
+ 				}
+ 			}
++			else
++#endif // CONFIG_MV88E6191X_SWITCH
++			if (miiphy_write (devname, addr, reg, data) != 0) {
++				printf("Error writing to the PHY addr=%02x reg=%02x\n",
++					addr, reg);
++				rcode = 1;
++			}
++			}
+ 		}
+-        }
+-    }
+-    else if (op[0] == 'm')
+-    {
+-        for (addr = addrlo; addr <= addrhi; addr++)
+-        {
+-            for (reg = reglo; reg <= reghi; reg++)
+-            {
++	} 
++	else if (op[0] == 'm') {
++		for (addr = addrlo; addr <= addrhi; addr++) {
++			for (reg = reglo; reg <= reghi; reg++) {
+ 				unsigned short val = 0;
+ 				if (miiphy_read(devname, addr,
+-                                reg, &val))
+-                {
++						reg, &val)) {
+ 					printf("Error reading from the PHY");
+ 					printf(" addr=%02x", addr);
+ 					printf(" reg=%02x\n", reg);
+ 					rcode = 1;
+-                }
+-                else
+-                {
++				} else {
+ 					val = (val & ~mask) | (data & mask);
+ 					if (miiphy_write(devname, addr,
+-                                     reg, val))
+-                    {
++							 reg, val)) {
+ 						printf("Error writing to the PHY");
+ 						printf(" addr=%02x", addr);
+ 						printf(" reg=%02x\n", reg);
+@@ -655,24 +816,38 @@
+ 				}
+ 			}
+ 		}
+-    }
+-    else if (strncmp(op, "du", 2) == 0)
+-    {
++	} 
++	else if (strncmp(op, "du", 2) == 0) {
++#if defined(CONFIG_MV88E6190_SWITCH)
+ 		ushort regs[6];
++#else
++		ushort regs[MII_STAT1000 + 1];  /* Last reg is 0x0a */
++#endif
++
+ 		int ok = 1;
+-        if ((reglo > 5) || (reghi > 5))
+-        {
++#if defined(CONFIG_MV88E6190_SWITCH)
++		if ((reglo > 5) || (reghi > 5)) {
++#else
++		if (reglo > MII_STAT1000 || reghi > MII_STAT1000) {
++#endif
++#if defined(CONFIG_MV88E6191X_SWITCH)
++			printf("The MII dump command only formats the standard MII registers, 0-5, 9-a.\n");
++			return 1;
++#elif defined (CONFIG_MV88E6190_SWITCH)
+ 			printf(
+ 				"The MII dump command only formats the "
+ 				"standard MII registers, 0-5.\n");
+-			return 1;
++#endif
+ 		}
+-        for (addr = addrlo; addr <= addrhi; addr++)
+-        {
+-            for (reg = reglo; reg < reghi + 1; reg++)
+-            {
+-                if (miiphy_read(devname, addr, reg, &regs[reg]) != 0)
+-                {
++		for (addr = addrlo; addr <= addrhi; addr++) {
++			for (reg = reglo; reg <= reghi; reg++) {
++#if defined(CONFIG_MV88E6190_SWITCH)
++				if (miiphy_read(devname, addr, reg, &regs[reg]) != 0) {
++
++#else
++				if (miiphy_read(devname, addr, reg,
++						&regs[reg - reglo]) != 0) {
++#endif
+ 					ok = 0;
+ 					printf(
+ 					"Error reading from the PHY addr=%02x reg=%02x\n",
+@@ -680,20 +855,23 @@
+ 					rcode = 1;
+ 				}
+ 			}
++#if defined(CONFIG_MV88E6190_SWITCH)
+ 			if (ok)
+ 				MII_dump_0_to_5(regs, reglo, reghi);
++#else
++			if (ok)
++				MII_dump(regs, reglo, reghi);
++#endif
+ 			printf("\n");
+ 		}
+-    }
+-    else if (strncmp(op, "de", 2) == 0)
+-    {
++	} 
++	else if (strncmp(op, "de", 2) == 0) {
+ 		if (argc == 2)
+ 			miiphy_listdev ();
+ 		else
+ 			miiphy_set_current_dev (argv[2]);
+-    }
+-    else
+-    {
++	} 
++	else {
+ 		return CMD_RET_USAGE;
+ 	}
+ 
+@@ -725,9 +903,7 @@
+ 	"mii modify <addr> <reg> <data> <mask> - modify MII PHY <addr> register <reg>\n"
+ 	"                                        updating bits identified in <mask>\n"
+ 	"mii dump   <addr> <reg>               - pretty-print <addr> <reg> (0-5 only)\n"
+-#ifdef CONFIG_MV88E6190_SWITCH
+-    "mii read     <addr> <reg>        mvl  - Marvell PHY read  MII PHY <addr> register <reg>\n"
+-    "mii write    <addr> <reg> <data> mvl  - Marvell PHY write MII PHY <addr> register <reg>\n"
++#if defined(CONFIG_MV88E6190_SWITCH) || defined(CONFIG_MV88E6191X_SWITCH)
+     "mii an       <port> [<an>]       mvl  - Marvell PHY read/write <port> <an>\n"
+     "mii speed    <port> [<speed>]    mvl  - Marvell PHY read/write <port> <speed>\n"
+     "mii duplex   <port> [<duplex>]   mvl  - Marvell PHY read/write <port> <duplex>, 1:full;0:half\n"
+--- u-boot-2019.04/configs/ls2088ardb_tfa_SECURE_BOOT_defconfig.orig	2022-05-09 14:14:03.106535849 -0700
++++ u-boot-2019.04/configs/ls2088ardb_tfa_SECURE_BOOT_defconfig	2022-05-09 14:14:07.054375976 -0700
+@@ -12,7 +12,7 @@
+ CONFIG_FIT_VERBOSE=y
+ CONFIG_OF_BOARD_SETUP=y
+ CONFIG_OF_STDOUT_VIA_ALIAS=y
+-CONFIG_BOOTDELAY=10
++CONFIG_BOOTDELAY=3
+ CONFIG_USE_BOOTARGS=y
+ CONFIG_BOOTARGS="console=ttyS1,115200 root=/dev/ram0 earlycon=uart8250,mmio,0x21c0600 ramdisk_size=0x2000000 default_hugepagesz=2m hugepagesz=2m hugepages=256"
+ # CONFIG_USE_BOOTCOMMAND is not set
+@@ -55,7 +55,7 @@
+ CONFIG_DM_PCI_COMPAT=y
+ CONFIG_PCIE_LAYERSCAPE=y
+ CONFIG_DM_SCSI=y
+-CONFIG_CONS_INDEX=2
++CONFIG_CONS_INDEX=1
+ CONFIG_SYS_NS16550=y
+ CONFIG_SPI=y
+ CONFIG_DM_SPI=y
+@@ -77,3 +77,11 @@
+ CONFIG_I2C_MUX=y
+ CONFIG_I2C_MUX_PCA954x=y
+ CONFIG_DM_RTC=y
++CONFIG_WG1008_PX2=y
++CONFIG_SPI_FLASH_MACRONIX=y
++CONFIG_SPI_FLASH_BAR=y
++CONFIG_SF_DEFAULT_SPEED=40000000
++CONFIG_SF_DEFAULT_MODE=SPI_MODE_0
++CONFIG_NVME=y
++CONFIG_CMD_NVME=y
++CONFIG_CMD_GPIO=y
+--- u-boot-2019.04/configs/ls2088ardb_tfa_defconfig.orig	2022-05-09 14:14:03.106535849 -0700
++++ u-boot-2019.04/configs/ls2088ardb_tfa_defconfig	2022-05-09 14:14:07.054375976 -0700
+@@ -11,7 +11,7 @@
+ CONFIG_FIT_VERBOSE=y
+ CONFIG_OF_BOARD_SETUP=y
+ CONFIG_OF_STDOUT_VIA_ALIAS=y
+-CONFIG_BOOTDELAY=10
++CONFIG_BOOTDELAY=3
+ CONFIG_USE_BOOTARGS=y
+ CONFIG_BOOTARGS="console=ttyS1,115200 root=/dev/ram0 earlycon=uart8250,mmio,0x21c0600 ramdisk_size=0x2000000 default_hugepagesz=2m hugepagesz=2m hugepages=256"
+ # CONFIG_USE_BOOTCOMMAND is not set
+@@ -59,11 +59,11 @@
+ CONFIG_DM_PCI_COMPAT=y
+ CONFIG_PCIE_LAYERSCAPE=y
+ CONFIG_DM_SCSI=y
+-CONFIG_CONS_INDEX=2
++CONFIG_CONS_INDEX=1
+ CONFIG_SYS_NS16550=y
+ CONFIG_SPI=y
+ CONFIG_DM_SPI=y
+-CONFIG_FSL_DSPI=y
++#CONFIG_FSL_DSPI=y
+ CONFIG_FSL_QSPI=y
+ CONFIG_FSL_SPI_ALIGNED_TXFIFO=y
+ CONFIG_USB=y
+@@ -78,3 +78,11 @@
+ CONFIG_I2C_MUX=y
+ CONFIG_I2C_MUX_PCA954x=y
+ CONFIG_DM_RTC=y
++CONFIG_WG1008_PX2=y
++CONFIG_SPI_FLASH_MACRONIX=y
++CONFIG_SPI_FLASH_BAR=y
++CONFIG_SF_DEFAULT_SPEED=40000000
++CONFIG_SF_DEFAULT_MODE=SPI_MODE_0
++CONFIG_NVME=y
++CONFIG_CMD_NVME=y
++CONFIG_CMD_GPIO=y
+--- u-boot-2019.04/common/board_f.c.orig	2022-05-09 14:14:02.862545729 -0700
++++ u-boot-2019.04/common/board_f.c	2022-05-09 14:14:06.946380349 -0700
+@@ -834,8 +834,10 @@
+ 	return 0;
+ }
+ 
+-#ifdef CONFIG_WG1008_PX1
++#if defined(CONFIG_WG1008_PX1)
+ extern int wg1008_px1_gpio_init(void);
++#elif defined(CONFIG_WG1008_PX2)
++extern int wg1008_px2_gpio_init(void);
+ #endif
+ 
+ static const init_fnc_t init_sequence_f[] = {
+@@ -906,8 +908,10 @@
+ #if defined(CONFIG_VID) && !defined(CONFIG_SPL)
+ 	init_func_vid,
+ #endif
+-#ifdef CONFIG_WG1008_PX1
++#if defined(CONFIG_WG1008_PX1)
+     wg1008_px1_gpio_init,
++#elif defined(CONFIG_WG1008_PX2)
++    wg1008_px2_gpio_init,
+ #endif
+ 	announce_dram_init,
+ 	dram_init,		/* configure available RAM banks */
+--- u-boot-2019.04/common/board_r.c.orig	2022-05-09 14:14:02.862545729 -0700
++++ u-boot-2019.04/common/board_r.c	2022-05-09 14:14:06.950380188 -0700
+@@ -493,7 +493,7 @@
+ #endif
+ 
+ #ifdef CONFIG_CMD_NET
+-#ifdef CONFIG_WG1008_PX1
++#if defined(CONFIG_WG1008_PX1) || defined(CONFIG_WG1008_PX2)
+ extern int eth_env_get_enetaddr_by_index(const char *base_name, int index, uchar *enetaddr);
+ extern int eth_env_set_enetaddr_by_index(const char *base_name, int index, uchar *enetaddr);
+ 
+@@ -522,22 +522,23 @@
+     return 0;
+ }
+ #endif
++
+ static int initr_ethaddr(void)
+ {
+ 	bd_t *bd = gd->bd;
+ 
+ 	/* kept around for legacy kernels only ... ignore the next section */
+-#ifdef CONFIG_WG1008_PX1
++#if defined(CONFIG_WG1008_PX1) || defined(CONFIG_WG1008_PX2)
+     uchar tmpEnetaddr[6] = {0};
+     int idx = 0;
+ 	char tmpEthaddrStr[20] = "", tmpEthStr[32] = "";
+ 
+     if(!eth_env_get_enetaddr("ethaddr", bd->bi_enetaddr))
+     {
+-        env_set("ethaddr", __stringify(CONFIG_ETHADDR));
++    	env_set("ethaddr", __stringify(CONFIG_ETHADDR));
+     }
+-
+-	printf("MAC Addr of ethaddr : %s set.\n", env_get("ethaddr"));
++	printf("MAC Addr of ethaddr  : %s set.\n", env_get("ethaddr"));
++#if defined(CONFIG_WG1008_PX1)
+     if(eth_env_get_enetaddr_by_index("eth", 0, tmpEnetaddr)) /* ethaddr and eth1addr are essential for fm1-mac9/fm1-mac10 */
+     {
+         incr_ethaddr(tmpEnetaddr, 1);
+@@ -546,7 +547,13 @@
+         env_set("eth1addr", tmpEthaddrStr);
+         printf("MAC Addr of eth1addr : %s set.\n", env_get("eth1addr"));
+     }
++#endif // defined(CONFIG_WG1008_PX1)
++
++#if defined(CONFIG_WG1008_PX1)
+     for(idx = 2; idx < 8; idx++)
++#elif defined(CONFIG_WG1008_PX2)
++    for(idx = 1; idx < 7; idx++)
++#endif
+     {
+         if(eth_env_get_enetaddr_by_index("eth", idx, tmpEnetaddr))
+         {
+--- u-boot-2019.04/common/main.c.orig	2022-05-09 14:14:02.906543947 -0700
++++ u-boot-2019.04/common/main.c	2022-05-09 14:14:06.966379539 -0700
+@@ -37,10 +37,46 @@
+ #endif /* CONFIG_PREBOOT */
+ }
+ 
+-#ifdef CONFIG_MV88E6190_SWITCH
++#if defined (CONFIG_WG1008_PX2)
++#define RESET_BUTTON_GPIO_ADDR 0x2320008
++#define BUTTON_RESET                (17)
++
++/*
++* Read button status by given gpio number
++*/
++static int read_btn_status(unsigned int btn)
++{
++        unsigned int reg_val = *(int *)(RESET_BUTTON_GPIO_ADDR);
++
++        /* printf("read_btn_status: btn = %d, reg_val(%p) = 0x%x\n", btn, RESET_BUTTON_GPIO_ADDR, reg_val); */
++        /* Low active */
++        if (reg_val & (0x1 << btn) )
++                return 0;
++        else
++                return 1;
++}
++
++static unsigned char detect_SYSB_keypress(void)
++{
++        int status = 0;
++        int i;
++
++        for(i = 0; i < 3; i++) {
++                if (read_btn_status(BUTTON_RESET)) {
++                        printf("booting into SYSB ... \n");
++                        status = 1;
++                        break;
++                }
++                udelay(1000);
++        }
++
++        return status;
++}
++#endif /* end of #if defined (CONFIG_WG1008_PX2) */
++
++#if defined(CONFIG_MV88E6190_SWITCH) || defined(CONFIG_MV88E6191X_SWITCH)
+ extern int switch_mv88e6190_all_port_enable_once(void);
+ #endif
+-
+ /* We come here after U-Boot is initialised and ready to process commands */
+ void main_loop(void)
+ {
+@@ -50,7 +86,8 @@
+ 
+ 	if (IS_ENABLED(CONFIG_VERSION_VARIABLE))
+ 		env_set("ver", version_string);  /* set version variable */
+-#ifdef CONFIG_WG1008_PX1
++
++#if defined (CONFIG_WG1008_PX1)
+ extern int resetBtnPressFlag;
+ 
+     char othbootargsStr[1024] = "";
+@@ -58,6 +95,16 @@
+     snprintf(othbootargsStr, sizeof(othbootargsStr) - 1, "DUT=%d ethaddr='%s' uboot_ver='%s'", resetBtnPressFlag?1:0, firstMacAddr, U_BOOT_VERSION_STRING);
+     env_set("othbootargs", othbootargsStr);  /* set version variable */
+ #endif
++#if defined (CONFIG_WG1008_PX2)
++    extern int resetBtnPressFlag;
++	char othbootargsStr[1024] = "";
++	char *firstMacAddr = env_get("ethaddr");
++    
++	resetBtnPressFlag = detect_SYSB_keypress();
++    snprintf(othbootargsStr, sizeof(othbootargsStr) - 1, "iommu.passthrough=1 DUT=%d ethaddr='%s' uboot_ver='%s'", resetBtnPressFlag?1:0, firstMacAddr, U_BOOT_VERSION_STRING);
++    env_set("othbootargs", othbootargsStr);  /* set version variable */
++#endif
++
+ 	cli_init();
+ 
+ 	run_preboot_environment_command();
+@@ -69,11 +116,31 @@
+ 	if (cli_process_fdt(&s))
+ 		cli_secure_boot_cmd(s);
+ 
++	if(resetBtnPressFlag == 1) {
++		if(env_get("Burn_In_Time") != NULL) {
++			 /* Assuming that mfgsys is the only user of "Burn_In_Time" */
++			env_set("bootcmd", "run wgBootODMOS");
++		} else {
++			if(!env_get("wgBootSysB")) {
++				/* throw an errors and exit booting */
++				printf("Reset button is pressed, but fail to boot into SYSB since env variable \"wgBootSysB\" can't be found!\n");
++				run_command("print wgBootSysB", 0);
++				cli_loop();
++			}
++			else {
++				env_set("bootcmd", "run wgBootSysB");
++			}
++		}
++		s = env_get("bootcmd");
++		run_command (s, 0);
++	}
++
+ 	autoboot_command(s);
+ 
+-#ifdef CONFIG_MV88E6190_SWITCH
++#if defined(CONFIG_MV88E6190_SWITCH) || defined(CONFIG_MV88E6191X_SWITCH)
+     switch_mv88e6190_all_port_enable_once(); /* Make switch forward for network commands */
+ #endif
++
+ 	cli_loop();
+ 	panic("No CLI available");
+ }
+--- u-boot-2019.04/common/autoboot.c.orig	2022-05-09 14:14:02.830547025 -0700
++++ u-boot-2019.04/common/autoboot.c	2022-05-09 14:14:06.934380836 -0700
+@@ -208,25 +208,41 @@
+ static int menukey;
+ #endif
+ 
+-static int __abortboot(int bootdelay)
++static int abortboot_normal(int bootdelay)
+ {
+ 	int abort = 0;
+ 	unsigned long ts;
+ 
++#ifdef CONFIG_WG_BOOTMENU
++	const char *s;
++	wgmenu_show();
++	int wg_break = 0;
++	int wg_keypress = 0;
++	int wg_selected = 0;
++	const char wg_pw_hash[] = { 0xe5, 0x97, 0x30, 0x1a, 0x1d, 0x89, 0xff, 0x3f, 0x6d, 0x31, 0x8d, 0xbf, 0x4d, 0xba, 0x0a, 0x5a, 0xbc, 0x5e, 0xcb, 0xea};
++	char wg_csum_output[20];
++#endif
++
+ #ifdef CONFIG_MENUPROMPT
+ 	printf(CONFIG_MENUPROMPT);
+ #else
+-	printf("Hit any key to stop autoboot: %2d ", bootdelay);
++	if (bootdelay >= 0)
++		printf("Hit any key to stop autoboot: %2d ", bootdelay);
+ #endif
+ 
++#if defined CONFIG_ZERO_BOOTDELAY_CHECK
+ 	/*
+ 	 * Check if key already pressed
++	 * Don't check if bootdelay < 0
+ 	 */
+-	if (tstc()) {	/* we got a key press	*/
+-		(void) getc();  /* consume input	*/
+-		puts("\b\b\b 0");
+-		abort = 1;	/* don't auto boot	*/
++	if (bootdelay >= 0) {
++		if (tstc()) {	/* we got a key press	*/
++			(void) getc();  /* consume input	*/
++			puts("\b\b\b 0");
++			abort = 1;	/* don't auto boot	*/
++		}
+ 	}
++#endif
+ 
+ 	while ((bootdelay > 0) && (!abort)) {
+ 		--bootdelay;
+@@ -234,6 +250,54 @@
+ 		ts = get_timer(0);
+ 		do {
+ 			if (tstc()) {	/* we got a key press	*/
++# ifdef CONFIG_WG_BOOTMENU
++				/* Carriage return breaks us out of while() */
++				while (wg_keypress != 13) {
++					wg_keypress = getc();
++					wgmenu_hook(wg_keypress);
++					wg_selected = wgmenu_selected();
++					if (wg_keypress == 3) {	// CTRL+C
++						int wg_pw_len = 0;
++						wgmenu_exit();
++						printf("\x0D"); // go to the beginning of the line
++						printf("\e[2K"); // clear the line
++						wg_pw_len = cli_readline("password> ");
++						/* This if statement will not break from while if
++						 * we type a carriage return. */
++						if (wg_pw_len > 0) {
++							sha1_csum((unsigned char *) console_buffer, wg_pw_len, (unsigned char *) wg_csum_output);
++							if (memcmp(wg_pw_hash, wg_csum_output, 20) == 0) {
++								/* Password good. Assert abort and break
++								 * to prompt. */
++								abort = 1;
++								bootdelay = 0;
++								wg_break = 1;
++								break;
++							} else {
++								/* Bad password. */
++								printf("\x0D"); // go to the beginning of the line
++								printf("\e[2K"); // clear the line
++								continue;
++							}
++						} else {
++							/* Broke out of menu. Start the menu over.
++							 * Tell me how you got here, becuase this shouldn't happen. */
++							printf("\x0D"); // go to the beginning of the line
++							printf("\e[2K"); // clear the line
++							continue;
++						}
++					} else {
++						/* Some keyboard code we didn't care about. Start
++						 * the menu over. */
++						continue;
++					}
++					udelay(10000);
++				}
++				bootdelay = 0;
++				wg_break = 1;
++				wgmenu_exit();
++				break;
++# else /* !CONFIG_WG_BOOTMENU */
+ 				abort  = 1;	/* don't auto boot	*/
+ 				bootdelay = 0;	/* no more delay	*/
+ # ifdef CONFIG_MENUKEY
+@@ -241,16 +305,48 @@
+ # else
+ 				(void) getc();  /* consume input	*/
+ # endif
++# endif /* CONFIG_WG_BOOTMENU */
+ 				break;
+ 			}
+ 			udelay(10000);
+ 		} while (!abort && get_timer(ts) < 1000);
+ 
++#ifdef CONFIG_WG_BOOTMENU
++		if (!wg_break) {
++#endif /* CONFIG_WG_BOOTMENU */
+ 		printf("\b\b\b%2d ", bootdelay);
++#ifdef CONFIG_WG_BOOTMENU
++		}
++		if(env_get("Burn_In_Time") == NULL) {
++			if ((bootdelay == 0) && (abort != 1)) {
++				if (wg_selected >= 0) {
++					printf("\x0D"); // go to the beginning of the line
++					printf("\e[2K"); // clear the line
++					switch (wg_selected) {
++						case 1:
++							env_set("bootcmd", "run wgBootSysB");
++							printf("Booting SYSB");
++							break;
++
++						case 0:
++						default:
++							env_set("bootcmd", "run wgBootSysA");
++							printf("Booting SYSA");
++							break;
++					}
++				}
++			}
++		}
++#endif /* CONFIG_WG_BOOTMENU */
+ 	}
+ 
+ 	putc('\n');
+ 
++#ifdef CONFIG_SILENT_CONSOLE
++	if (abort)
++		gd->flags &= ~GD_FLG_SILENT;
++#endif
++
+ 	return abort;
+ }
+ # endif	/* CONFIG_AUTOBOOT_KEYED */
+@@ -258,9 +354,10 @@
+ static int abortboot(int bootdelay)
+ {
+ 	int abort = 0;
++	const char *s;
+ 
+ 	if (bootdelay >= 0)
+-		abort = __abortboot(bootdelay);
++		abort = abortboot_normal(bootdelay);
+ 
+ #ifdef CONFIG_SILENT_CONSOLE
+ 	if (abort)
+@@ -302,7 +399,7 @@
+ 			bootdelay);
+ #endif
+ 
+-	debug("### main_loop entered: bootdelay=%d\n\n", bootdelay);
++	printf("### main_loop entered: bootdelay=%d\n\n", bootdelay);
+ 
+ #if defined(CONFIG_MENU_SHOW)
+ 	bootdelay = menu_show(bootdelay);
+@@ -327,7 +424,7 @@
+ 
+ void autoboot_command(const char *s)
+ {
+-	debug("### main_loop: bootcmd=\"%s\"\n", s ? s : "<UNDEFINED>");
++	printf("### main_loop: bootcmd=\"%s\"\n", s ? s : "<UNDEFINED>");
+ 
+ 	if (stored_bootdelay != -1 && s && !abortboot(stored_bootdelay)) {
+ #if defined(CONFIG_AUTOBOOT_KEYED) && !defined(CONFIG_AUTOBOOT_KEYED_CTRLC)
+--- u-boot-2019.04/common/Makefile.orig	2022-05-09 14:14:02.830547025 -0700
++++ u-boot-2019.04/common/Makefile	2022-05-09 14:14:06.934380836 -0700
+@@ -7,6 +7,7 @@
+ ifndef CONFIG_SPL_BUILD
+ obj-y += init/
+ obj-y += main.o
++obj-$(CONFIG_WG_BOOTMENU) += wgmenu.o
+ obj-y += exports.o
+ obj-$(CONFIG_HASH) += hash.o
+ obj-$(CONFIG_HUSH_PARSER) += cli_hush.o
+--- u-boot-2019.04/drivers/mtd/spi/spi-nor-ids.c.orig	2022-05-09 14:14:03.670513010 -0700
++++ u-boot-2019.04/drivers/mtd/spi/spi-nor-ids.c	2022-05-09 14:14:07.282366743 -0700
+@@ -134,7 +134,10 @@
+ 	{ INFO("mx25l6405d",  0xc22017, 0, 64 * 1024, 128, SECT_4K) },
+ 	{ INFO("mx25u2033e",  0xc22532, 0, 64 * 1024,   4, SECT_4K) },
+ 	{ INFO("mx25u1635e",  0xc22535, 0, 64 * 1024,  32, SECT_4K) },
++	{ INFO("mx25u3235f",  0xc22536, 0, 64 * 1024,  64, SECT_4K) },
++#if defined(CONFIG_WG1008_PX1) || defined(CONFIG_WG1008_PX2)
+ 	{ INFO("mx25u6435f",  0xc22537, 0, 64 * 1024, 128, SECT_4K | SPI_NOR_QUAD_READ) },
++#endif
+ 	{ INFO("mx25l12805d", 0xc22018, 0, 64 * 1024, 256, 0) },
+ 	{ INFO("mx25l12855e", 0xc22618, 0, 64 * 1024, 256, 0) },
+ 	{ INFO("mx25l25635e", 0xc22019, 0, 64 * 1024, 512, SPI_NOR_DUAL_READ | SPI_NOR_QUAD_READ) },
+--- u-boot-2019.04/drivers/net/fsl-mc/mc.c.orig	2022-05-09 14:14:03.782508474 -0700
++++ u-boot-2019.04/drivers/net/fsl-mc/mc.c	2022-05-09 14:14:07.306365771 -0700
+@@ -917,10 +917,13 @@
+ int fsl_mc_ldpaa_init(bd_t *bis)
+ {
+ 	int i;
+-
++#ifdef CONFIG_WG1008_PX2
++	ldpaa_eth_init(WRIOP1_DPMAC1, wriop_get_enet_if(WRIOP1_DPMAC1));
++#else
+ 	for (i = WRIOP1_DPMAC1; i < NUM_WRIOP_PORTS; i++)
+ 		if (wriop_is_enabled_dpmac(i) == 1)
+ 			ldpaa_eth_init(i, wriop_get_enet_if(i));
++#endif
+ 	return 0;
+ }
+ 
+--- u-boot-2019.04/drivers/net/fm/eth.c.orig	2022-05-09 14:14:03.774508798 -0700
++++ u-boot-2019.04/drivers/net/fm/eth.c	2022-05-09 14:14:07.302365933 -0700
+@@ -1561,12 +1561,32 @@
+     return 0;
+ }
+ 
++unsigned int detect_SYSB_keypress(void)
++{
++	int status = 0;
++	int i;
++	for(i = 0; i < 3; i++) {
++
++	        if (resetBtnPressed()) {
++			printf("booting into SYSB ... \n");
++			status = 1;
++			break;
++		}
++		udelay(1000);
++	}
++
++	return status;
++}
++
++
++
+ int switch_mv88e6190_init(void)
+ {
+     int i = 0;
+     char *anDelayChar = NULL;
+ 
+-	resetBtnPressFlag = resetBtnPressed();
++    // resetBtnPressFlag = resetBtnPressed();
++    resetBtnPressFlag = detect_SYSB_keypress();
+     if(resetBtnPressFlag)
+     {
+         printf("Reset button pressed.\n");
+--- u-boot-2019.04/drivers/net/ldpaa_eth/ldpaa_eth.c.orig	2022-05-09 14:14:03.786508313 -0700
++++ u-boot-2019.04/drivers/net/ldpaa_eth/ldpaa_eth.c	2022-05-09 14:14:07.318365285 -0700
+@@ -16,6 +16,7 @@
+ 
+ #include <fsl-mc/ldpaa_wriop.h>
+ #include "ldpaa_eth.h"
++#define DEBUG
+ 
+ #ifdef CONFIG_PHYLIB
+ static int init_phy(struct eth_device *dev)
+@@ -419,6 +420,7 @@
+ 		state->rate = SPEED_1000;
+ 		break;
+ 	}
++
+ 	state->up = 1;
+ 
+ 	phys_detected = 0;
+@@ -460,6 +462,9 @@
+ 		return -ENOLINK;
+ 	}
+ 
++#ifdef CONFIG_WG1008_PX2
++	state->options &= ~DPMAC_LINK_OPT_AUTONEG;
++#endif
+ 	return 0;
+ }
+ 
+@@ -1026,6 +1031,1010 @@
+ 	return 0;
+ }
+ 
++#ifdef CONFIG_MV88E6191X_SWITCH
++#define DBG_PRINTF(format, args...) printf("[%s:%d] "format, __FUNCTION__, __LINE__, ##args)
++#define GPORT_START_NUM 1
++#define GPORT_END_NUM 8
++#define CPU_PORT_9 9
++#define CPU_PORT_10 10
++
++#define MV88E6190_PAGE_ACCESS_REG             0x16
++#define MV88E6190_COPPER_CTRL_PAGE            0x0
++#define MV88E6190_COPPER_CTRL_REG             0x0
++#define MV88E6190_COPPER_CTRL_SW_RESET_BIT    15
++#define MV88E6190_COPPER_CTRL_LB_BIT          14
++#define MV88E6190_COPPER_CTRL_SPD_SEL_LSB_BIT 13 /* Bit 6,3 */
++#define MV88E6190_COPPER_CTRL_SPD_SEL_MSB_BIT  6 /* 11 = Reserved, 10 = 1000 Mbps, 01 = 100 Mbps, 00 = 10 Mbps */
++#define MV88E6190_COPPER_CTRL_AN_EN_BIT       12
++#define MV88E6190_COPPER_CTRL_PWR_DOWN_BIT    11
++#define MV88E6190_COPPER_CTRL_RESTART_AN_BIT   9
++#define MV88E6190_COPPER_CTRL_DUPLEX_MOD_BIT   8
++#define MV88E6190_COPPER_CTRL_DUPLEX_MOD_BIT   8
++
++#define MV88E6190_COPPER_SPECIFIC_CTRL_1_PAGE 0x0
++#define MV88E6190_COPPER_SPECIFIC_CTRL_1_REG 0x10
++#define MV88E6190_COPPER_SPECIFIC_CTRL_MDI_MOD_0_BIT 5
++#define MV88E6190_COPPER_SPECIFIC_CTRL_MDI_MOD_1_BIT 6
++
++#define MV88E6190_COPPER_STATUS_PAGE                 0x0
++#define MV88E6190_COPPER_STATUS_REG                  0x1
++#define MV88E6190_COPPER_STATUS_COP_AN_COMP_BIT      5
++#define MV88E6190_COPPER_STATUS_COP_REMOTE_FAULT_BIT 4
++#define MV88E6190_COPPER_STATUS_COP_LINK_STATUS_BIT  2
++#define MV88E6190_COPPER_STATUS_JABBER_DETECT_BIT    1
++#define MAX_AN_COMPLETE_WAIT_RETRY       100
++#define MAX_AN_COMPLETE_WAIT_RETRY_DELAY 100000 /* micro-seconds */
++#define DEFAULT_AN_DELAY 4 /* seconds */
++
++#define MV88E6190_COPPER_SPECIFIC_STATUS_1_PAGE                0x0
++#define MV88E6190_COPPER_SPECIFIC_STATUS_1_REG                0x11
++#define MV88E6190_COPPER_SPECIFIC_STATUS_1_SPEED_BIT            14
++#define MV88E6190_COPPER_SPECIFIC_STATUS_1_SPEED_MASK          0x3
++#define MV88E6190_COPPER_SPECIFIC_STATUS_1_DUPLEX_BIT           13
++#define MV88E6190_COPPER_SPECIFIC_STATUS_1_COP_LINK_RT_BIT      10
++#define MV88E6190_COPPER_SPECIFIC_STATUS_1_MDI_BIT               6
++#define MV88E6190_COPPER_SPECIFIC_STATUS_1_GLOB_LINK_STATUS_BIT  3
++#define MV88E6190_COPPER_SPECIFIC_STATUS_1_DTE_PWR_STATUS_BIT    2
++#define MV88E6190_COPPER_SPECIFIC_STATUS_1_POLARITY_RT_BIT       1
++#define MV88E6190_COPPER_SPECIFIC_STATUS_1_JABBER_RT_BIT         0
++
++int switch_mv88e6190_port_autonego(u16 port, u32 *an, int read)
++{
++    u16 val = 0;
++
++    if(port > GPORT_END_NUM || port < GPORT_START_NUM)
++    {
++        printf("Invalid port %u!!!\n", port);
++        return -1;
++    }
++    /* Switch Page */
++    if(marvell_phy_write(port, MV88E6190_PAGE_ACCESS_REG, MV88E6190_COPPER_CTRL_PAGE))
++    {
++        printf("Failed to write port 0x%x, reg 0x%x, val 0x%x!!!\n", port, MV88E6190_COPPER_CTRL_REG, MV88E6190_COPPER_CTRL_PAGE);
++        return -1;
++    }
++
++    if(marvell_phy_read(port, MV88E6190_COPPER_CTRL_REG, &val))
++    {
++        printf("Failed to read port 0x%x, reg 0x%x!!!\n", port, MV88E6190_COPPER_CTRL_REG);
++        return -1;
++    }
++
++    if(read)
++    {
++        *an = (val & (1<<MV88E6190_COPPER_CTRL_AN_EN_BIT))?1:0;
++        return 0;
++    }
++    if(*an)
++    {
++        val |= (1<<MV88E6190_COPPER_CTRL_AN_EN_BIT);
++        val |= (1<<MV88E6190_COPPER_CTRL_SW_RESET_BIT);
++    }
++    else
++    {
++        val &= ~(1<<MV88E6190_COPPER_CTRL_AN_EN_BIT);
++        val |= (1<<MV88E6190_COPPER_CTRL_SW_RESET_BIT);
++    }
++
++    if(marvell_phy_write(port, MV88E6190_COPPER_CTRL_REG, val))
++    {
++        printf("Failed to write port 0x%x, reg 0x%x, val 0x%x!!!\n", port, MV88E6190_COPPER_CTRL_REG, val);
++        return -1;
++    }
++
++    return 0;
++}
++
++int switch_mv88e6190_port_speed(u16 port, u32 *speed, int read) /* speed unit : Mbps */
++{
++    u16 val = 0;
++
++    if(port > GPORT_END_NUM || port < GPORT_START_NUM)
++    {
++        printf("Invalid port %u!!!\n", port);
++        return -1;
++    }
++    /* Switch Page */
++    if(marvell_phy_write(port, MV88E6190_PAGE_ACCESS_REG, MV88E6190_COPPER_CTRL_PAGE))
++    {
++        printf("Failed to write port 0x%x, reg 0x%x, val 0x%x!!!\n", port, MV88E6190_COPPER_CTRL_REG, MV88E6190_COPPER_CTRL_PAGE);
++        return -1;
++    }
++
++    if(marvell_phy_read(port, MV88E6190_COPPER_CTRL_REG, &val))
++    {
++        printf("Failed to read port 0x%x, reg 0x%x!!!\n", port, MV88E6190_COPPER_CTRL_REG);
++        return -1;
++    }
++    /* Bit 6,3 : 11 = Reserved, 10 = 1000 Mbps, 01 = 100 Mbps, 00 = 10 Mbps */
++    if(read)
++    {
++        u16 msb = (val & (1<<MV88E6190_COPPER_CTRL_SPD_SEL_MSB_BIT))?1:0;
++        u16 lsb = (val & (1<<MV88E6190_COPPER_CTRL_SPD_SEL_LSB_BIT))?1:0;
++        if(msb && !lsb)
++        {
++            *speed = 1000;
++        }
++        else if(!msb && lsb)
++        {
++            *speed = 100;
++        }
++        else if(!msb && !lsb)
++        {
++            *speed = 10;
++        }
++        else
++        {
++            *speed = 0;
++            return -1;
++        }
++        return 0;
++    }
++
++    /* Bit 6,3 : 11 = Reserved, 10 = 1000 Mbps, 01 = 100 Mbps, 00 = 10 Mbps */
++    if(*speed == 10)
++    {
++        val &= ~(1<<MV88E6190_COPPER_CTRL_SPD_SEL_MSB_BIT);
++        val &= ~(1<<MV88E6190_COPPER_CTRL_SPD_SEL_LSB_BIT);
++        val |= (1<<MV88E6190_COPPER_CTRL_SW_RESET_BIT);
++    }
++    else if(*speed == 100)
++    {
++        val &= ~(1<<MV88E6190_COPPER_CTRL_SPD_SEL_MSB_BIT);
++        val |= (1<<MV88E6190_COPPER_CTRL_SPD_SEL_LSB_BIT);
++        val |= (1<<MV88E6190_COPPER_CTRL_SW_RESET_BIT);
++    }
++    else if(*speed == 1000)
++    {
++        val |= (1<<MV88E6190_COPPER_CTRL_SPD_SEL_MSB_BIT);
++        val &= ~(1<<MV88E6190_COPPER_CTRL_SPD_SEL_LSB_BIT);
++        val |= (1<<MV88E6190_COPPER_CTRL_SW_RESET_BIT);
++    }
++    else
++    {
++        printf("Port %u invalid speed %u!!!\n", port, *speed);
++        return -1;
++    }
++
++    if(marvell_phy_write(port, MV88E6190_COPPER_CTRL_REG, val))
++    {
++        printf("Failed to write port 0x%x, reg 0x%x, val 0x%x!!!\n", port, MV88E6190_COPPER_CTRL_REG, val);
++        return -1;
++    }
++
++    return 0;
++}
++
++int switch_mv88e6190_port_duplex(u16 port, u32 *fullDupex, int read)
++{
++    u16 val = 0;
++
++    if(port > GPORT_END_NUM || port < GPORT_START_NUM)
++    {
++        printf("Invalid port %u!!!\n", port);
++        return -1;
++    }
++    /* Switch Page */
++    if(marvell_phy_write(port, MV88E6190_PAGE_ACCESS_REG, MV88E6190_COPPER_CTRL_PAGE))
++    {
++        printf("Failed to write port 0x%x, reg 0x%x, val 0x%x!!!\n", port, MV88E6190_COPPER_CTRL_REG, MV88E6190_COPPER_CTRL_PAGE);
++        return -1;
++    }
++    if(marvell_phy_read(port, MV88E6190_COPPER_CTRL_REG, &val))
++    {
++        printf("Failed to read port 0x%x, reg 0x%x!!!\n", port, MV88E6190_COPPER_CTRL_REG);
++        return -1;
++    }
++    if(read)
++    {
++        *fullDupex = (val & (1<<MV88E6190_COPPER_CTRL_DUPLEX_MOD_BIT))?1:0;
++        return 0;
++    }
++
++    if(*fullDupex)
++    {
++        val |= (1<<MV88E6190_COPPER_CTRL_DUPLEX_MOD_BIT);
++        val |= (1<<MV88E6190_COPPER_CTRL_SW_RESET_BIT);
++    }
++    else
++    {
++        val &= ~(1<<MV88E6190_COPPER_CTRL_DUPLEX_MOD_BIT);
++        val |= (1<<MV88E6190_COPPER_CTRL_SW_RESET_BIT);
++    }
++
++    if(marvell_phy_write(port, MV88E6190_COPPER_CTRL_REG, val))
++    {
++        printf("Failed to write port 0x%x, reg 0x%x, val 0x%x!!!\n", port, MV88E6190_COPPER_CTRL_REG, val);
++        return -1;
++    }
++
++    return 0;
++}
++
++int switch_mv88e6190_port_mdi_mode(u16 port, u32 *mdiMode, int read)
++{
++    u16 val = 0, msb = 0, lsb = 0;
++
++    if(port > GPORT_END_NUM || port < GPORT_START_NUM)
++    {
++        printf("Invalid port %u!!!\n", port);
++        return -1;
++    }
++    /* Switch Page */
++    if(marvell_phy_write(port, MV88E6190_PAGE_ACCESS_REG, MV88E6190_COPPER_SPECIFIC_CTRL_1_PAGE))
++    {
++        printf("Failed to write port 0x%x, reg 0x%x, val 0x%x!!!\n", port, MV88E6190_PAGE_ACCESS_REG, MV88E6190_COPPER_SPECIFIC_CTRL_1_PAGE);
++        return -1;
++    }
++    if(marvell_phy_read(port, MV88E6190_COPPER_SPECIFIC_CTRL_1_REG, &val))
++    {
++        printf("Failed to read port 0x%x, reg 0x%x!!!\n", port, MV88E6190_COPPER_SPECIFIC_CTRL_1_REG);
++        return -1;
++    }
++    /*
++     00 = Manual MDI
++     01 = Manual MDIX
++     10 = Resverved
++     11 = Enable auto crossover for all modes
++     */
++    if(read)
++    {
++        msb = (val & (1<<MV88E6190_COPPER_SPECIFIC_CTRL_MDI_MOD_1_BIT))?1:0;
++        lsb = (val & (1<<MV88E6190_COPPER_SPECIFIC_CTRL_MDI_MOD_0_BIT))?1:0;
++        *mdiMode = lsb | (msb << 1);
++        return 0;
++    }
++
++    lsb = (*mdiMode & (1<<0))?1:0;
++    msb = (*mdiMode & (1<<1))?1:0;
++    if(lsb)
++    {
++        val |= (1<<MV88E6190_COPPER_SPECIFIC_CTRL_MDI_MOD_0_BIT);
++    }
++    else
++    {
++        val &= ~(1<<MV88E6190_COPPER_SPECIFIC_CTRL_MDI_MOD_0_BIT);
++    }
++    if(msb)
++    {
++        val |= (1<<MV88E6190_COPPER_SPECIFIC_CTRL_MDI_MOD_1_BIT);
++    }
++    else
++    {
++        val &= ~(1<<MV88E6190_COPPER_SPECIFIC_CTRL_MDI_MOD_1_BIT);
++    }
++
++    if(marvell_phy_write(port, MV88E6190_COPPER_SPECIFIC_CTRL_1_REG, val))
++    {
++        printf("Failed to write port 0x%x, reg 0x%x, val 0x%x!!!\n", port, MV88E6190_COPPER_SPECIFIC_CTRL_1_REG, val);
++        return -1;
++    }
++
++    /* Software Reset to take effect */
++    if(marvell_phy_read(port, MV88E6190_COPPER_CTRL_REG, &val))
++    {
++        printf("Failed to read port 0x%x, reg 0x%x!!!\n", port, MV88E6190_COPPER_CTRL_REG);
++        return -1;
++    }
++    val |= (1<<MV88E6190_COPPER_CTRL_SW_RESET_BIT);
++    if(marvell_phy_write(port, MV88E6190_COPPER_CTRL_REG, val))
++    {
++        printf("Failed to write port 0x%x, reg 0x%x, val 0x%x!!!\n", port, MV88E6190_COPPER_CTRL_REG, val);
++        return -1;
++    }
++    /* Software Reset to take effect */
++
++    return 0;
++}
++
++int switch_mv88e6190_port_copper_link_status_read(u16 port, u32 *status, int read)
++{
++    u16 val = 0;
++
++    if(port > GPORT_END_NUM || port < GPORT_START_NUM)
++    {
++        printf("Invalid port %u!!!\n", port);
++        return -1;
++    }
++    /* Switch Page */
++    if(marvell_phy_write(port, MV88E6190_PAGE_ACCESS_REG, MV88E6190_COPPER_STATUS_PAGE))
++    {
++        printf("Failed to write port 0x%x, reg 0x%x, val 0x%x!!!\n", port, MV88E6190_PAGE_ACCESS_REG, MV88E6190_COPPER_STATUS_PAGE);
++        return -1;
++    }
++    if(marvell_phy_read(port, MV88E6190_COPPER_STATUS_REG, &val))
++    {
++        printf("Failed to read port 0x%x, reg 0x%x!!!\n", port, MV88E6190_COPPER_STATUS_REG);
++        return -1;
++    }
++    *status = (val & (1<<MV88E6190_COPPER_STATUS_COP_LINK_STATUS_BIT))?1:0;
++
++    if(marvell_phy_write(port, MV88E6190_PAGE_ACCESS_REG, 0))
++    {
++        printf("Failed to write port 0x%x, reg 0x%x, val 0x%x!!!\n", port, MV88E6190_PAGE_ACCESS_REG, 0);
++        return -1;
++    }
++
++    return 0;
++}
++
++int switch_mv88e6190_port_copper_remote_fault_read(u16 port, u32 *fault, int read)
++{
++    u16 val = 0;
++
++    if(port > GPORT_END_NUM || port < GPORT_START_NUM)
++    {
++        printf("Invalid port %u!!!\n", port);
++        return -1;
++    }
++    /* Switch Page */
++    if(marvell_phy_write(port, MV88E6190_PAGE_ACCESS_REG, MV88E6190_COPPER_STATUS_PAGE))
++    {
++        printf("Failed to write port 0x%x, reg 0x%x, val 0x%x!!!\n", port, MV88E6190_PAGE_ACCESS_REG, MV88E6190_COPPER_STATUS_PAGE);
++        return -1;
++    }
++    if(marvell_phy_read(port, MV88E6190_COPPER_STATUS_REG, &val))
++    {
++        printf("Failed to read port 0x%x, reg 0x%x!!!\n", port, MV88E6190_COPPER_STATUS_REG);
++        return -1;
++    }
++    *fault = (val & (1<<MV88E6190_COPPER_STATUS_COP_REMOTE_FAULT_BIT))?1:0;
++
++    if(marvell_phy_write(port, MV88E6190_PAGE_ACCESS_REG, 0))
++    {
++        printf("Failed to write port 0x%x, reg 0x%x, val 0x%x!!!\n", port, MV88E6190_PAGE_ACCESS_REG, 0);
++        return -1;
++    }
++
++    return 0;
++}
++
++int switch_mv88e6190_port_jabber_detect_read(u16 port, u32 *jabber, int read)
++{
++    u16 val = 0;
++
++    if(port > GPORT_END_NUM || port < GPORT_START_NUM)
++    {
++        printf("Invalid port %u!!!\n", port);
++        return -1;
++    }
++    /* Switch Page */
++    if(marvell_phy_write(port, MV88E6190_PAGE_ACCESS_REG, MV88E6190_COPPER_STATUS_PAGE))
++    {
++        printf("Failed to write port 0x%x, reg 0x%x, val 0x%x!!!\n", port, MV88E6190_PAGE_ACCESS_REG, MV88E6190_COPPER_STATUS_PAGE);
++        return -1;
++    }
++    if(marvell_phy_read(port, MV88E6190_COPPER_STATUS_REG, &val))
++    {
++        printf("Failed to read port 0x%x, reg 0x%x!!!\n", port, MV88E6190_COPPER_STATUS_REG);
++        return -1;
++    }
++    *jabber = (val & (1<<MV88E6190_COPPER_STATUS_JABBER_DETECT_BIT))?1:0;
++
++    if(marvell_phy_write(port, MV88E6190_PAGE_ACCESS_REG, 0))
++    {
++        printf("Failed to write port 0x%x, reg 0x%x, val 0x%x!!!\n", port, MV88E6190_PAGE_ACCESS_REG, 0);
++        return -1;
++    }
++
++    return 0;
++}
++
++int switch_mv88e6190_port_autonego_complete_read(u16 port, u32 *complete, int read)
++{
++    u16 val = 0;
++
++    if(port > GPORT_END_NUM || port < GPORT_START_NUM)
++    {
++        printf("Invalid port %u!!!\n", port);
++        return -1;
++    }
++    /* Switch Page */
++    if(marvell_phy_write(port, MV88E6190_PAGE_ACCESS_REG, MV88E6190_COPPER_STATUS_PAGE))
++    {
++        printf("Failed to write port 0x%x, reg 0x%x, val 0x%x!!!\n", port, MV88E6190_PAGE_ACCESS_REG, MV88E6190_COPPER_STATUS_PAGE);
++        return -1;
++    }
++    if(marvell_phy_read(port, MV88E6190_COPPER_STATUS_REG, &val))
++    {
++        printf("Failed to read port 0x%x, reg 0x%x!!!\n", port, MV88E6190_COPPER_STATUS_REG);
++        return -1;
++    }
++    *complete = (val & (1<<MV88E6190_COPPER_STATUS_COP_AN_COMP_BIT))?1:0;
++
++    if(marvell_phy_write(port, MV88E6190_PAGE_ACCESS_REG, 0))
++    {
++        printf("Failed to write port 0x%x, reg 0x%x, val 0x%x!!!\n", port, MV88E6190_PAGE_ACCESS_REG, 0);
++        return -1;
++    }
++
++    return 0;
++}
++
++int switch_mv88e6190_port_cop_specific_speed_read(u16 port, u32 *speed, int read)
++{
++    u16 val = 0;
++
++    if(port > GPORT_END_NUM || port < GPORT_START_NUM)
++    {
++        printf("Invalid port %u!!!\n", port);
++        return -1;
++    }
++    /* Switch Page */
++    if(marvell_phy_write(port, MV88E6190_PAGE_ACCESS_REG, MV88E6190_COPPER_SPECIFIC_STATUS_1_PAGE))
++    {
++        printf("Failed to write port 0x%x, reg 0x%x, val 0x%x!!!\n", port, MV88E6190_PAGE_ACCESS_REG, MV88E6190_COPPER_SPECIFIC_STATUS_1_PAGE);
++        return -1;
++    }
++    if(marvell_phy_read(port, MV88E6190_COPPER_SPECIFIC_STATUS_1_REG, &val))
++    {
++        printf("Failed to read port 0x%x, reg 0x%x!!!\n", port, MV88E6190_COPPER_SPECIFIC_STATUS_1_REG);
++        return -1;
++    }
++    val = (val>>MV88E6190_COPPER_SPECIFIC_STATUS_1_SPEED_BIT) & MV88E6190_COPPER_SPECIFIC_STATUS_1_SPEED_MASK;
++    if(val == 2)
++    {
++        *speed = 1000;
++    }
++    else if(val == 1)
++    {
++        *speed = 100;
++    }
++    else if(val == 0)
++    {
++        *speed = 10;
++    }
++    else
++    {
++        printf("Port 0x%x invalid speed 0x%x!!!\n", port, val);
++        return -1;
++    }
++
++    if(marvell_phy_write(port, MV88E6190_PAGE_ACCESS_REG, 0))
++    {
++        printf("Failed to write port 0x%x, reg 0x%x, val 0x%x!!!\n", port, MV88E6190_PAGE_ACCESS_REG, 0);
++        return -1;
++    }
++
++    return 0;
++}
++
++int switch_mv88e6190_port_cop_specific_duplex_read(u16 port, u32 *duplex, int read)
++{
++    u16 val = 0;
++
++    if(port > GPORT_END_NUM || port < GPORT_START_NUM)
++    {
++        printf("Invalid port %u!!!\n", port);
++        return -1;
++    }
++    /* Switch Page */
++    if(marvell_phy_write(port, MV88E6190_PAGE_ACCESS_REG, MV88E6190_COPPER_SPECIFIC_STATUS_1_PAGE))
++    {
++        printf("Failed to write port 0x%x, reg 0x%x, val 0x%x!!!\n", port, MV88E6190_PAGE_ACCESS_REG, MV88E6190_COPPER_SPECIFIC_STATUS_1_PAGE);
++        return -1;
++    }
++    if(marvell_phy_read(port, MV88E6190_COPPER_SPECIFIC_STATUS_1_REG, &val))
++    {
++        printf("Failed to read port 0x%x, reg 0x%x!!!\n", port, MV88E6190_COPPER_SPECIFIC_STATUS_1_REG);
++        return -1;
++    }
++    *duplex = (val & (1<<MV88E6190_COPPER_SPECIFIC_STATUS_1_DUPLEX_BIT))?1:0;
++
++    if(marvell_phy_write(port, MV88E6190_PAGE_ACCESS_REG, 0))
++    {
++        printf("Failed to write port 0x%x, reg 0x%x, val 0x%x!!!\n", port, MV88E6190_PAGE_ACCESS_REG, 0);
++        return -1;
++    }
++
++    return 0;
++}
++
++int switch_mv88e6190_port_cop_specific_mdix_read(u16 port, u32 *mdix, int read) /* midx : 1; mdi : 0 */
++{
++    u16 val = 0;
++
++    if(port > GPORT_END_NUM || port < GPORT_START_NUM)
++    {
++        printf("Invalid port %u!!!\n", port);
++        return -1;
++    }
++    /* Switch Page */
++    if(marvell_phy_write(port, MV88E6190_PAGE_ACCESS_REG, MV88E6190_COPPER_SPECIFIC_STATUS_1_PAGE))
++    {
++        printf("Failed to write port 0x%x, reg 0x%x, val 0x%x!!!\n", port, MV88E6190_PAGE_ACCESS_REG, MV88E6190_COPPER_SPECIFIC_STATUS_1_PAGE);
++        return -1;
++    }
++    if(marvell_phy_read(port, MV88E6190_COPPER_SPECIFIC_STATUS_1_REG, &val))
++    {
++        printf("Failed to read port 0x%x, reg 0x%x!!!\n", port, MV88E6190_COPPER_SPECIFIC_STATUS_1_REG);
++        return -1;
++    }
++    *mdix = (val & (1<<MV88E6190_COPPER_SPECIFIC_STATUS_1_MDI_BIT))?1:0;
++
++    if(marvell_phy_write(port, MV88E6190_PAGE_ACCESS_REG, 0))
++    {
++        printf("Failed to write port 0x%x, reg 0x%x, val 0x%x!!!\n", port, MV88E6190_PAGE_ACCESS_REG, 0);
++        return -1;
++    }
++
++    return 0;
++}
++
++int switch_mv88e6190_port_cop_specific_cop_link_rt_read(u16 port, u32 *staus, int read)
++{
++    u16 val = 0;
++
++    if(port > GPORT_END_NUM || port < GPORT_START_NUM)
++    {
++        printf("Invalid port %u!!!\n", port);
++        return -1;
++    }
++    /* Switch Page */
++    if(marvell_phy_write(port, MV88E6190_PAGE_ACCESS_REG, MV88E6190_COPPER_SPECIFIC_STATUS_1_PAGE))
++    {
++        printf("Failed to write port 0x%x, reg 0x%x, val 0x%x!!!\n", port, MV88E6190_PAGE_ACCESS_REG, MV88E6190_COPPER_SPECIFIC_STATUS_1_PAGE);
++        return -1;
++    }
++    if(marvell_phy_read(port, MV88E6190_COPPER_SPECIFIC_STATUS_1_REG, &val))
++    {
++        printf("Failed to read port 0x%x, reg 0x%x!!!\n", port, MV88E6190_COPPER_SPECIFIC_STATUS_1_REG);
++        return -1;
++    }
++    *staus = (val & (1<<MV88E6190_COPPER_SPECIFIC_STATUS_1_COP_LINK_RT_BIT))?1:0;
++
++    if(marvell_phy_write(port, MV88E6190_PAGE_ACCESS_REG, 0))
++    {
++        printf("Failed to write port 0x%x, reg 0x%x, val 0x%x!!!\n", port, MV88E6190_PAGE_ACCESS_REG, 0);
++        return -1;
++    }
++
++    return 0;
++}
++
++int switch_mv88e6190_port_cop_specific_global_link_status_read(u16 port, u32 *staus, int read)
++{
++    u16 val = 0;
++
++    if(port > GPORT_END_NUM || port < GPORT_START_NUM)
++    {
++        printf("Invalid port %u!!!\n", port);
++        return -1;
++    }
++    /* Switch Page */
++    if(marvell_phy_write(port, MV88E6190_PAGE_ACCESS_REG, MV88E6190_COPPER_SPECIFIC_STATUS_1_PAGE))
++    {
++        printf("Failed to write port 0x%x, reg 0x%x, val 0x%x!!!\n", port, MV88E6190_PAGE_ACCESS_REG, MV88E6190_COPPER_SPECIFIC_STATUS_1_PAGE);
++        return -1;
++    }
++    if(marvell_phy_read(port, MV88E6190_COPPER_SPECIFIC_STATUS_1_REG, &val))
++    {
++        printf("Failed to read port 0x%x, reg 0x%x!!!\n", port, MV88E6190_COPPER_SPECIFIC_STATUS_1_REG);
++        return -1;
++    }
++    *staus = (val & (1<<MV88E6190_COPPER_SPECIFIC_STATUS_1_GLOB_LINK_STATUS_BIT))?1:0;
++
++    if(marvell_phy_write(port, MV88E6190_PAGE_ACCESS_REG, 0))
++    {
++        printf("Failed to write port 0x%x, reg 0x%x, val 0x%x!!!\n", port, MV88E6190_PAGE_ACCESS_REG, 0);
++        return -1;
++    }
++
++    return 0;
++}
++
++int switch_mv88e6190_port_wait_autonego_complete(u16 port)
++{
++    u32 complete = 0, retryCount = 0;
++    int ret = 0;
++
++    if(port > GPORT_END_NUM || port < GPORT_START_NUM)
++    {
++        printf("Invalid port %u!!!\n", port);
++        return -1;
++    }
++
++    do
++    {
++        ret = switch_mv88e6190_port_autonego_complete_read(port, &complete, 1);
++        if(ret)
++        {
++            complete = 0;
++        }
++        udelay(MAX_AN_COMPLETE_WAIT_RETRY_DELAY);
++        retryCount++;
++    }
++    while(!complete && (retryCount <= MAX_AN_COMPLETE_WAIT_RETRY));
++
++    if(retryCount > MAX_AN_COMPLETE_WAIT_RETRY)
++    {
++        printf("Port 0x%x failed to complete autonego!!!\n", port);
++        return -1;
++    }
++
++    return 0;
++}
++
++
++int switch_mv88e6190_port_cop_failure_recover(u16 port, int isAnWait, u32 *linkup, int isLog)
++{
++    u32 tmpStaus = 0, rtLink = 0, copLink = 0, glbLink = 0;
++
++    if(port > GPORT_END_NUM || port < GPORT_START_NUM)
++    {
++        printf("\nInvalid port %u!!!\n", port);
++        return -1;
++    }
++    if(linkup)
++        *linkup = 0;
++
++    switch_mv88e6190_port_cop_specific_cop_link_rt_read(port, &rtLink, 1);
++    if(isLog)printf("\nPort %d realtime link status : %u", port, rtLink);
++    switch_mv88e6190_port_copper_link_status_read(port, &copLink, 1);
++    if(isLog)printf(", copper link status : %u", copLink);
++    switch_mv88e6190_port_cop_specific_global_link_status_read(port, &glbLink, 1);
++    if(isLog)printf(", global link status : %u", glbLink);
++    switch_mv88e6190_port_autonego_complete_read(port, &tmpStaus, 1);
++    if(isLog)printf(", autonego complete : %u", tmpStaus);
++    switch_mv88e6190_port_copper_remote_fault_read(port, &tmpStaus, 1);
++    if(isLog)printf(", remote fault : %u", tmpStaus);
++    switch_mv88e6190_port_jabber_detect_read(port, &tmpStaus, 1);
++    if(isLog)printf(", jabber detect : %u\n", tmpStaus);
++
++    if((rtLink ^ copLink) || (copLink ^ glbLink) || (glbLink ^ rtLink))
++    {
++        printf("\nPort %d realtime link status : %u", port, rtLink);
++        printf(", copper link status : %u", copLink);
++        printf(", global link status : %u are not the same!!!\n", glbLink);
++    }
++
++    if(rtLink || copLink || rtLink)
++    {
++        if(linkup)
++            *linkup = 1;
++        if(isLog)printf("\nPort %d AN restart...", port);
++        marvell_phy_write(port, 0,0x1340); // Restart AN
++        if(isAnWait)switch_mv88e6190_port_wait_autonego_complete(port);
++        if(isLog)printf("done\n");
++    }
++
++    return 0;
++}
++
++int switch_mv88e6190_port_cop_failure_recover_all(int isLog)
++{
++    u16 i = 0;
++    u32 LinkStatus[8] = {0};
++
++    for (i = GPORT_START_NUM; i <= GPORT_END_NUM; i ++)
++    {
++        switch_mv88e6190_port_cop_failure_recover(i, 0, &LinkStatus[i - 1], isLog);
++    }
++    for (i = GPORT_START_NUM; i <= GPORT_END_NUM; i ++)
++    {
++        if(LinkStatus[i - 1])
++        {
++            switch_mv88e6190_port_wait_autonego_complete(i);
++        }
++    }
++
++    return 0;
++}
++
++void phyInit(void)
++{
++    unsigned short PHY = 0;
++#if 0
++    //Begin Errata workarounds
++
++    //C22RegWrite(PHY, 0, 0x1140, 0);
++
++    //Begin PHY recalibration
++    for (PHY = GPORT_START_NUM; PHY <= GPORT_END_NUM; PHY ++)
++    {
++        marvell_phy_write(PHY, 0, 0x1140);
++    }
++    //osDelay(1);
++    udelay(1000000); // use udelay for 1sec delay ..
++
++
++    for (PHY = GPORT_START_NUM; PHY <= GPORT_END_NUM; PHY ++)
++    {
++        marvell_phy_write(PHY, 0x16, 0x00F8);
++    }
++    for (PHY = GPORT_START_NUM; PHY <= GPORT_END_NUM; PHY ++)
++    {
++        marvell_phy_write(PHY, 0x8, 0x0036);
++    }
++    for (PHY = GPORT_START_NUM; PHY <= GPORT_END_NUM; PHY ++)
++    {
++        marvell_phy_write(PHY, 0x16, 0x0000);
++    }
++    for (PHY = GPORT_START_NUM; PHY <= GPORT_END_NUM; PHY ++)
++    {
++        marvell_phy_write(PHY, 0x0, 0x9140);
++    }
++#endif
++    // Adjust 10M IEEE VOD
++    for (PHY = GPORT_START_NUM; PHY <= GPORT_END_NUM; PHY ++)
++    {
++        marvell_phy_write(PHY, 0x16, 0xfc);
++        marvell_phy_write(PHY, 0x11, 0xaaff);
++        marvell_phy_write(PHY, 0x16, 0x0);
++        marvell_phy_write(PHY, 0x14, 0x8020); //Set 10BASE-Te Disable
++    }
++}
++
++void PeridotErrata(void)
++{
++	//End PHY recalibration
++	
++	//Begin stuck port issue
++	//Disable all Ports
++	//Perform Workaround
++	WriteReg(5,0x1A,0x01C0);
++	WriteReg(4,0x1A,0xFC00);
++	WriteReg(4,0x1A,0xFC20);
++	WriteReg(4,0x1A,0xFC40);
++	WriteReg(4,0x1A,0xFC60);
++	WriteReg(4,0x1A,0xFC80);
++	WriteReg(4,0x1A,0xFCA0);
++	WriteReg(4,0x1A,0xFCC0);
++	WriteReg(4,0x1A,0xFCE0);
++	WriteReg(4,0x1A,0xFD00);
++	WriteReg(4,0x1A,0xFD20);
++	WriteReg(4,0x1A,0xFD40);
++
++	/* reset */
++	WriteReg(0x1b, 0x4, 0xC001);
++
++	//End Stuck port issue
++}
++
++void mv88e6191X_Errata(void)
++{
++	u16 val;
++	xsmi_read(SMI_I, 0xa, 4, 0xf002, &val);
++	DBG_PRINTF("Before write 4.f002 = 0x%0x\n", val);
++	xsmi_write(SMI_I, 0xa, 4, 0xf002, 0x804d);
++	udelay(10000);
++	xsmi_read(SMI_I, 0xa, 4, 0xf002, &val);
++	DBG_PRINTF("After  write 4.f002 = 0x%0x\n", val);
++
++	xsmi_write(SMI_I, 0xa, 4, 0x2004, 0x20);
++	udelay(10000);
++	xsmi_read(SMI_I, 0xa, 4, 0x2004, &val);
++	DBG_PRINTF("After  write 4.2004 = 0x%0x\n", val);
++
++	xsmi_write(SMI_I, 0xa, 4, 0x2000, 0x9140);
++	udelay(10000);
++	xsmi_read(SMI_I, 0xa, 4, 0x2000, &val);
++	DBG_PRINTF("After  write 4.2000 = 0x%0x\n", val);
++	
++	xsmi_read(SMI_I, 0xa, 4, 0xf074, &val);
++	DBG_PRINTF("Before write 4.f074 = 0x%0x\n", val);
++	xsmi_write(SMI_I, 0xa, 4, 0xf074, 0x6150);
++	udelay(10000);
++	xsmi_read(SMI_I, 0xa, 4, 0xf074, &val);
++	DBG_PRINTF("After  write 4.f074 = 0x%0x\n", val);
++}
++
++void mv88e6191X_Serdes(void)
++{
++	u16 val;
++	printf("SERDES Initialization procedures... \n");
++
++	xsmi_write(SMI_I, 0xa, 30, 0x8093, 0xcb5a);
++	udelay(10000);
++	xsmi_read(SMI_I, 0xa, 30, 0x8093, &val);
++	DBG_PRINTF("After  write 30.8093 = 0x%0x\n", val);
++
++	xsmi_write(SMI_I, 0xa, 30, 0x8171, 0x7088);
++	udelay(10000);
++	xsmi_read(SMI_I, 0xa, 30, 0x8171, &val);
++	DBG_PRINTF("After  write 30.8171 = 0x%0x\n", val);
++
++	xsmi_write(SMI_I, 0xa, 30, 0x80c9, 0x311a);
++	udelay(10000);
++	xsmi_read(SMI_I, 0xa, 30, 0x80c9, &val);
++	DBG_PRINTF("After  write 30.80c9 = 0x%0x\n", val);
++
++	xsmi_read(SMI_I, 0xa, 30, 0x80a2, &val);
++	DBG_PRINTF("Before write 30.80a2 = 0x%0x\n", val);
++	val |= (1<<15);
++	val &= 0x8080;
++	xsmi_write(SMI_I, 0xa, 30, 0x80a2, val);
++	udelay(10000);
++	xsmi_read(SMI_I, 0xa, 30, 0x80a2, &val);
++	DBG_PRINTF("After  write 30.80a2 = 0x%0x\n", val);
++
++	xsmi_read(SMI_I, 0xa, 30, 0x80a9, &val);
++	DBG_PRINTF("Before write 30.80a9 = 0x%0x\n", val);
++	val &= 0x000f;
++	xsmi_write(SMI_I, 0xa, 30, 0x80a9, val);
++	udelay(10000);
++	xsmi_read(SMI_I, 0xa, 30, 0x80a9, &val);
++	DBG_PRINTF("After  write 30.80a9 = 0x%0x\n", val);
++	
++	xsmi_read(SMI_I, 0xa, 30, 0x80a3, &val);
++	DBG_PRINTF("Before write 30.80a3 = 0x%0x\n", val);
++	val &= 0xf8ff;
++	xsmi_write(SMI_I, 0xa, 30, 0x80a3, val);
++	udelay(10000);
++	xsmi_read(SMI_I, 0xa, 30, 0x80a3, &val);
++	DBG_PRINTF("After  write 30.80a3 = 0x%0x\n", val);
++
++	xsmi_read(SMI_I, 0xa, 4, 0xf002, &val);
++	DBG_PRINTF("Before write 4.f002 = 0x%0x\n", val);
++	val |= (1<<15);
++	xsmi_write(SMI_I, 0xa, 4, 0xf002, val);
++	udelay(10000);
++	xsmi_read(SMI_I, 0xa, 4, 0xf002, &val);
++	DBG_PRINTF("After  write 4.f002 = 0x%0x\n", val);
++
++	xsmi_read(SMI_I, 0xa, 4, 0x2000, &val);
++	DBG_PRINTF("Before write 4.2000 = 0x%0x\n", val);
++	val |= (1<<15);
++	xsmi_write(SMI_I, 0xa, 4, 0x2000, val);
++	udelay(10000);
++	xsmi_read(SMI_I, 0xa, 4, 0x2000, &val);
++	DBG_PRINTF("After  write 4.2000 = 0x%0x\n", val);
++
++	//Enhance 10GBase-KR for Eye diagram
++	xsmi_write(SMI_I, 0xa, 30, 0x8101, 0xbe8);
++	udelay(10000);
++	xsmi_read(SMI_I, 0xa, 30, 0x8101, &val);
++	DBG_PRINTF("After  write 30.8101 = 0x%0x\n", val);
++}
++
++int switch_mv88e6190_andelay = DEFAULT_AN_DELAY;
++
++int resetBtnPressFlag = 0;
++
++int switch_mv88e6190_all_port_enable_once(void)
++{
++    int i = 0;
++    static int has_run = 0;
++
++    if(has_run)
++    {
++        return 0;
++    }
++    else
++    {
++        has_run = 1;
++    }
++    printf("Switch 88E6191X all ports enable.\n");
++    for (i=GPORT_START_NUM;i<=GPORT_END_NUM;i++)
++    {
++        WriteReg(i,4,0x7f); //Set port as fowarding ..
++    }
++
++	WriteReg(CPU_PORT_9,4,0x7f);  //Set port as fowarding ..
++    WriteReg(CPU_PORT_10,4,0x7f); //Set port as fowarding ..
++    udelay(100000);
++
++    return 0;
++}
++
++int switch_mv88e6191X_init(void)
++{
++    int i = 0;
++    char *anDelayChar = NULL;
++	u16 val;
++
++#if 0
++    resetBtnPressFlag = resetBtnPressed();
++    if(resetBtnPressFlag)
++    {
++        printf("Reset button pressed.\n");
++    }
++#endif
++
++    printf("Marvell Switch 88E6191X init... \n");
++    anDelayChar = env_get("andelay");
++    if (anDelayChar)
++        switch_mv88e6190_andelay = simple_strtol(anDelayChar, NULL, 10);
++
++    DBG_PRINTF("===== Change all pot to disabled mode ..\n"); //undefined reference
++
++	WriteReg(CPU_PORT_9, 0x1, 0x13);
++    WriteReg(CPU_PORT_10, 0x1, 0x13);	//Port 10 Turn off Link in default ..
++
++    DBG_PRINTF("=====Marvell 1G Port PHYs Reset delay...");
++    udelay(1000000);
++    DBG_PRINTF("done\n");
++
++    // Power up on-chip serdes 
++    // 10GBASE-R PCS Control 1
++	//xsmi_write(SMI_I,CPU_PORT_10,4, 0x2000, 0xA040);	//Clear power down bit and set bit 15 for reset ,16 and 3 for speed
++    //udelay(100000);
++
++	for (i = GPORT_START_NUM; i <= GPORT_END_NUM; i ++)
++    {
++		WriteReg(i, 0x16, 0x8033);
++    	marvell_phy_write(i, 0, 0x1140);
++		udelay(10000);
++    }
++
++	//xsmi_write(SMI_I, 0, 0x1e, 0x8101, 0x0be8);	//Failure to meet SFF-8431 transmitter jitter requirements
++    DBG_PRINTF("===== Change all pot to fowarding mode ..\n");
++    for (i=GPORT_START_NUM;i<=GPORT_END_NUM;i++)
++    {
++        WriteReg(i,0x1,0x102); // Turn off integrated gigabit port EEE from MAC side
++        WriteReg(i,4,0x7c);    //Set port as disabled ..
++    }
++
++	WriteReg(CPU_PORT_9, 0x1, 0x103);
++	WriteReg(CPU_PORT_10, 0x1, 0x103);	//Force EEE mode off for P10 for lower core power when not linked
++	WriteReg(CPU_PORT_9, 4, 0x7c);
++    WriteReg(CPU_PORT_10, 4, 0x7c);		//Set port as disabled ..
++	udelay(10000);
++	WriteReg(CPU_PORT_9, 0x0, 0xD);
++    WriteReg(CPU_PORT_10, 0x0, 0xD);	//Write 10G-BASE-R C_MODE bits for specific mode
++    udelay(10000);
++
++	phyInit();
++	mv88e6191X_Errata();
++	mv88e6191X_Serdes();
++#if 0
++	for (i = GPORT_START_NUM; i <= GPORT_END_NUM; i++)
++	{
++        marvell_phy_write(i, 0x9, 0x1e00); // Set Port Type as Master
++		marvell_phy_write(i, 0x0, 0x9140); // Power up
++	}
++    udelay(300000);
++#endif
++
++//  switch_mv88e6190_port_cop_failure_recover_all(1);
++
++    printf("done\n");
++
++    return 0;
++}
++
++int marvell_nxp_xgmii_init(void)
++{
++    volatile u32 *tmpPtr = NULL, tmpVal = 0;
++
++#ifdef CONFIG_MV88E6191X_SWITCH
++#ifdef CONFIG_MV88E6191X_SWITCH_CPU_ATTACHED
++    switch_mv88e6191X_init();
++#else
++    WriteReg(0xa, 0x0, 0xb);
++    DBG_PRINTF("WriteReg(0xa, 0x0) = 0x%04x\n", ReadReg(0xa, 0x0));
++#endif /* CONFIG_MV88E6191X_SWITCH_CPU_ATTACHED */
++#endif /* CONFIG_MV88E6191X_SWITCH */
++#ifdef CONFIG_WG1008_PX2
++	tmpPtr = (volatile u32 *)0x8c07034;
++    *((u32 *)tmpPtr) = 0x0000801f;
++    DBG_PRINTF("%p : 0x%08x\n", tmpPtr, *((u32 *)tmpPtr));
++	tmpPtr = (volatile u32 *)0x8c0703c;
++    *((u32 *)tmpPtr) = 0x1;
++    DBG_PRINTF("%p : 0x%08x\n", tmpPtr, *((u32 *)tmpPtr));
++	tmpPtr = (volatile u32 *)0x8c07038;
++    DBG_PRINTF("%p : 0x%08x\n", tmpPtr, *((u32 *)tmpPtr));
++#else
++    tmpPtr = (volatile u32 *)0x1af0034;
++    *((u32 *)tmpPtr) = 0x00800000;
++    DBG_PRINTF("%p : 0x%08x\n", tmpPtr, *((u32 *)tmpPtr));
++    tmpPtr = (volatile u32 *)0x1af0038;
++    tmpVal = *tmpPtr;
++    *((u32 *)tmpPtr) = tmpVal & ~(1<<20);
++    DBG_PRINTF("%p : 0x%08x\n", tmpPtr, *((u32 *)tmpPtr));
++
++    tmpPtr = (volatile u32 *)0x1af2034;
++    *((u32 *)tmpPtr) = 0x00800000;
++    DBG_PRINTF("%p : 0x%08x\n", tmpPtr, *((u32 *)tmpPtr));
++    tmpPtr = (volatile u32 *)0x1af2038;
++    tmpVal = *tmpPtr;
++    *((u32 *)tmpPtr) = tmpVal & ~(1<<20);
++    DBG_PRINTF("%p : 0x%08x\n", tmpPtr, *((u32 *)tmpPtr));
++#endif
++    return 0;
++}
++#endif
++
+ static int ldpaa_eth_netdev_init(struct eth_device *net_dev,
+ 				 phy_interface_t enet_if)
+ {
+@@ -1074,6 +2083,7 @@
+ 	priv = (struct ldpaa_eth_priv *)malloc(sizeof(struct ldpaa_eth_priv));
+ 	if (!priv) {
+ 		printf("ldpaa_eth_priv malloc() failed\n");
++		free(net_dev);
+ 		return -ENOMEM;
+ 	}
+ 	memset(priv, 0, sizeof(struct ldpaa_eth_priv));
+@@ -1082,12 +2092,14 @@
+ 	priv->net_dev = (struct eth_device *)net_dev;
+ 	priv->dpmac_id = dpmac_id;
+ 	debug("%s dpmac_id=%d\n", __func__, dpmac_id);
++	DBG_PRINTF("%s dpmac_id=%d\n", __func__, dpmac_id);
+ 
+ 	err = ldpaa_eth_netdev_init(net_dev, enet_if);
+ 	if (err)
+ 		goto err_netdev_init;
+ 
+ 	debug("ldpaa ethernet: Probed interface %s\n", net_dev->name);
++	DBG_PRINTF("ldpaa ethernet: Probed interface %s\n", net_dev->name);
+ 	return 0;
+ 
+ err_netdev_init:
+--- u-boot-2019.04/drivers/net/phy/phy.c.orig	2022-05-09 14:14:03.862505235 -0700
++++ u-boot-2019.04/drivers/net/phy/phy.c	2022-05-09 14:14:07.346364152 -0700
+@@ -446,21 +446,18 @@
+ 	return 0;
+ }
+ 
+-#ifdef CONFIG_MV88E6190_SWITCH
+-#define TIME_OUT 10
+-#define _DPRINTF DBG_PRINTF
+-
++#if defined(CONFIG_MV88E6190_SWITCH) || defined(CONFIG_MV88E6191X_SWITCH)
+ unsigned short ReadReg(unsigned short addr, unsigned short reg)
+ {
+-    unsigned short	data = 0;
++    unsigned short data = 0;
+     int ret = 0;
+-    const char	*devname = NULL;
++    const char *devname = NULL;
+ 
+     devname = miiphy_get_current_dev();
+     ret = miiphy_read (devname, addr, reg, &data);
+-    DBG_PRINTF(
+-        "miiphy_read (devname=%s, addr=0x%02x, reg=0x%02x, data=0x%02x), ret=%d\n",
+-        devname, addr, reg, data, ret);
++    //DBG_PRINTF(
++    //    "miiphy_read (devname=%s, addr=0x%02x, reg=0x%02x, data=0x%02x), ret=%d\n",
++    //    devname, addr, reg, data, ret); undefined reference
+     if(!ret)
+     {
+         return data;
+@@ -481,9 +478,9 @@
+ 
+     devname = miiphy_get_current_dev();
+     ret = miiphy_write (devname, addr, reg, data);
+-    DBG_PRINTF(
+-        "miiphy_write (devname=%s, addr=0x%02x, reg=0x%02x, data=0x%02x), ret=%d\n",
+-        devname, addr, reg, data, ret);
++    //DBG_PRINTF(
++    //    "miiphy_write (devname=%s, addr=0x%02x, reg=0x%02x, data=0x%02x), ret=%d\n",
++    //    devname, addr, reg, data, ret); undefined reference
+     if(ret)
+     {
+         printf("Error writing to the PHY addr=%02x reg=%02x\n",
+@@ -492,7 +489,7 @@
+ }
+ 
+ 
+-unsigned short marvell_phy_read(unsigned short smi_id, unsigned short offset, unsigned short *output )
++unsigned short marvell_phy_read(unsigned short smi_id, unsigned short offset, unsigned short *output)
+ {
+     unsigned short l_value, l_command, l_status;
+ 
+@@ -510,10 +507,10 @@
+ 
+     l_value = ReadReg(0x1c,0x19) ;
+     *output = l_value ;
+-    return 0  ;
++    return 0 ;
+ }
+ 
+-unsigned short marvell_phy_write(unsigned short smi_id, unsigned short offset, unsigned short data )
++unsigned short marvell_phy_write(unsigned short smi_id, unsigned short offset, unsigned short data)
+ {
+     unsigned short l_command, l_status;
+ 
+@@ -535,7 +532,7 @@
+     return 0 ;
+ }
+ 
+-unsigned short osDelay(int second )
++unsigned short osDelay(int second)
+ {
+     int l_i = 0;
+     int l_j = 0;
+@@ -560,7 +557,7 @@
+ //
+ //  if input SMI_ID > 2 ,that mean is a MAC side serdes access
+ //  SMI mode will use "internal"
+-unsigned short xsmi_read(unsigned short smi_mode,unsigned short smi_id,unsigned short deviceId, unsigned short offset, unsigned short *output )
++unsigned short xsmi_read(unsigned short smi_mode,unsigned short smi_id,unsigned short deviceId, unsigned short offset, unsigned short *output)
+ {
+     int l_temp = 0;
+     unsigned short l_value, l_command;
+@@ -603,8 +600,7 @@
+     return 0;
+ }
+ 
+-
+-unsigned short xsmi_write(unsigned short smi_mode,unsigned short smi_id,unsigned short deviceId, unsigned short offset, unsigned short input )
++unsigned short xsmi_write(unsigned short smi_mode,unsigned short smi_id,unsigned short deviceId, unsigned short offset, unsigned short input)
+ {
+     int l_temp = 0;
+     unsigned short l_value, l_command;
+@@ -645,7 +641,7 @@
+ 
+     return 0 ;
+ }
+-#endif
++#endif // defined(CONFIG_MV88E6190_SWITCH) || defined(CONFIG_MV88E6191X_SWITCH)
+ 
+ static struct phy_driver genphy_driver = {
+ 	.uid		= 0xffffffff,
+@@ -855,6 +851,7 @@
+ #else
+ 	dev->autoneg = AUTONEG_ENABLE;
+ #endif
++
+ 	dev->addr = addr;
+ 	dev->phy_id = phy_id;
+ 	dev->is_c45 = is_c45;
+--- u-boot-2019.04/net/Kconfig.orig	2022-05-09 14:14:05.286447571 -0700
++++ u-boot-2019.04/net/Kconfig	2022-05-09 14:14:07.922340826 -0700
+@@ -22,12 +22,16 @@
+ 	  Support the 'nc' input/output device for networked console.
+ 	  See README.NetConsole for details.
+ 
+-# Forest Tsao B
+ config MV88E6190_SWITCH
+     default 0
+ config MV88E6190_SWITCH_CPU_ATTACHED
+-	depends on MV88E6190_SWITCH
++	depends on MV88E6190_SWITCH && WG1008_PX1
+     default 1
+-# Forest Tsao E
++
++config MV88E6191X_SWITCH
++	default 0
++config MV88E6191X_SWITCH_CPU_ATTACHED
++		depends on MV88E6191X_SWITCH && WG1008_PX2
++	default 1
+ 
+ endif   # if NET
+--- u-boot-2019.04/board/freescale/ls1046ardb/ls1046ardb.c.orig	2022-05-09 14:14:01.946582822 -0700
++++ u-boot-2019.04/board/freescale/ls1046ardb/ls1046ardb.c	2022-05-09 14:14:06.558396061 -0700
+@@ -42,7 +42,7 @@
+ 
+ GPIO_t wg1008_px1_gpio[] =
+ {
+-#if 0
++#ifdef CONFIG_WG1008_PX1
+     {GPIO_BUS_EN_CPU_1V8_NCT3961S_1         ,GPIO_SHIFT_EN_CPU_1V8_NCT3961S_1           ,GPIO_DIR_EN_CPU_1V8_NCT3961S_1             ,1},
+     {GPIO_BUS_EN_CPU_1V8_NCT3961S_2         ,GPIO_SHIFT_EN_CPU_1V8_NCT3961S_2           ,GPIO_DIR_EN_CPU_1V8_NCT3961S_2             ,1},
+     {GPIO_BUS_RST_CPU_N                     ,GPIO_SHIFT_RST_CPU_N                       ,GPIO_DIR_RST_CPU_N                         ,1},
+@@ -57,7 +57,8 @@
+     {GPIO_BUS_PCIE_WAKE_BUF_R_N             ,GPIO_SHIFT_PCIE_WAKE_BUF_R_N               ,GPIO_DIR_PCIE_WAKE_BUF_R_N                 ,1},
+     {GPIO_BUS_INT_TS_TEMP_ALM_3V3_R_N       ,GPIO_SHIFT_INT_TS_TEMP_ALM_3V3_R_N         ,GPIO_DIR_INT_TS_TEMP_ALM_3V3_R_N           ,1},
+     {GPIO_BUS_EN_LAN_Port_LED_1V8_N         ,GPIO_SHIFT_EN_LAN_Port_LED_1V8_N           ,GPIO_DIR_EN_LAN_Port_LED_1V8_N             ,0},
+-    {GPIO_BUS_EN_CPU_DRV_LED_1V8_N          ,GPIO_SHIFT_EN_CPU_DRV_LED_1V8_N            ,GPIO_DIR_EN_CPU_DRV_LED_1V8_N              ,1},
++    {GPIO_BUS_EN_CPU_DRV_LED_1V8_N          ,GPIO_SHIFT_EN_CPU_DRV_LED_1V8_N            ,GPIO_DIR_EN_CPU_DRV_LED_1V8_N              ,0},
++    {GPIO_BUS_RST_CPU_TPM_N                 ,GPIO_SHIFT_RST_CPU_TPM_N                   ,GPIO_DIR_RST_CPU_TPM_N                     ,0},
+     {GPIO_BUS_RST_CPU_TPM_N                 ,GPIO_SHIFT_RST_CPU_TPM_N                   ,GPIO_DIR_RST_CPU_TPM_N                     ,1},
+     {GPIO_BUS_NCT_3961S_MODE_CPU_1V8_1      ,GPIO_SHIFT_NCT_3961S_MODE_CPU_1V8_1        ,GPIO_DIR_NCT_3961S_MODE_CPU_1V8_1          ,1},
+     {GPIO_BUS_NCT_3961S_MODE_CPU_1V8_2      ,GPIO_SHIFT_NCT_3961S_MODE_CPU_1V8_2        ,GPIO_DIR_NCT_3961S_MODE_CPU_1V8_2          ,1},
+@@ -66,26 +67,28 @@
+     {GPIO_BUS_INT_TPM_PIRQ_1V8_N            ,GPIO_SHIFT_INT_TPM_PIRQ_1V8_N              ,GPIO_DIR_INT_TPM_PIRQ_1V8_N                ,1},
+     {GPIO_BUS_Module_Type_CONN_CPU_1V8_0    ,GPIO_SHIFT_Module_Type_CONN_CPU_1V8_0      ,GPIO_DIR_Module_Type_CONN_CPU_1V8_0        ,1},
+     {GPIO_BUS_Module_Type_CONN_CPU_1V8_1    ,GPIO_SHIFT_Module_Type_CONN_CPU_1V8_1      ,GPIO_DIR_Module_Type_CONN_CPU_1V8_1        ,1},
+-    {GPIO_BUS_PORT1_LED                     ,GPIO_SHIFT_PORT1_LED                       ,GPIO_DIR_PORT1_LED                         ,1},
+-    {GPIO_BUS_PORT1_LED                     ,GPIO_SHIFT2_PORT1_LED                      ,GPIO_DIR_PORT1_LED                         ,1},
+-    {GPIO_BUS_PORT2_LED                     ,GPIO_SHIFT_PORT2_LED                       ,GPIO_DIR_PORT2_LED                         ,1},
+-    {GPIO_BUS_PORT2_LED                     ,GPIO_SHIFT2_PORT2_LED                      ,GPIO_DIR_PORT2_LED                         ,1},
+-    {GPIO_BUS_PORT3_LED                     ,GPIO_SHIFT_PORT3_LED                       ,GPIO_DIR_PORT3_LED                         ,1},
+-    {GPIO_BUS_PORT3_LED                     ,GPIO_SHIFT2_PORT3_LED                      ,GPIO_DIR_PORT3_LED                         ,1},
+-    {GPIO_BUS_PORT4_LED                     ,GPIO_SHIFT_PORT4_LED                       ,GPIO_DIR_PORT4_LED                         ,1},
+-    {GPIO_BUS_PORT4_LED                     ,GPIO_SHIFT2_PORT4_LED                      ,GPIO_DIR_PORT4_LED                         ,1},
+-    {GPIO_BUS_PORT5_LED                     ,GPIO_SHIFT_PORT5_LED                       ,GPIO_DIR_PORT5_LED                         ,1},
+-    {GPIO_BUS_PORT5_LED                     ,GPIO_SHIFT2_PORT5_LED                      ,GPIO_DIR_PORT5_LED                         ,1},
+-    {GPIO_BUS_PORT6_LED                     ,GPIO_SHIFT_PORT6_LED                       ,GPIO_DIR_PORT6_LED                         ,1},
+-    {GPIO_BUS_PORT6_LED                     ,GPIO_SHIFT2_PORT6_LED                      ,GPIO_DIR_PORT6_LED                         ,1},
+-    {GPIO_BUS_PORT7_LED                     ,GPIO_SHIFT_PORT7_LED                       ,GPIO_DIR_PORT7_LED                         ,1},
+-    {GPIO_BUS_PORT7_LED                     ,GPIO_SHIFT2_PORT7_LED                      ,GPIO_DIR_PORT7_LED                         ,1},
+-    {GPIO_BUS_PORT8_LED                     ,GPIO_SHIFT_PORT8_LED                       ,GPIO_DIR_PORT8_LED                         ,1},
+-    {GPIO_BUS_PORT8_LED                     ,GPIO_SHIFT2_PORT8_LED                      ,GPIO_DIR_PORT8_LED                         ,1},
++    {GPIO_BUS_PORT1_LED                     ,GPIO_SHIFT_PORT1_AMBER_LED                 ,GPIO_DIR_PORT1_LED                         ,1},
++    {GPIO_BUS_PORT1_LED                     ,GPIO_SHIFT_PORT1_GREEN_LED                 ,GPIO_DIR_PORT1_LED                         ,1},
++    {GPIO_BUS_PORT2_LED                     ,GPIO_SHIFT_PORT2_AMBER_LED                 ,GPIO_DIR_PORT2_LED                         ,1},
++    {GPIO_BUS_PORT2_LED                     ,GPIO_SHIFT_PORT2_GREEN_LED                 ,GPIO_DIR_PORT2_LED                         ,1},
++    {GPIO_BUS_PORT3_LED                     ,GPIO_SHIFT_PORT3_AMBER_LED                 ,GPIO_DIR_PORT3_LED                         ,1},
++    {GPIO_BUS_PORT3_LED                     ,GPIO_SHIFT_PORT3_GREEN_LED                 ,GPIO_DIR_PORT3_LED                         ,1},
++    {GPIO_BUS_PORT4_LED                     ,GPIO_SHIFT_PORT4_AMBER_LED                 ,GPIO_DIR_PORT4_LED                         ,1},
++    {GPIO_BUS_PORT4_LED                     ,GPIO_SHIFT_PORT4_GREEN_LED                 ,GPIO_DIR_PORT4_LED                         ,1},
++    {GPIO_BUS_PORT5_LED                     ,GPIO_SHIFT_PORT5_AMBER_LED                 ,GPIO_DIR_PORT5_LED                         ,1},
++    {GPIO_BUS_PORT5_LED                     ,GPIO_SHIFT_PORT5_GREEN_LED                 ,GPIO_DIR_PORT5_LED                         ,1},
++    {GPIO_BUS_PORT6_LED                     ,GPIO_SHIFT_PORT6_AMBER_LED                 ,GPIO_DIR_PORT6_LED                         ,1},
++    {GPIO_BUS_PORT6_LED                     ,GPIO_SHIFT_PORT6_GREEN_LED                 ,GPIO_DIR_PORT6_LED                         ,1},
++    {GPIO_BUS_PORT7_LED                     ,GPIO_SHIFT_PORT7_AMBER_LED                 ,GPIO_DIR_PORT7_LED                         ,1},
++    {GPIO_BUS_PORT7_LED                     ,GPIO_SHIFT_PORT7_GREEN_LED                 ,GPIO_DIR_PORT7_LED                         ,1},
++    {GPIO_BUS_PORT8_LED                     ,GPIO_SHIFT_PORT8_AMBER_LED                 ,GPIO_DIR_PORT8_LED                         ,1},
++    {GPIO_BUS_PORT8_LED                     ,GPIO_SHIFT_PORT8_GREEN_LED                 ,GPIO_DIR_PORT8_LED                         ,1},
++#if 0
+     {GPIO_BUS_POWER_LED                     ,GPIO_SHIFT_POWER_LED                       ,GPIO_DIR_POWER_LED                         ,0},
+-    {GPIO_BUS_STATUS_LED                    ,GPIO_SHIFT_STATUS_LED                      ,GPIO_DIR_STATUS_LED                        ,0},
+-    {GPIO_BUS_STATUS_LED                    ,GPIO_SHIFT2_STATUS_LED                     ,GPIO_DIR_STATUS_LED                        ,1},
++    {GPIO_BUS_STATUS_LED                    ,GPIO_SHIFT_STATUS_RED_LED                  ,GPIO_DIR_STATUS_LED                        ,0},
++    {GPIO_BUS_STATUS_LED                    ,GPIO_SHIFT_STATUS_GREEN_LED                ,GPIO_DIR_STATUS_LED                        ,1},
+     {GPIO_BUS_STORAGE_LED                   ,GPIO_SHIFT_STORAGE_LED                     ,GPIO_DIR_STORAGE_LED                       ,0},
++#endif
+ #else
+     {GPIO_BUS_RESET_IN                ,GPIO_SHIFT_RESET_IN                ,GPIO_DIR_RESET_IN                ,1},
+     {GPIO_BUS_ATT_LED                 ,GPIO_SHIFT_ATT_LED                 ,GPIO_DIR_ATT_LED                 ,1},
+@@ -131,7 +134,7 @@
+ LED_t wg1008_px1_led[] =
+ {
+     {GPIO_NUM_ATT_LED       ,"Attn"     ,0}, //Power LED
+-    {GPIO_NUM_SW_STATUS_LED ,"Status"   ,1}, //GPIO_25
++    {GPIO_NUM_SW_STATUS_LED ,"Status"   ,0}, //GPIO_25
+     {GPIO_NUM_SW_MODE_LED   ,"Mode"     ,0}, //GPIO_26
+     {GPIO_NUM_FAILOVER_LED  ,"Failover" ,0}, //Storage LED
+     {GPIO_NUM_POWER_LED     ,"Power"    ,0},
+@@ -446,8 +449,8 @@
+ {
+     u32 val = 0, gpioBus = 0, gpioShift = 0, gpioNum = 0, activeHigh = 0;
+ 
+-    gpioBus = GPIO_BUS_PORT1_LED;
+-    gpioShift = GPIO_SHIFT_PORT1_LED;
++    gpioBus = GPIO_BUS_RST_CPU_N;
++    gpioShift = GPIO_SHIFT_RST_CPU_N;
+     if(gpioRead(gpioBus, gpioShift, GPIO_TYPE_DATA, &val))
+     {
+         return 0;
+--- u-boot-2019.04/board/freescale/ls2080ardb/Kconfig.orig	2022-05-09 14:14:01.954582498 -0700
++++ u-boot-2019.04/board/freescale/ls2080ardb/Kconfig	2022-05-09 14:14:06.562395899 -0700
+@@ -1,5 +1,8 @@
+ if TARGET_LS2080ARDB || TARGET_LS2081ARDB
+ 
++config WG1008_PX2
++	default 1
++
+ config SYS_BOARD
+ 	default "ls2080ardb"
+ 
+--- u-boot-2019.04/board/freescale/ls2080ardb/eth_ls2080rdb.c.orig	2022-05-09 14:14:01.966582012 -0700
++++ u-boot-2019.04/board/freescale/ls2080ardb/eth_ls2080rdb.c	2022-05-09 14:14:06.562395899 -0700
+@@ -61,11 +61,14 @@
+ 
+ 		break;
+ 	case 0x4B:
++#ifdef CONFIG_WG1008_PX2
++		wriop_set_phy_address(WRIOP1_DPMAC1, 0, USXGMII_PHY_ADDR10);
++#else
+ 		wriop_set_phy_address(WRIOP1_DPMAC1, 0, CORTINA_PHY_ADDR1);
+ 		wriop_set_phy_address(WRIOP1_DPMAC2, 0, CORTINA_PHY_ADDR2);
+ 		wriop_set_phy_address(WRIOP1_DPMAC3, 0, CORTINA_PHY_ADDR3);
+ 		wriop_set_phy_address(WRIOP1_DPMAC4, 0, CORTINA_PHY_ADDR4);
+-
++#endif
+ 		break;
+ 	default:
+ 		printf("SerDes1 protocol 0x%x is not supported on LS2080aRDB\n",
+@@ -73,6 +76,17 @@
+ 		break;
+ 	}
+ 
++#ifdef CONFIG_WG1008_PX2
++	interface = wriop_get_enet_if(WRIOP1_DPMAC1);
++	switch (interface) {
++	case PHY_INTERFACE_MODE_XGMII:
++		dev = miiphy_get_dev_by_name(DEFAULT_WRIOP_MDIO1_NAME);
++		wriop_set_mdio(WRIOP1_DPMAC1, dev);
++		break;
++	default:
++		break;
++	}
++#else
+ 	for (i = WRIOP1_DPMAC1; i <= WRIOP1_DPMAC4; i++) {
+ 		interface = wriop_get_enet_if(i);
+ 		switch (interface) {
+@@ -84,7 +98,6 @@
+ 			break;
+ 		}
+ 	}
+-
+ 	for (i = WRIOP1_DPMAC5; i <= WRIOP1_DPMAC8; i++) {
+ 		switch (wriop_get_enet_if(i)) {
+ 		case PHY_INTERFACE_MODE_XGMII:
+@@ -95,8 +108,12 @@
+ 			break;
+ 		}
+ 	}
+-
++#endif
+ 	cpu_eth_init(bis);
++
++#ifdef CONFIG_WG1008_PX2
++    marvell_nxp_xgmii_init();
++#endif
+ #endif /* CONFIG_FSL_MC_ENET */
+ 
+ #ifdef CONFIG_PHY_AQUANTIA
+--- u-boot-2019.04/board/freescale/ls2080ardb/ls2080ardb.c.orig	2022-05-09 14:14:01.966582012 -0700
++++ u-boot-2019.04/board/freescale/ls2080ardb/ls2080ardb.c	2022-05-09 14:14:06.562395899 -0700
+@@ -118,12 +118,13 @@
+ 	else if (sw == 0x9)
+ 		puts("NAND\n");
+ 	else
+-		printf("invalid setting of SW%u\n", QIXIS_LBMAP_SWITCH);
++		//printf("invalid setting of SW%u\n", QIXIS_LBMAP_SWITCH);
++		printf("vBank: 0\n");
+ 
+-	printf("FPGA: v%d.%d\n", QIXIS_READ(scver), QIXIS_READ(tagdata));
++	//printf("FPGA: v%d.%d\n", QIXIS_READ(scver), QIXIS_READ(tagdata));
+ #endif
+ 	puts("SERDES1 Reference : ");
+-	printf("Clock1 = 156.25MHz ");
++	printf("Clock1 = 100MHz ");
+ 	printf("Clock2 = 156.25MHz");
+ #endif
+ 
+@@ -164,7 +165,11 @@
+ 	int ret;
+ 
+ #ifndef CONFIG_DM_I2C
++#ifdef CONFIG_WG1008_PX2
++	ret = i2c_write(I2C_MUX_PCA_ADDR_PRI, 3, 1, &ch, 1);
++#else 
+ 	ret = i2c_write(I2C_MUX_PCA_ADDR_PRI, 0, 1, &ch, 1);
++#endif
+ #else
+ 	struct udevice *dev;
+ 
+@@ -254,6 +259,411 @@
+ 	return 0;
+ }
+ 
++#ifdef CONFIG_WG1008_PX2
++//#define DBG_GPIO
++//#define ENDIAN_SWAP
++//#define BIT_SWAP
++#define ENDIAN_SWAP_AND_BIT_SWAP
++
++GPIO_t wg1008_px2_gpio[] =
++{
++    {GPIO_BUS_RST_CPU_N                	,GPIO_SHIFT_RST_CPU_N               	,GPIO_DIR_RST_CPU_N                	,1},
++    {GPIO_BUS_Module_Bay_Present_N    	,GPIO_SHIFT_Module_Bay_Present_N		,GPIO_DIR_Module_Bay_Present_N     	,1},
++    {GPIO_BUS_RST_CPU_TPM_N         	,GPIO_SHIFT_RST_CPU_TPM_N           	,GPIO_DIR_RST_CPU_TPM_N           	,1},
++    {GPIO_BUS_EN_CPU_DRV_LED_1V8_N      ,GPIO_SHIFT_EN_CPU_DRV_LED_1V8_N    	,GPIO_DIR_EN_CPU_DRV_LED_1V8_N      ,0},
++    {GPIO_BUS_M2_CLKREQ_CPU_1V8_N       ,GPIO_SHIFT_M2_CLKREQ_CPU_1V8_N     	,GPIO_DIR_M2_CLKREQ_CPU_1V8_N       ,1},
++    {GPIO_BUS_RST_CPU_PoE_N             ,GPIO_SHIFT_RST_CPU_PoE_N           	,GPIO_DIR_RST_CPU_PoE_N             ,1},
++    {GPIO_BUS_EN_LAN_Port_LED_1V8_N     ,GPIO_SHIFT_EN_LAN_Port_LED_1V8_N   	,GPIO_DIR_EN_LAN_Port_LED_1V8_N     ,0},
++    {GPIO_BUS_INT_ALL_TCA9555_N    		,GPIO_SHIFT_INT_ALL_TCA9555_N    		,GPIO_DIR_INT_ALL_TCA9555_N    		,1},
++    {GPIO_BUS_EN_GPIO_BUFFER_N          ,GPIO_SHIFT_EN_GPIO_BUFFER_N        	,GPIO_DIR_EN_GPIO_BUFFER_N          ,0},
++    {GPIO_BUS_PCIe_Module_WAKE_BUF_N    ,GPIO_SHIFT_PCIe_Module_WAKE_BUF_N  	,GPIO_DIR_PCIe_Module_WAKE_BUF_N    ,1},
++    {GPIO_BUS_EN_CPU_NCT3961S_1V8_1     ,GPIO_SHIFT_EN_CPU_NCT3961S_1V8_1 		,GPIO_DIR_EN_CPU_NCT3961S_1V8_1 	,1},
++    {GPIO_BUS_EN_CPU_NCT3961S_1V8_2     ,GPIO_SHIFT_EN_CPU_NCT3961S_1V8_2   	,GPIO_DIR_EN_CPU_NCT3961S_1V8_2     ,1},
++    {GPIO_BUS_EN_CPU_NCT3961S_1V8_3     ,GPIO_SHIFT_EN_CPU_NCT3961S_1V8_3   	,GPIO_DIR_EN_CPU_NCT3961S_1V8_3     ,1},
++    {GPIO_BUS_NCT_3961S_MODE_1V8_1      ,GPIO_SHIFT_NCT_3961S_MODE_1V8_1    	,GPIO_DIR_NCT_3961S_MODE_1V8_1      ,1},
++    {GPIO_BUS_NCT_3961S_MODE_1V8_2      ,GPIO_SHIFT_NCT_3961S_MODE_1V8_2    	,GPIO_DIR_NCT_3961S_MODE_1V8_2      ,1},
++    {GPIO_BUS_NCT_3961S_MODE_1V8_3      ,GPIO_SHIFT_NCT_3961S_MODE_1V8_3    	,GPIO_DIR_NCT_3961S_MODE_1V8_3      ,1},
++    {GPIO_BUS_NCT_3961S_FTI_ALL_1V8_1   ,GPIO_SHIFT_NCT_3961S_FTI_ALL_1V8_1 	,GPIO_DIR_NCT_3961S_FTI_ALL_1V8_1   ,1},
++    {GPIO_BUS_RST_Module_PERST_N        ,GPIO_SHIFT_RST_Module_PERST_N      	,GPIO_DIR_RST_Module_PERST_N        ,1},
++    {GPIO_BUS_INT_ALL_IRQ_N           	,GPIO_SHIFT_INT_ALL_IRQ_N           	,GPIO_DIR_INT_ALL_IRQ_N           	,1},
++	{GPIO_BUS_Module_Type_CONN_CPU_0    ,GPIO_SHIFT_Module_Type_CONN_CPU_0  	,GPIO_DIR_Module_Type_CONN_CPU_0    ,1},
++	{GPIO_BUS_Module_Type_CONN_CPU_1    ,GPIO_SHIFT_Module_Type_CONN_CPU_1  	,GPIO_DIR_Module_Type_CONN_CPU_1   	,1},
++#if 0
++	{GPIO_BUS_POWER_LED           		,GPIO_SHIFT_POWER_LED           		,GPIO_DIR_POWER_LED           		,0},
++	{GPIO_BUS_STATUS_GREEN_LED          ,GPIO_SHIFT_STATUS_GREEN_LED        	,GPIO_DIR_STATUS_GREEN_LED          ,0},
++	{GPIO_BUS_STATUS_RED_LED           	,GPIO_SHIFT_STATUS_RED_LED          	,GPIO_DIR_STATUS_RED_LED           	,1},
++	{GPIO_BUS_STORAGE_LED           	,GPIO_SHIFT_STORAGE_LED           		,GPIO_DIR_STORAGE_LED           	,0},
++#endif
++	{GPIO_BUS_PORT1_AMBER_LED    		,GPIO_SHIFT_PORT1_AMBER_LED  			,GPIO_DIR_PORT1_AMBER_LED    		,1},
++    {GPIO_BUS_PORT1_GREEN_LED    		,GPIO_SHIFT_PORT1_GREEN_LED  			,GPIO_DIR_PORT1_GREEN_LED    		,1},
++    {GPIO_BUS_PORT2_AMBER_LED    		,GPIO_SHIFT_PORT2_AMBER_LED  			,GPIO_DIR_PORT2_AMBER_LED    		,1},
++    {GPIO_BUS_PORT2_GREEN_LED    		,GPIO_SHIFT_PORT2_GREEN_LED  			,GPIO_DIR_PORT2_GREEN_LED    		,1},
++	{GPIO_BUS_PORT3_AMBER_LED    		,GPIO_SHIFT_PORT3_AMBER_LED  			,GPIO_DIR_PORT3_AMBER_LED    		,1},
++    {GPIO_BUS_PORT3_GREEN_LED    		,GPIO_SHIFT_PORT3_GREEN_LED  			,GPIO_DIR_PORT3_GREEN_LED    		,1},
++	{GPIO_BUS_PORT4_AMBER_LED    		,GPIO_SHIFT_PORT4_AMBER_LED  			,GPIO_DIR_PORT4_AMBER_LED    		,1},
++    {GPIO_BUS_PORT4_GREEN_LED    		,GPIO_SHIFT_PORT4_GREEN_LED  			,GPIO_DIR_PORT4_GREEN_LED    		,1},
++	{GPIO_BUS_PORT5_AMBER_LED    		,GPIO_SHIFT_PORT5_AMBER_LED  			,GPIO_DIR_PORT5_AMBER_LED    		,1},
++    {GPIO_BUS_PORT5_GREEN_LED    		,GPIO_SHIFT_PORT5_GREEN_LED  			,GPIO_DIR_PORT5_GREEN_LED    		,1},
++	{GPIO_BUS_PORT6_AMBER_LED    		,GPIO_SHIFT_PORT6_AMBER_LED  			,GPIO_DIR_PORT6_AMBER_LED    		,1},
++    {GPIO_BUS_PORT6_GREEN_LED    		,GPIO_SHIFT_PORT6_GREEN_LED  			,GPIO_DIR_PORT6_GREEN_LED    		,1},
++	{GPIO_BUS_PORT7_AMBER_LED    		,GPIO_SHIFT_PORT7_AMBER_LED  			,GPIO_DIR_PORT7_AMBER_LED    		,1},
++    {GPIO_BUS_PORT7_GREEN_LED    		,GPIO_SHIFT_PORT7_GREEN_LED  			,GPIO_DIR_PORT7_GREEN_LED    		,1},
++	{GPIO_BUS_PORT8_AMBER_LED    		,GPIO_SHIFT_PORT8_AMBER_LED  			,GPIO_DIR_PORT8_AMBER_LED    		,1},
++    {GPIO_BUS_PORT8_GREEN_LED    		,GPIO_SHIFT_PORT8_GREEN_LED  			,GPIO_DIR_PORT8_GREEN_LED    		,1},
++};
++
++LED_t wg1008_px2_led[] =
++{
++    {GPIO_NUM_ATT_LED       ,"Attn"     ,0},
++    {GPIO_NUM_SW_STATUS_LED ,"Status"   ,0},
++    {GPIO_NUM_SW_MODE_LED   ,"Mode"     ,0},
++    {GPIO_NUM_FAILOVER_LED  ,"Failover" ,0},
++    {GPIO_NUM_POWER_LED     ,"Power"    ,0},
++    {0                      ,NULL       ,0},
++};
++
++u32 reverseEndian(u32 value)
++{
++    return (((value & 0x000000FF) << 24) |
++            ((value & 0x0000FF00) <<  8) |
++            ((value & 0x00FF0000) >>  8) |
++            ((value & 0xFF000000) >> 24));
++}
++
++u32 reverseBits8(u8 num)
++{
++    u8 count = sizeof(num) * 8 - 1;
++    u8 reverse_num = num;
++
++    num >>= 1;
++    while(num)
++    {
++       reverse_num <<= 1;
++       reverse_num |= num & 1;
++       num >>= 1;
++       count--;
++    }
++    reverse_num <<= count;
++//    printf("reverse_num  0x%02x\n", reverse_num);
++    return (u32)reverse_num;
++}
++
++u32 reverseBits32(u32 num)
++{
++    u32 count = sizeof(num) * 8 - 1;
++    u32 reverse_num = num;
++
++    num >>= 1;
++    while(num)
++    {
++       reverse_num <<= 1;
++       reverse_num |= num & 1;
++       num >>= 1;
++       count--;
++    }
++    reverse_num <<= count;
++//    printf("reverse_num  0x%02x\n", reverse_num);
++    return (u32)reverse_num;
++}
++
++
++u32 reverse32(u32 value) 
++{
++    u32 tmpVal = 0;
++#if defined(ENDIAN_SWAP)
++    tmpVal = reverseEndian(value);
++#elif defined(BIT_SWAP)
++    int idx = 0;
++    u32 tmpByte = 0;
++
++    tmpVal = value;
++    for(idx = 0; idx < 4; idx++)
++    {
++        tmpByte = (tmpVal & (0x000000FF<<(idx*8)))>>(idx*8);
++        tmpVal &= ~(0x000000FF<<(idx*8));
++        tmpVal |= (reverseBits8(tmpByte)<<(idx*8));
++    }
++#elif defined(ENDIAN_SWAP_AND_BIT_SWAP)
++    //tmpVal = reverseEndian(value);
++    //tmpVal = reverseBits32(tmpVal);
++	tmpVal = reverseBits32(value);
++#else
++    tmpVal = value;
++#endif
++
++    return tmpVal;
++}
++
++int regRead(volatile u32 *regAddr, volatile u32 *regVal)
++{
++    int ret = 0;
++
++#ifdef DBG_GPIO
++    printf("Before swap  0x%08x\n", *regAddr);
++#endif
++    *regVal = reverse32(*regAddr);
++#ifdef DBG_GPIO
++    printf("After swap  0x%08x\n", *regVal);
++#endif
++    return ret;
++}
++
++int regWrite(volatile u32 *regAddr, u32 regVal)
++{
++    u32 write_val = 0;
++    int ret = 0;
++
++#ifdef DBG_GPIO
++    printf("Before swap  0x%08x\n", regVal);
++#endif
++    write_val = reverse32(regVal);
++    *regAddr = write_val;
++#ifdef DBG_GPIO
++    printf("After swap  0x%08x\n", write_val);
++#endif
++
++    return ret;
++}
++
++int gpioWrite(u32 gpio_bus, u32 gpio_shift, u32 gpio_type, u32 val)
++{
++    u32 gpio_reg = NULL;
++    u32 read_val = 0;
++    int ret = 0;
++
++    if(GPIO_TYPE_DIR == gpio_type)
++    {
++        gpio_reg = LS2084A_GPIO1_DIR;
++    }
++    else if(GPIO_TYPE_DATA == gpio_type)
++    {
++        gpio_reg = LS2084A_GPIO1_DATA;
++    }
++    else
++    {
++        printf("Wrong gpio type %d!!!\n", gpio_type);
++        return -1;
++    }
++    gpio_reg += ((gpio_bus - 1)*0x10000);
++
++#ifdef DBG_GPIO
++    printf("\nGPIO%u_%02u REG 0x%08x\n", gpio_bus, gpio_shift, gpio_reg);
++#endif
++
++    ret = regRead(gpio_reg, &read_val);
++    if(ret)
++    {
++        printf("regRead failed!!!\n");
++        return -1;
++    }
++#ifdef DBG_GPIO
++    printf("Read value  0x%08x\n", read_val);
++#endif
++    if(val)
++    {
++        read_val |= (1<<gpio_shift);
++    }
++    else
++    {
++        read_val &= ~(1<<gpio_shift);
++    }
++    ret = regWrite(gpio_reg, read_val);
++    if(ret)
++    {
++        printf("regWrite failed!!!\n");
++        return -1;
++    }
++#ifdef DBG_GPIO
++    printf("Write value 0x%08x\n", read_val);
++#endif
++
++    return 0;
++}
++
++int gpioRead(u32 gpio_bus, u32 gpio_shift, u32 gpio_type, u32 *val)
++{
++    u32 gpio_reg = NULL;
++    u32 read_val = 0;
++    int ret = 0;
++
++    if(GPIO_TYPE_DIR == gpio_type)
++    {
++        gpio_reg = LS2084A_GPIO1_DIR;
++    }
++    else if(GPIO_TYPE_DATA == gpio_type)
++    {
++        gpio_reg = LS2084A_GPIO1_DATA;
++    }
++    else
++    {
++        printf("Wrong gpio type %d!!!\n", gpio_type);
++        return -1;
++    }
++    gpio_reg += ((gpio_bus - 1)*0x10000);
++#ifdef DBG_GPIO
++    printf("\nGPIO%u_%02u REG 0x%08x\n", gpio_bus, gpio_shift, gpio_reg);
++#endif
++
++    ret = regRead(gpio_reg, &read_val);
++    if(ret)
++    {
++        printf("regRead failed!!!\n");
++        return -1;
++    }
++
++#ifdef DBG_GPIO
++    printf("Read value  0x%08x\n", read_val);
++#endif
++    *val = (read_val & (1<<gpio_shift))?1:0;
++
++    return 0;
++}
++
++int getGpioNumByLedName(char *ledName, u32 *gpioNum, u32 *active_high)
++{
++    int ledLen = 0, idx =0;
++    if(!ledName || !gpioNum || !active_high)
++    {
++        printf("NULL arguments!!!\n");
++        return -1;
++    }
++
++    ledLen = sizeof(wg1008_px2_led)/sizeof(wg1008_px2_led[0]);
++    for(idx = 0; idx < ledLen; idx++)
++    {
++        if(!strncmp(ledName, wg1008_px2_led[idx].led_name, strlen(ledName)))
++        {
++            *gpioNum = wg1008_px2_led[idx].gpio_num;
++            *active_high = wg1008_px2_led[idx].active_high;
++            break;
++        }
++    }
++
++    if(idx == ledLen)
++    {
++        printf("Invalid LED name %s!!!\n", ledName);
++        printf("Supported LED names: ");
++        for(idx =0; idx < ledLen; idx++)
++        {
++            printf("%s ", wg1008_px2_led[idx].led_name);
++        }
++        printf("\n");
++        return -1;
++    }
++    else
++    {
++        return 0;
++    }
++}
++
++
++int setGpioLedAllOnOff(u32 mode)
++{
++    int ledLen = 0, idx =0;
++    u32 gpioNum = 0, active_high = 0, gpio_bus = 0, gpio_shift = 0, val = 0;
++
++    ledLen = sizeof(wg1008_px2_led)/sizeof(wg1008_px2_led[0]);
++    for(idx = 0; idx < ledLen; idx++)
++    {
++        gpioNum = wg1008_px2_led[idx].gpio_num;
++        active_high = wg1008_px2_led[idx].active_high;
++        if(mode == GPIO_LED_MODE_ON)
++        {
++            val = active_high?1:0;
++        }
++        else if(mode == GPIO_LED_MODE_OFF)
++        {
++            val = active_high?0:1;
++        }
++        else if(mode == GPIO_LED_MODE_NORMAL)
++        {
++            if(!strncmp("Power", wg1008_px2_led[idx].led_name, strlen("Power")))
++            {
++                val = active_high?1:0;
++            }
++            else
++            {
++                val = active_high?0:1;
++            }
++        }
++        else
++        {
++            break;
++        }
++        gpio_bus = wg1008_px2_gpio[gpioNum].gpio_bus;
++        gpio_shift = wg1008_px2_gpio[gpioNum].gpio_shift;
++        gpioWrite(gpio_bus, gpio_shift, GPIO_TYPE_DATA, val);
++    }
++#if 0
++    if(mode == GPIO_LED_MODE_ON)
++    {
++        switch_mv88e6190_port_led(PORT_LED_MODE_GREEN);
++        udelay(1000000);
++        switch_mv88e6190_port_led(PORT_LED_MODE_AMBER);
++        udelay(1000000);
++        switch_mv88e6190_port_led(PORT_LED_MODE_OFF);
++        udelay(1000000);
++        switch_mv88e6190_port_led(PORT_LED_MODE_ALLON);
++    }
++    else if(mode == GPIO_LED_MODE_OFF)
++    {
++        switch_mv88e6190_port_led(PORT_LED_MODE_OFF);
++    }
++    else if(mode == GPIO_LED_MODE_NORMAL)
++    {
++        switch_mv88e6190_port_led(PORT_LED_MODE_NORMAL);
++    }
++    else
++    {
++        return -1;
++    }
++#endif
++    return 0;
++}
++
++
++int wg1008_px2_gpio_init(void)
++{
++    int idx = 0, len = 0;
++    volatile u32 *gpio_dir_reg = NULL, *gpio_data_reg = NULL;
++    u32 gpio_bus = 0,default_val = 0, gpio_dir = 0, gpio_shift = 0;
++    int ret = 0;
++
++    printf("\nInitializing GPIO...");
++    len = sizeof(wg1008_px2_gpio)/sizeof(wg1008_px2_gpio[0]);
++
++    for(idx = 0; idx < len; idx++)
++    {
++        gpio_bus = wg1008_px2_gpio[idx].gpio_bus;
++        gpio_shift = wg1008_px2_gpio[idx].gpio_shift;
++        gpio_dir = wg1008_px2_gpio[idx].gpio_dir;
++        default_val = wg1008_px2_gpio[idx].gpio_default_val;
++#ifdef DBG_GPIO
++        printf("Initializing GPIO%u_%02u, direction : %s, default value : %u...", gpio_bus, gpio_shift, gpio_dir?"out":"in", default_val);
++#endif
++
++        ret = gpioWrite(gpio_bus, gpio_shift, GPIO_TYPE_DATA, default_val);
++        if(ret)
++        {
++            printf("\nFailed to set default value : %u!!!\n", default_val);
++            continue;
++        }
++        ret = gpioWrite(gpio_bus, gpio_shift, GPIO_TYPE_DIR, gpio_dir);
++        if(ret)
++        {
++            printf("\nFailed to set direction : %s!!!\n", gpio_dir?"out":"in");
++            continue;
++        }
++#ifdef DBG_GPIO
++        printf("done\n");
++#endif
++    }
++    printf("done\n");
++
++    return ret;
++}
++#endif
++
+ int misc_init_r(void)
+ {
+ 	char *env_hwconfig;
+@@ -285,15 +695,17 @@
+ #endif
+ 	if (hwconfig("sdhc"))
+ 		config_board_mux(MUX_TYPE_SDHC);
+-
++#if 0
+ 	if (adjust_vdd(0))
+ 		printf("Warning: Adjusting core voltage failed.\n");
++#endif
+ 	/*
+ 	 * Default value of board env is based on filename which is
+ 	 * ls2080ardb. Modify board env for other supported SoCs
+ 	 */
+ 	if ((SVR_SOC_VER(svr) == SVR_LS2088A) ||
+-	    (SVR_SOC_VER(svr) == SVR_LS2048A))
++	    (SVR_SOC_VER(svr) == SVR_LS2048A) ||
++		(SVR_SOC_VER(svr) == SVR_LS2084A))
+ 		env_set("board", "ls2088ardb");
+ 	else if ((SVR_SOC_VER(svr) == SVR_LS2081A) ||
+ 	    (SVR_SOC_VER(svr) == SVR_LS2041A))
+--- u-boot-2019.04/include/configs/ls2080ardb.h.orig	2022-05-09 14:14:04.522478508 -0700
++++ u-boot-2019.04/include/configs/ls2080ardb.h	2022-05-09 14:14:07.646352003 -0700
+@@ -9,6 +9,13 @@
+ 
+ #include "ls2080a_common.h"
+ 
++//#define DEBUG_UBOOT
++#ifdef DEBUG_UBOOT
++#define DBG_PRINTF(format, args...) printf("[%s:%d] "format, __FUNCTION__, __LINE__, ##args)
++#else
++#define DBG_PRINTF(args...)
++#endif
++
+ #ifdef CONFIG_FSL_QSPI
+ #ifdef CONFIG_TARGET_LS2081ARDB
+ #define CONFIG_QIXIS_I2C_ACCESS
+@@ -72,13 +79,168 @@
+ 						CONFIG_SYS_SCSI_MAX_LUN)
+ #ifdef CONFIG_TFABOOT
+ #define CONFIG_SYS_MMC_ENV_DEV         0
+-
++#if 0
+ #define CONFIG_ENV_SIZE			0x2000
+ #define CONFIG_ENV_OFFSET		0x500000	/* 5MB */
+ #define CONFIG_ENV_ADDR			(CONFIG_SYS_FLASH_BASE + \
+ 					 CONFIG_ENV_OFFSET)
+ #define CONFIG_ENV_SECT_SIZE		0x40000
+-#endif
++#else
++#define CONFIG_ENV_SIZE			0x2000
++#define CONFIG_ENV_OFFSET		0x200000	/* 2MB */
++
++/* Fix if setenv environment, After reset, gd->env_addr doesn't changed in soc.c
++   ENV_ADDR: IFC_FLASH_BASE --> QSPI_FLASH_BASE */
++#define QSPI_FLASH_BASE			0x20000000
++#define CONFIG_ENV_ADDR			(QSPI_FLASH_BASE + \
++					 CONFIG_ENV_OFFSET) 
++#define CONFIG_ENV_SECT_SIZE		0x10000
++#endif
++#endif
++
++/* GPIO */
++#define LS2084A_GPIO1_DIR  0x2300000
++#define LS2084A_GPIO1_DATA 0x2300008
++#define LS2084A_GPIO2_DIR  0x2310000
++#define LS2084A_GPIO2_DATA 0x2310008
++#define LS2084A_GPIO3_DIR  0x2320000
++#define LS2084A_GPIO3_DATA 0x2320008
++#define LS2084A_GPIO4_DIR  0x2330000
++#define LS2084A_GPIO4_DATA 0x2330008
++    
++#define GPIO_BUS_RST_CPU_N 3
++#define GPIO_BUS_Module_Bay_Present_N 3
++#define GPIO_BUS_RST_CPU_TPM_N 4
++#define GPIO_BUS_EN_CPU_DRV_LED_1V8_N 3
++#define GPIO_BUS_M2_CLKREQ_CPU_1V8_N 3
++#define GPIO_BUS_RST_CPU_PoE_N 3
++#define GPIO_BUS_EN_LAN_Port_LED_1V8_N 3
++#define GPIO_BUS_INT_ALL_TCA9555_N 3
++#define GPIO_BUS_EN_GPIO_BUFFER_N 3
++#define GPIO_BUS_PCIe_Module_WAKE_BUF_N 2
++#define GPIO_BUS_EN_CPU_NCT3961S_1V8_1 2
++#define GPIO_BUS_EN_CPU_NCT3961S_1V8_2 3
++#define GPIO_BUS_EN_CPU_NCT3961S_1V8_3 3
++#define GPIO_BUS_NCT_3961S_MODE_1V8_1 3
++#define GPIO_BUS_NCT_3961S_MODE_1V8_2 3
++#define GPIO_BUS_NCT_3961S_MODE_1V8_3 3
++#define GPIO_BUS_NCT_3961S_FTI_ALL_1V8_1 2
++#define GPIO_BUS_RST_Module_PERST_N 3
++#define GPIO_BUS_INT_ALL_IRQ_N 4
++#define GPIO_BUS_Module_Type_CONN_CPU_0 4
++#define GPIO_BUS_Module_Type_CONN_CPU_1 4
++#define GPIO_BUS_POWER_LED 3
++#define GPIO_BUS_STATUS_GREEN_LED 3
++#define GPIO_BUS_STATUS_RED_LED 3
++#define GPIO_BUS_STORAGE_LED 3
++#define GPIO_BUS_PORT1_AMBER_LED 3
++#define GPIO_BUS_PORT1_GREEN_LED 3
++#define GPIO_BUS_PORT2_AMBER_LED 3
++#define GPIO_BUS_PORT2_GREEN_LED 4
++#define GPIO_BUS_PORT3_AMBER_LED 4
++#define GPIO_BUS_PORT3_GREEN_LED 4
++#define GPIO_BUS_PORT4_AMBER_LED 4
++#define GPIO_BUS_PORT4_GREEN_LED 4
++#define GPIO_BUS_PORT5_AMBER_LED 4
++#define GPIO_BUS_PORT5_GREEN_LED 4
++#define GPIO_BUS_PORT6_AMBER_LED 4
++#define GPIO_BUS_PORT6_GREEN_LED 4
++#define GPIO_BUS_PORT7_AMBER_LED 4
++#define GPIO_BUS_PORT7_GREEN_LED 4
++#define GPIO_BUS_PORT8_AMBER_LED 4
++#define GPIO_BUS_PORT8_GREEN_LED 4
++    
++#define GPIO_SHIFT_RST_CPU_N 14
++#define GPIO_SHIFT_Module_Bay_Present_N 17
++#define GPIO_SHIFT_RST_CPU_TPM_N 9
++#define GPIO_SHIFT_EN_CPU_DRV_LED_1V8_N 21
++#define GPIO_SHIFT_M2_CLKREQ_CPU_1V8_N 20
++#define GPIO_SHIFT_RST_CPU_PoE_N 18
++#define GPIO_SHIFT_EN_LAN_Port_LED_1V8_N 26
++#define GPIO_SHIFT_INT_ALL_TCA9555_N 15
++#define GPIO_SHIFT_EN_GPIO_BUFFER_N 16
++#define GPIO_SHIFT_PCIe_Module_WAKE_BUF_N 9
++#define GPIO_SHIFT_EN_CPU_NCT3961S_1V8_1 10
++#define GPIO_SHIFT_EN_CPU_NCT3961S_1V8_2 3
++#define GPIO_SHIFT_EN_CPU_NCT3961S_1V8_3 2
++#define GPIO_SHIFT_NCT_3961S_MODE_1V8_1 3
++#define GPIO_SHIFT_NCT_3961S_MODE_1V8_2 4
++#define GPIO_SHIFT_NCT_3961S_MODE_1V8_3 5
++#define GPIO_SHIFT_NCT_3961S_FTI_ALL_1V8_1 15
++#define GPIO_SHIFT_RST_Module_PERST_N 19
++#define GPIO_SHIFT_INT_ALL_IRQ_N 10
++#define GPIO_SHIFT_Module_Type_CONN_CPU_0 0
++#define GPIO_SHIFT_Module_Type_CONN_CPU_1 1
++#define GPIO_SHIFT_POWER_LED 22
++#define GPIO_SHIFT_STATUS_GREEN_LED 23
++#define GPIO_SHIFT_STATUS_RED_LED 24
++#define GPIO_SHIFT_STORAGE_LED 25
++#define GPIO_SHIFT_PORT1_AMBER_LED 27
++#define GPIO_SHIFT_PORT1_GREEN_LED 28
++#define GPIO_SHIFT_PORT2_AMBER_LED 29
++#define GPIO_SHIFT_PORT2_GREEN_LED 4
++#define GPIO_SHIFT_PORT3_AMBER_LED 5
++#define GPIO_SHIFT_PORT3_GREEN_LED 6
++#define GPIO_SHIFT_PORT4_AMBER_LED 7
++#define GPIO_SHIFT_PORT4_GREEN_LED 8
++#define GPIO_SHIFT_PORT5_AMBER_LED 16
++#define GPIO_SHIFT_PORT5_GREEN_LED 21
++#define GPIO_SHIFT_PORT6_AMBER_LED 17
++#define GPIO_SHIFT_PORT6_GREEN_LED 18
++#define GPIO_SHIFT_PORT7_AMBER_LED 19
++#define GPIO_SHIFT_PORT7_GREEN_LED 20
++#define GPIO_SHIFT_PORT8_AMBER_LED 22
++#define GPIO_SHIFT_PORT8_GREEN_LED 23
++    
++    /* GPIO Direction, 1:output; 0:input */
++#define GPIO_DIR_RST_CPU_N 0
++#define GPIO_DIR_Module_Bay_Present_N 0
++#define GPIO_DIR_RST_CPU_TPM_N 1
++#define GPIO_DIR_EN_CPU_DRV_LED_1V8_N 1
++#define GPIO_DIR_M2_CLKREQ_CPU_1V8_N 1
++#define GPIO_DIR_RST_CPU_PoE_N 1
++#define GPIO_DIR_EN_LAN_Port_LED_1V8_N 1
++#define GPIO_DIR_INT_ALL_TCA9555_N 0
++#define GPIO_DIR_EN_GPIO_BUFFER_N 1
++#define GPIO_DIR_PCIe_Module_WAKE_BUF_N 0
++#define GPIO_DIR_EN_CPU_NCT3961S_1V8_1 1
++#define GPIO_DIR_EN_CPU_NCT3961S_1V8_2 1
++#define GPIO_DIR_EN_CPU_NCT3961S_1V8_3 1
++#define GPIO_DIR_NCT_3961S_MODE_1V8_1 1
++#define GPIO_DIR_NCT_3961S_MODE_1V8_2 1
++#define GPIO_DIR_NCT_3961S_MODE_1V8_3 1
++#define GPIO_DIR_NCT_3961S_FTI_ALL_1V8_1 0
++#define GPIO_DIR_RST_Module_PERST_N 1
++#define GPIO_DIR_INT_ALL_IRQ_N 0
++#define GPIO_DIR_Module_Type_CONN_CPU_0 0
++#define GPIO_DIR_Module_Type_CONN_CPU_1 0
++#define GPIO_DIR_POWER_LED 1
++#define GPIO_DIR_STATUS_GREEN_LED 1
++#define GPIO_DIR_STATUS_RED_LED 1
++#define GPIO_DIR_STORAGE_LED 1
++#define GPIO_DIR_PORT1_AMBER_LED 1
++#define GPIO_DIR_PORT1_GREEN_LED 1
++#define GPIO_DIR_PORT2_AMBER_LED 1
++#define GPIO_DIR_PORT2_GREEN_LED 1
++#define GPIO_DIR_PORT3_AMBER_LED 1
++#define GPIO_DIR_PORT3_GREEN_LED 1
++#define GPIO_DIR_PORT4_AMBER_LED 1
++#define GPIO_DIR_PORT4_GREEN_LED 1
++#define GPIO_DIR_PORT5_AMBER_LED 1
++#define GPIO_DIR_PORT5_GREEN_LED 1
++#define GPIO_DIR_PORT6_AMBER_LED 1
++#define GPIO_DIR_PORT6_GREEN_LED 1
++#define GPIO_DIR_PORT7_AMBER_LED 1
++#define GPIO_DIR_PORT7_GREEN_LED 1
++#define GPIO_DIR_PORT8_AMBER_LED 1
++#define GPIO_DIR_PORT8_GREEN_LED 1
++
++#define GPIO_TYPE_DIR 0
++#define GPIO_TYPE_DATA 1
++
++#define GPIO_LED_MODE_OFF    0
++#define GPIO_LED_MODE_ON     1
++#define GPIO_LED_MODE_NORMAL 2
+ 
+ #if !defined(CONFIG_FSL_QSPI) || defined(CONFIG_TFABOOT)
+ 
+@@ -283,20 +445,34 @@
+ #ifdef CONFIG_TARGET_LS2081ARDB
+ #define CONFIG_SYS_I2C_FPGA_ADDR	0x66
+ #endif
++#ifdef CONFIG_WG1008_PX2
++#define I2C_MUX_PCA_ADDR		0x71
++#define I2C_MUX_PCA_ADDR_PRI		0x71 /* Primary Mux*/
++#else
+ #define I2C_MUX_PCA_ADDR		0x75
+ #define I2C_MUX_PCA_ADDR_PRI		0x75 /* Primary Mux*/
++#endif
+ 
+ /* I2C bus multiplexer */
++#ifdef CONFIG_WG1008_PX2
++#define I2C_MUX_CH_DEFAULT      0x7
++#else
+ #define I2C_MUX_CH_DEFAULT      0x8
++#endif
+ 
+ /* SPI */
+ #if defined(CONFIG_FSL_QSPI) || defined(CONFIG_FSL_DSPI)
+ #ifdef CONFIG_FSL_DSPI
+ #define CONFIG_SPI_FLASH_STMICRO
+ #endif
++#ifdef CONFIG_WG1008_PX2
++#define FSL_QSPI_FLASH_SIZE		SZ_8M	/* 8MB */
++#define FSL_QSPI_FLASH_NUM		1
++#else
+ #define FSL_QSPI_FLASH_SIZE		SZ_64M	/* 64MB */
+ #define FSL_QSPI_FLASH_NUM		2
+ #endif
++#endif
+ 
+ /*
+  * RTC configuration
+@@ -311,6 +487,7 @@
+ #endif
+ 
+ /* EEPROM */
++#if 0
+ #define CONFIG_ID_EEPROM
+ #define CONFIG_SYS_I2C_EEPROM_NXID
+ #define CONFIG_SYS_EEPROM_BUS_NUM	0
+@@ -318,6 +495,7 @@
+ #define CONFIG_SYS_I2C_EEPROM_ADDR_LEN	1
+ #define CONFIG_SYS_EEPROM_PAGE_WRITE_BITS 3
+ #define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS 5
++#endif
+ 
+ #define CONFIG_FSL_MEMAC
+ 
+@@ -342,7 +520,11 @@
+ 	"env exists secureboot && "		\
+ 	"esbc_validate 0x20700000 && "		\
+ 	"esbc_validate 0x20740000;"		\
+-	"fsl_mc start mc 0x20a00000 0x20e00000 \0"
++	"sf probe 0 && "		\
++	"sf read 0x80400000 0x400000 0x300000 && "	\
++	"sf read 0x80620000 0x620000 0x100000; "	\
++	"fsl_mc start mc 0x80400000 0x80620000 \0" //DRAM Region 512M
++	//"fsl_mc start mc 0x20400000 0x20620000 \0"	
+ #define SD_MC_INIT_CMD				\
+ 	"mmcinfo;mmc read 0x80a00000 0x5000 0x1200;" \
+ 	"mmc read 0x80e00000 0x7000 0x800;"	\
+@@ -356,7 +538,7 @@
+ 	"env exists secureboot && "	\
+ 	"esbc_validate 0x580700000 && "		\
+ 	"esbc_validate 0x580740000; "		\
+-	"fsl_mc start mc 0x580a00000 0x580e00000 \0"
++	"fsl_mc start mc 0x580300000 0x580520000 \0" //0x580a00000 0x580e00000
+ #else
+ #ifdef CONFIG_QSPI_BOOT
+ #define MC_INIT_CMD				\
+@@ -374,7 +556,7 @@
+ 	"esbc_validate 0x80700000 && "		\
+ 	"esbc_validate 0x80740000 ;"		\
+ 	"fsl_mc start mc 0x80000000 0x80100000\0" \
+-	"mcmemsize=0x70000000\0"
++	"mcmemsize=0x20000000\0"
+ #else
+ #define MC_INIT_CMD				\
+ 	"mcinitcmd=env exists secureboot && "	\
+@@ -410,7 +592,7 @@
+ 	"kernel_addr_sd=0x8000\0"		\
+ 	"kernel_size_sd=0x14000\0"              \
+ 	"console=ttyAMA0,38400n8\0"		\
+-	"mcmemsize=0x70000000\0"		\
++	"mcmemsize=0x20000000\0"		\
+ 	"sd_bootcmd=echo Trying load from SD ..;" \
+ 	"mmcinfo; mmc read $load_addr "		\
+ 	"$kernel_addr_sd $kernel_size_sd && "	\
+@@ -437,18 +619,39 @@
+ 			"${scripthdraddr} ${prefix}${boot_script_hdr} "	\
+ 			"&& esbc_validate ${scripthdraddr};"	\
+ 		"source ${scriptaddr}\0"			\
+-	"qspi_bootcmd=echo Trying load from qspi..;"		\
+-		"sf probe && sf read $load_addr "		\
+-		"$kernel_start $kernel_size ; env exists secureboot &&"	\
+-		"sf read $kernelheader_addr_r $kernelheader_start "	\
+-		"$kernelheader_size && esbc_validate ${kernelheader_addr_r}; "\
+-		" bootm $load_addr#$board\0"			\
+-	"nor_bootcmd=echo Trying load from nor..;"		\
+-		"cp.b $kernel_addr $load_addr "			\
+-		"$kernel_size ; env exists secureboot && "	\
+-		"cp.b $kernelheader_addr $kernelheader_addr_r "	\
+-		"$kernelheader_size && esbc_validate ${kernelheader_addr_r}; "\
+-		"bootm $load_addr#$board\0"
++	"bootcmd_nvme0=devnum=0; nvme scan; ext4load nvme 0:2 0x80000000 dsa_sw_parse_v1.spb; fsl_mc apply spb 0x80000000; run nvme_boot\0"	\
++	"nvme_boot=if nvme dev ${devnum}; then setenv devtype nvme;"	\
++		"run scan_dev_for_boot_part; fi\0"	\
++	"bootcmd_usb0=devnum=0; run usb_boot; devnum=1; run usb_boot\0"		\
++	"boot_targets=usb0 nvme0 scsi0 mmc0\0"		\
++	"consoledev=ttyS0\0"					\
++	"WGKernelfile=kernel_M390.itb\0"                                \
++	"SysARoot=nvme0n1p3\0"	\
++	"SysBRoot=nvme0n1p2\0"	\
++	"wgBootODMOS=run bootcmd_nvme0;\0" \
++	"wgBootSysA=fsl_mc lazyapply dpl 0x80600000;" \
++	"setenv bootargs root=/dev/$SysARoot rw " \
++	"console=$consoledev,$baudrate $othbootargs "	\
++	"earlycon=uart8250,mmio,0x21c0500; "	\
++	"nvme scan; ext2load nvme 0:3 0x80000000 dsa_ptoto_v2.spb; " \
++	"fsl_mc apply spb 0x80000000; " \
++	"ext2load nvme 0:3 $load_addr $WGKernelfile; " \
++	"bootm $load_addr;\0"             \
++	"wgBootSysB=fsl_mc lazyapply dpl 0x80600000;" \
++	"setenv bootargs root=/dev/$SysBRoot rw " \
++	"console=$consoledev,$baudrate $othbootargs "	\
++	"earlycon=uart8250,mmio,0x21c0500; "	\
++	"nvme scan; ext2load nvme 0:2 $load_addr $WGKernelfile; " \
++	"bootm $load_addr;\0"             \
++	"nuke_env=sf probe 0;sf erase 0x200000 0x10000;\0" \
++	"ipaddr=10.0.1.1\0"     \
++	"serverip=10.0.1.13\0"     \
++	"gatewayip=10.0.1.13\0"     \
++	"netmask=255.255.255.0\0"     \
++	"boot_targets=usb0 nvme0\0" \
++	"flash_wg_bootloader=tftp 0xa0000000 u-boot_ls2088ardb_m390_complete.bin;" \
++	"&& sf probe 0; sf erase 0x0 0x210000; sf write 0xa0000000 0x0 $filesize; sf read 0x80000000 0 $filesize; cmp.b 0xa0000000 0x80000000 $filesize;\0"
++
+ #else
+ #define CONFIG_EXTRA_ENV_SETTINGS		\
+ 	"hwconfig=fsl_ddr:bank_intlv=auto\0"	\
+@@ -473,7 +676,7 @@
+ 	"kernel_addr_sd=0x8000\0"		\
+ 	"kernel_size_sd=0x14000\0"              \
+ 	"console=ttyAMA0,38400n8\0"		\
+-	"mcmemsize=0x70000000\0"		\
++	"mcmemsize=0x20000000\0"		\
+ 	"sd_bootcmd=echo Trying load from SD ..;" \
+ 	"mmcinfo; mmc read $load_addr "		\
+ 	"$kernel_addr_sd $kernel_size_sd && "	\
+@@ -517,61 +720,29 @@
+ 
+ #ifdef CONFIG_TFABOOT
+ #define QSPI_NOR_BOOTCOMMAND						\
+-			"env exists mcinitcmd && env exists secureboot "\
+-			"&& esbc_validate 0x20780000; "			\
+-			"env exists mcinitcmd && "			\
+-			"fsl_mc lazyapply dpl 0x20d00000; "		\
+-			"run distro_bootcmd;run qspi_bootcmd; "		\
+-			"env exists secureboot && esbc_halt;"
++			"run wgBootSysA"
+ 
+ /* Try to boot an on-SD kernel first, then do normal distro boot */
+ #define SD_BOOTCOMMAND						\
+-			"env exists mcinitcmd && env exists secureboot "\
+-			"&& mmcinfo && mmc read $load_addr 0x3c00 0x800 " \
+-			"&& esbc_validate $load_addr; "			\
+-			"env exists mcinitcmd && run mcinitcmd "	\
+-			"&& mmc read 0x80d00000 0x6800 0x800 "		\
+-			"&& fsl_mc lazyapply dpl 0x80d00000; "		\
+-			"run distro_bootcmd;run sd_bootcmd; "		\
+-			"env exists secureboot && esbc_halt;"
++			"run wgBootSysA"
+ 
+ /* Try to boot an on-NOR kernel first, then do normal distro boot */
+ #define IFC_NOR_BOOTCOMMAND						\
+-			"env exists mcinitcmd && env exists secureboot "\
+-			"&& esbc_validate 0x580780000; env exists mcinitcmd "\
+-			"&& fsl_mc lazyapply dpl 0x580d00000;"		\
+-			"run distro_bootcmd;run nor_bootcmd; "		\
+-			"env exists secureboot && esbc_halt;"
++			"run wgBootSysA"
+ #else
+ #undef CONFIG_BOOTCOMMAND
+ #ifdef CONFIG_QSPI_BOOT
+ /* Try to boot an on-QSPI kernel first, then do normal distro boot */
+ #define CONFIG_BOOTCOMMAND						\
+-			"env exists mcinitcmd && env exists secureboot "\
+-			"&& esbc_validate 0x20780000; "			\
+-			"env exists mcinitcmd && "			\
+-			"fsl_mc lazyapply dpl 0x20d00000; "		\
+-			"run distro_bootcmd;run qspi_bootcmd; "		\
+-			"env exists secureboot && esbc_halt;"
++			"run wgBootSysA"
+ #elif defined(CONFIG_SD_BOOT)
+ /* Try to boot an on-SD kernel first, then do normal distro boot */
+ #define CONFIG_BOOTCOMMAND						\
+-			"env exists mcinitcmd && env exists secureboot "\
+-			"&& mmcinfo && mmc read $load_addr 0x3c00 0x800 " \
+-			"&& esbc_validate $load_addr; "			\
+-			"env exists mcinitcmd && run mcinitcmd "	\
+-			"&& mmc read 0x88000000 0x6800 0x800 "		\
+-			"&& fsl_mc lazyapply dpl 0x88000000; "		\
+-			"run distro_bootcmd;run sd_bootcmd; "		\
+-			"env exists secureboot && esbc_halt;"
++			"run wgBootSysA"
+ #else
+ /* Try to boot an on-NOR kernel first, then do normal distro boot */
+ #define CONFIG_BOOTCOMMAND						\
+-			"env exists mcinitcmd && env exists secureboot "\
+-			"&& esbc_validate 0x580780000; env exists mcinitcmd "\
+-			"&& fsl_mc lazyapply dpl 0x580d00000;"		\
+-			"run distro_bootcmd;run nor_bootcmd; "		\
+-			"env exists secureboot && esbc_halt;"
++			"run wgBootSysA"
+ #endif
+ #endif
+ 
+@@ -586,6 +757,7 @@
+ #endif
+ #define CONFIG_CORTINA_FW_LENGTH	0x40000
+ 
++#define USXGMII_PHY_ADDR10	0xa
+ #define CORTINA_PHY_ADDR1	0x10
+ #define CORTINA_PHY_ADDR2	0x11
+ #define CORTINA_PHY_ADDR3	0x12
+@@ -597,6 +769,13 @@
+ #define AQR405_IRQ_MASK		0x36
+ 
+ #define CONFIG_ETHPRIME		"DPMAC1@xgmii"
++
++/*  Marvell 88E6191X switch */
++#define CONFIG_MV88E6191X_SWITCH
++#define CONFIG_MV88E6191X_SWITCH_CPU_ATTACHED
++#define CONFIG_ETHADDR		00:90:4c:06:a5:72
++#define SMI_I 1
++#define SMI_E (!SMI_I)
+ #endif
+ 
+ #include <asm/fsl_secure_boot.h>
+--- u-boot-2019.04/include/configs/ls1046ardb.h.orig	2022-05-09 14:14:04.522478508 -0700
++++ u-boot-2019.04/include/configs/ls1046ardb.h	2022-05-09 14:14:07.642352165 -0700
+@@ -127,30 +127,30 @@
+ #define GPIO_SHIFT_INT_TPM_PIRQ_1V8_N 0
+ #define GPIO_SHIFT_Module_Type_CONN_CPU_1V8_0 7
+ #define GPIO_SHIFT_Module_Type_CONN_CPU_1V8_1 8
+-#define GPIO_SHIFT_PORT1_LED 5
+-#define GPIO_SHIFT2_PORT1_LED 4
+-#define GPIO_SHIFT_PORT2_LED 3
+-#define GPIO_SHIFT2_PORT2_LED 2
+-#define GPIO_SHIFT_PORT3_LED 6
+-#define GPIO_SHIFT2_PORT3_LED 7
+-#define GPIO_SHIFT_PORT4_LED 12
+-#define GPIO_SHIFT2_PORT4_LED 11
+-#define GPIO_SHIFT_PORT5_LED 10
+-#define GPIO_SHIFT2_PORT5_LED 9
+-#define GPIO_SHIFT_PORT6_LED 14
+-#define GPIO_SHIFT2_PORT6_LED 13
+-#define GPIO_SHIFT_PORT7_LED 8
+-#define GPIO_SHIFT2_PORT7_LED 18
+-#define GPIO_SHIFT_PORT8_LED 17
+-#define GPIO_SHIFT2_PORT8_LED 16
+-/* #define GPIO_SHIFT_POWER_LED 28 */
+-#define GPIO_SHIFT_STATUS_LED 26
+-#define GPIO_SHIFT2_STATUS_LED 25
++#define GPIO_SHIFT_PORT1_AMBER_LED 5
++#define GPIO_SHIFT_PORT1_GREEN_LED 4
++#define GPIO_SHIFT_PORT2_AMBER_LED 3
++#define GPIO_SHIFT_PORT2_GREEN_LED 2
++#define GPIO_SHIFT_PORT3_AMBER_LED 6
++#define GPIO_SHIFT_PORT3_GREEN_LED 7
++#define GPIO_SHIFT_PORT4_AMBER_LED 12
++#define GPIO_SHIFT_PORT4_GREEN_LED 11
++#define GPIO_SHIFT_PORT5_AMBER_LED 10
++#define GPIO_SHIFT_PORT5_GREEN_LED 9
++#define GPIO_SHIFT_PORT6_AMBER_LED 14
++#define GPIO_SHIFT_PORT6_GREEN_LED 13
++#define GPIO_SHIFT_PORT7_AMBER_LED 8
++#define GPIO_SHIFT_PORT7_GREEN_LED 18
++#define GPIO_SHIFT_PORT8_AMBER_LED 17
++#define GPIO_SHIFT_PORT8_GREEN_LED 16
++#define GPIO_SHIFT_POWER_LED 28
++#define GPIO_SHIFT_STATUS_RED_LED 26
++#define GPIO_SHIFT_STATUS_GREEN_LED 25
+ #define GPIO_SHIFT_STORAGE_LED 27
+ 
+ /* T80 GPIO */
+ #define GPIO_SHIFT_RESET_IN 23
+-#define GPIO_SHIFT_POWER_LED 24
++/* #define GPIO_SHIFT_POWER_LED 24 */
+ #define GPIO_SHIFT_SW_STATUS_LED 25
+ #define GPIO_SHIFT_SW_MODE_LED 26
+ #define GPIO_SHIFT_FAILOVER_LED 27
+@@ -171,8 +171,8 @@
+ /* T80 GPIO */
+     
+ /* GPIO Direction, 1:output; 0:input */
+-#define GPIO_DIR_EN_CPU_1V8_NCT3961S_1 1
+-#define GPIO_DIR_EN_CPU_1V8_NCT3961S_2 1
++#define GPIO_DIR_EN_CPU_1V8_NCT3961S_1 0
++#define GPIO_DIR_EN_CPU_1V8_NCT3961S_2 0
+ #define GPIO_DIR_RST_CPU_N 0
+ #define GPIO_DIR_Module_Bay_Present_N 0
+ #define GPIO_DIR_RST_Module_PERST_N 1
+@@ -189,8 +189,8 @@
+ #define GPIO_DIR_RST_CPU_TPM_N 1
+ #define GPIO_DIR_NCT_3961S_MODE_CPU_1V8_1 1
+ #define GPIO_DIR_NCT_3961S_MODE_CPU_1V8_2 1
+-#define GPIO_DIR_NCT_3961S_FTI_CPU_1V8_1 1
+-#define GPIO_DIR_NCT_3961S_FTI_CPU_1V8_2 1
++#define GPIO_DIR_NCT_3961S_FTI_CPU_1V8_1 0
++#define GPIO_DIR_NCT_3961S_FTI_CPU_1V8_2 0
+ #define GPIO_DIR_INT_TPM_PIRQ_1V8_N 0
+ #define GPIO_DIR_Module_Type_CONN_CPU_1V8_0 0
+ #define GPIO_DIR_Module_Type_CONN_CPU_1V8_1 0
+@@ -377,7 +377,7 @@
+ 
+ #ifdef CONFIG_WG1008_PX1
+ #define CONFIG_ENV_SIZE			0x2000		/* 8KB */
+-#define CONFIG_ENV_OFFSET		0x210000	/* 2MB */
++#define CONFIG_ENV_OFFSET		0x200000	/* 2MB */
+ #define CONFIG_ENV_SECT_SIZE	0x10000	        /* 64KB */
+ #else
+ #define CONFIG_ENV_SIZE			0x2000		/* 8KB */
+@@ -462,24 +462,95 @@
+ #endif
+ #endif
+ 
++
+ #ifndef SPL_NO_MISC
+ #undef CONFIG_BOOTCOMMAND
+ #ifdef CONFIG_TFABOOT
+-#define QSPI_NOR_BOOTCOMMAND "run distro_bootcmd; run qspi_bootcmd; "	\
+-			   "env exists secureboot && esbc_halt;;"
+-#define SD_BOOTCOMMAND "run distro_bootcmd;run sd_bootcmd; "	\
+-			   "env exists secureboot && esbc_halt;"
++#define QSPI_NOR_BOOTCOMMAND "run wgBootSysA"
+ #else
+ #if defined(CONFIG_QSPI_BOOT)
+-#define CONFIG_BOOTCOMMAND "run distro_bootcmd; run qspi_bootcmd; "	\
+-			   "env exists secureboot && esbc_halt;;"
++#define CONFIG_BOOTCOMMAND "run wgBootSysA"
+ #elif defined(CONFIG_SD_BOOT)
+-#define CONFIG_BOOTCOMMAND "run distro_bootcmd;run sd_bootcmd; "	\
+-			   "env exists secureboot && esbc_halt;"
++#define CONFIG_BOOTCOMMAND "run wgBootSysA"
+ #endif
+ #endif
+ #endif
+ 
++#undef	CONFIG_EXTRA_ENV_SETTINGS
++#define CONFIG_EXTRA_ENV_SETTINGS		\
++	"hwconfig=fsl_ddr:bank_intlv=auto\0"	\
++	"ramdisk_addr=0x800000\0"		\
++	"ramdisk_size=0x2000000\0"		\
++	"fdt_high=0xffffffffffffffff\0"		\
++	"initrd_high=0xffffffffffffffff\0"	\
++	"fdt_addr=0x64f00000\0"                 \
++	"kernel_addr=0x65000000\0"              \
++	"scriptaddr=0x80000000\0"               \
++	"scripthdraddr=0x80080000\0"		\
++	"fdtheader_addr_r=0x80100000\0"         \
++	"kernelheader_addr_r=0x80200000\0"      \
++	"load_addr=0xa0000000\0"            \
++	"kernel_addr_r=0x81080000\0"            \
++	"fdt_addr_r=0x90000000\0"               \
++	"ramdisk_addr_r=0xa0000000\0"           \
++	"kernel_start=0x1000000\0"		\
++	"kernelheader_start=0x800000\0"		\
++	"kernel_load=0xa0000000\0"		\
++	"kernel_size=0x2800000\0"		\
++	"kernelheader_size=0x40000\0"		\
++	"kernel_addr_sd=0x8000\0"		\
++	"kernel_size_sd=0x14000\0"		\
++	"kernelhdr_addr_sd=0x4000\0"		\
++	"kernelhdr_size_sd=0x10\0"		\
++	"console=ttyS0,115200\0"                \
++	 CONFIG_MTDPARTS_DEFAULT "\0"		\
++	BOOTENV					\
++	LS1046A_BOOT_SRC_AND_HDR		\
++	"scan_dev_for_boot_part="		\
++		"part list ${devtype} ${devnum} devplist; "	\
++		"env exists devplist || setenv devplist 1; "	\
++		"for distro_bootpart in ${devplist}; do "	\
++			"if fstype ${devtype} "			\
++				"${devnum}:${distro_bootpart} "	\
++				"bootfstype; then "		\
++				"run scan_dev_for_boot; "	\
++			"fi; "					\
++		"done\0"			\
++	"boot_a_script="					\
++		"load ${devtype} ${devnum}:${distro_bootpart} "	\
++			"${scriptaddr} ${prefix}${script}; "	\
++		"env exists secureboot && load ${devtype} "	\
++			"${devnum}:${distro_bootpart} "		\
++			"${scripthdraddr} ${prefix}${boot_script_hdr}; " \
++			"env exists secureboot "	\
++			"&& esbc_validate ${scripthdraddr};"	\
++		"source ${scriptaddr}\0"			\
++	"consoledev=ttyS0\0"					\
++	"WGKernelfile=kernel_M290.itb\0"                                \
++	"SysARoot=nvme0n1p3\0"	\
++	"SysBRoot=nvme0n1p2\0"	\
++	"wgBootSysA=setenv bootargs root=/dev/$SysARoot rw " \
++	"console=$consoledev,$baudrate $othbootargs "	\
++	"earlycon=uart8250,mmio,0x21c0500; "	\
++	"nvme scan; " \
++	"ext2load nvme 0:3 $load_addr $WGKernelfile; " \
++	"bootm $load_addr;\0"             \
++	"wgBootSysB=setenv bootargs root=/dev/$SysBRoot rw " \
++	"console=$consoledev,$baudrate $othbootargs "	\
++	"earlycon=uart8250,mmio,0x21c0500; "	\
++	"nvme scan; " \
++	"ext2load nvme 0:2 $load_addr $WGKernelfile; " \
++	"bootm $load_addr;\0"             \
++	"nuke_env=sf probe 0;sf erase 0x200000 0x10000;\0" \
++	"ipaddr=10.0.1.1\0"     \
++	"serverip=10.0.1.13\0"     \
++	"gatewayip=10.0.1.13\0"     \
++	"netmask=255.255.255.0\0"     \
++	"boot_targets=usb0 nvme0\0" \
++	"flash_wg_bootloader=tftp 0xa0000000 u-boot_ls1046ardb_m290_complete.bin;" \
++	"sf probe 0; sf erase 0x0 0x210000; sf write 0xa0000000 0x0 $filesize; sf read 0x80000000 0 $filesize; cmp.b 0xa0000000 0x80000000 $filesize;\0"
++
++
+ #include <asm/fsl_secure_boot.h>
+ 
+ #endif /* __LS1046ARDB_H__ */
+--- u-boot-2019.04/include/configs/ls2080a_common.h.orig	2022-05-09 14:14:04.522478508 -0700
++++ u-boot-2019.04/include/configs/ls2080a_common.h	2022-05-09 14:14:07.642352165 -0700
+@@ -13,6 +13,8 @@
+ #include <asm/arch/stream_id_lsch3.h>
+ #include <asm/arch/config.h>
+ 
++#define CONFIG_WG1008_PX2
++
+ /* Link Definitions */
+ #ifdef CONFIG_TFABOOT
+ #define CONFIG_SYS_INIT_SP_ADDR		CONFIG_SYS_TEXT_BASE
+--- u-boot-2019.04/include/configs/ls1046a_common.h.orig	2022-05-09 14:14:04.522478508 -0700
++++ u-boot-2019.04/include/configs/ls1046a_common.h	2022-05-09 14:14:07.642352165 -0700
+@@ -291,7 +291,7 @@
+     "ipaddr=192.168.3.10\0"     \
+     "serverip=192.168.3.20\0"     \
+     "gatewayip=192.168.3.20\0"     \
+-    "boot_targets=usb0 usb1 scsi0 nvme0 mmc0\0"
++    "boot_targets=usb0 nvme0 scsi0 mmc0\0"
+ 
+ #endif
+ 
+--- u-boot-2019.04/include/common.h.orig	2022-05-09 14:14:04.446481586 -0700
++++ u-boot-2019.04/include/common.h	2022-05-09 14:14:07.598353947 -0700
+@@ -63,7 +63,7 @@
+  */
+ #include <init.h>
+ 
+-#ifdef CONFIG_WG1008_PX1
++#if defined(CONFIG_WG1008_PX1) || defined(CONFIG_WG1008_PX2)
+ typedef enum
+ {
+     GPIO_NUM_RESET_IN,
+@@ -101,7 +101,7 @@
+     char led_name[32];
+     u32 active_high;
+ } LED_t;
+-#endif
++#endif // #if defined(CONFIG_WG1008_PX1) || defined(CONFIG_WG1008_PX2)
+ 
+ /*
+  * Function Prototypes
+--- u-boot-2019.04/arch/arm/dts/fsl-ls2088a-rdb-qspi.dts.orig	2022-05-09 14:14:00.062659113 -0700
++++ u-boot-2019.04/arch/arm/dts/fsl-ls2088a-rdb-qspi.dts	2022-05-09 14:14:05.894422950 -0700
+@@ -28,7 +28,7 @@
+ 	dflash0: n25q512a {
+ 		#address-cells = <1>;
+ 		#size-cells = <1>;
+-		compatible = "spi-flash";
++		compatible = "jedec,spi-nor";
+ 		spi-max-frequency = <3000000>;
+ 		spi-cpol;
+ 		spi-cpha;
+@@ -39,11 +39,11 @@
+ &qspi {
+ 	bus-num = <0>;
+ 	status = "okay";
+-
++#if 0
+ 	qflash0: s25fs512s@0 {
+ 		#address-cells = <1>;
+ 		#size-cells = <1>;
+-		compatible = "spi-flash";
++		compatible = "jedec,spi-nor";
+ 		spi-max-frequency = <50000000>;
+ 		reg = <0>;
+ 	};
+@@ -51,7 +51,23 @@
+ 	qflash1: s25fs512s@1 {
+ 		#address-cells = <1>;
+ 		#size-cells = <1>;
+-		compatible = "spi-flash";
++		compatible = "jedec,spi-nor";
++		spi-max-frequency = <50000000>;
++		reg = <1>;
++	};
++#endif
++	qflash0: mx25u6435f@0 {
++		#address-cells = <1>;
++		#size-cells = <1>;
++		compatible = "jedec,spi-nor";
++		spi-max-frequency = <50000000>;
++		reg = <0>;
++	};
++
++	qflash1: mx25u6435f@1 {
++		#address-cells = <1>;
++		#size-cells = <1>;
++		compatible = "jedec,spi-nor";
+ 		spi-max-frequency = <50000000>;
+ 		reg = <1>;
+ 	};
+@@ -60,7 +76,12 @@
+ &i2c0 {
+ 	status = "okay";
+ 	u-boot,dm-pre-reloc;
+-
++#if 1
++	tpm_i2c_ptp@2e {
++        compatible = "tcg,tpm_i2c_ptp";
++        reg = <0x2e>;
++    };
++#else
+ 	pca9547@75 {
+ 		compatible = "nxp,pca9547";
+ 		reg = <0x75>;
+@@ -77,6 +98,69 @@
+ 			};
+ 		};
+ 	};
++#endif
++};
++
++&i2c1 {
++	status = "okay";
++	max20754@29 {
++        compatible = "maxim,max20754";
++        reg = <0x29>;
++	};
++};
++
++&i2c3 {
++	status = "okay";
++	pca9546@71 {
++		compatible = "nxp,pca9546";
++		reg = <0x71>;
++		#address-cells = <1>;
++		#size-cells = <0>;
++		i2c-mux-never-disable;
++		i2c@0 {
++			#address-cells = <1>;
++			#size-cells = <0>;
++			reg = <0x00>;
++			rtc@68 {
++				compatible = "dallas,ds1307";
++				reg = <0x68>;
++			};
++		};
++
++		i2c@1 {
++			#address-cells = <1>;
++			#size-cells = <0>;
++			reg = <0x01>;
++			nct7904@2d {
++            	compatible = "nuvoton,nct7904";
++            	reg = <0x2d>;
++			};
++		};
++
++		i2c@2 {
++			#address-cells = <1>;
++			#size-cells = <0>;
++			reg = <0x02>;
++			tmp75@4a {
++            	compatible = "ti,tmp75";
++            	reg = <0x4a>;
++			};
++			tmp75@4b {
++            	compatible = "ti,tmp75";
++            	reg = <0x4b>;
++			};
++		};
++
++		i2c@3 {
++			#address-cells = <1>;
++			#size-cells = <0>;
++			reg = <0x03>;
++			poe@20 {
++            	compatible = "poe,poe_i2c_microsemi";
++            	reg = <0x20>;
++			};
++		};
++    };
+ };
+ 
+ &sata {
+--- u-boot-2019.04/arch/arm/lib/reset.c.orig	2022-05-09 14:14:00.822628338 -0700
++++ u-boot-2019.04/arch/arm/lib/reset.c	2022-05-09 14:14:06.118413879 -0700
+@@ -21,11 +21,100 @@
+  */
+ 
+ #include <common.h>
++#ifdef CONFIG_WG1008_PX1
++#include <i2c.h>
++#endif
+ 
+ __weak void reset_misc(void)
+ {
+ }
+ 
++#ifdef CONFIG_WG1008_PX1
++enum i2c_err_op {
++	I2C_ERR_READ,
++	I2C_ERR_WRITE,
++};
++
++static int i2c_report_err(int ret, enum i2c_err_op op)
++{
++	printf("Error %s the chip: %d\n",
++	       op == I2C_ERR_READ ? "reading" : "writing", ret);
++
++	return CMD_RET_FAILURE;
++}
++
++int set_cpld_reset(void)
++{
++	int ret; int bus = 3; 
++	uint8_t buf = 0x2; uint8_t cpld_rst = 0xff;
++
++	ret = i2c_set_bus_num(bus);
++	if (ret) {
++		printf("Failure changing bus number (%d)\n", ret);
++		return 0;
++	}
++	
++	ret = i2c_write(0x71, 0x0, 1, &buf, 1);
++	if (ret) {
++		printf("Failed to access PCA9546 Channel\n");
++		return i2c_report_err(ret, I2C_ERR_WRITE);
++	}
++	
++	ret = i2c_write(0x32, 0x3, 1, &cpld_rst, 1);
++	if (ret) {
++		printf("Failed to write reset value via CPLD\n");
++		return i2c_report_err(ret, I2C_ERR_WRITE);
++	}
++	
++	return 0;
++}
++#endif // CONFIG_WG1008_PX1
++
++#ifdef CONFIG_WG1008_PX2
++
++int set_cpld_reset(void)
++{
++	struct udevice *dev;
++	int ret;
++	uint8_t buf = 0xf; uint8_t cpld_rst = 0xff;
++
++	ret = i2c_get_chip_for_busnum(2, 0x71, 1, &dev);
++	if (ret) {
++		printf("Can't find PCA9546: %d\n", ret);
++		return 0;
++	}
++
++	ret = dm_i2c_write(dev, 0x0, &buf, 1);
++	if (ret) {
++		printf("Failed to access PCA9546 Channel\n");
++		return 0;
++	}
++
++#if 1
++	ret = i2c_get_chip_for_busnum(2, 0x32, 1, &dev);
++#else
++	ret = i2c_get_chip_for_busnum(2, 0x2d, 1, &dev);
++#endif
++	if (ret) {
++		printf("Can't find CPLD: %d\n", ret);
++		return 0;
++	}
++
++#if 1
++	ret = dm_i2c_write(dev, 0x3, &cpld_rst, 1);
++#else
++	ret = dm_i2c_write(dev, 0x1, &buf, 1);
++#endif
++	if (ret) {
++		printf("Failed to write reset value via CPLD\n");
++		return 0;
++	}
++	
++	return 0;
++}
++#endif // CONFIG_WG1008_PX2
++
++
+ int do_reset(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+ {
+ 	puts ("resetting ...\n");
+@@ -36,6 +125,7 @@
+ 
+ 	reset_misc();
+ 	reset_cpu(0);
++	set_cpld_reset();
+ 
+ 	/*NOTREACHED*/
+ 	return 0;
+--- u-boot-2019.04/arch/arm/cpu/armv8/fsl-layerscape/soc.c.orig	2022-05-09 14:13:59.954663487 -0700
++++ u-boot-2019.04/arch/arm/cpu/armv8/fsl-layerscape/soc.c	2022-05-09 14:14:05.842425056 -0700
+@@ -338,7 +338,9 @@
+ 	erratum_a009008();
+ 	erratum_a009798();
+ 	erratum_a008997();
++#if !defined(CONFIG_WG1008_PX2)
+ 	erratum_a009007();
++#endif
+ 	erratum_a050106();
+ #ifdef CONFIG_CHAIN_OF_TRUST
+ 	/* In case of Secure Boot, the IBR configures the SMMU
+@@ -888,6 +890,7 @@
+ 	 * check if gd->env_addr is default_environment; then setenv bootcmd
+ 	 * and mcinitcmd.
+ 	 */
++	//printf("env_addr1: %x\n, reloc_off1: %x\n", gd->env_addr, gd->reloc_off);
+ #if !defined(CONFIG_ENV_ADDR) || defined(ENV_IS_EMBEDDED)
+ 	if (gd->env_addr == (ulong)&default_environment[0]) {
+ #else
+--- u-boot-2019.04/arch/arm/cpu/armv8/fsl-layerscape/Kconfig.orig	2022-05-09 14:13:59.946663811 -0700
++++ u-boot-2019.04/arch/arm/cpu/armv8/fsl-layerscape/Kconfig	2022-05-09 14:14:05.838425217 -0700
+@@ -615,3 +615,9 @@
+        help
+          Enabling this will make a U-Boot binary that is capable of being
+          booted via TFA.
++
++config WG_BOOTMENU
++        bool "Support WG boot menu"
++	default y
++        help
++          Support WG boot menu.
+--- u-boot-2019.04/configs/sagem_f@st1704_ram_defconfig.orig	1969-12-31 16:00:00.000000000 -0800
++++ u-boot-2019.04/configs/sagem_f@st1704_ram_defconfig	2022-05-09 14:14:07.078375004 -0700
+@@ -0,0 +1,55 @@
++CONFIG_MIPS=y
++CONFIG_SYS_TEXT_BASE=0x80010000
++CONFIG_ARCH_BMIPS=y
++CONFIG_SOC_BMIPS_BCM6338=y
++# CONFIG_MIPS_BOOT_CMDLINE_LEGACY is not set
++# CONFIG_MIPS_BOOT_ENV_LEGACY is not set
++CONFIG_MIPS_BOOT_FDT=y
++CONFIG_NR_DRAM_BANKS=1
++# CONFIG_SYS_MALLOC_CLEAR_ON_INIT is not set
++CONFIG_OF_STDOUT_VIA_ALIAS=y
++CONFIG_DISPLAY_CPUINFO=y
++CONFIG_HUSH_PARSER=y
++CONFIG_SYS_PROMPT="F@ST1704 # "
++CONFIG_CMD_CPU=y
++CONFIG_CMD_LICENSE=y
++# CONFIG_CMD_BOOTD is not set
++# CONFIG_CMD_ELF is not set
++# CONFIG_CMD_XIMG is not set
++# CONFIG_CMD_EXPORTENV is not set
++# CONFIG_CMD_IMPORTENV is not set
++# CONFIG_CMD_EDITENV is not set
++# CONFIG_CMD_SAVEENV is not set
++# CONFIG_CMD_ENV_EXISTS is not set
++# CONFIG_CMD_CRC32 is not set
++CONFIG_CMD_MEMINFO=y
++# CONFIG_CMD_FLASH is not set
++# CONFIG_CMD_LOADS is not set
++CONFIG_CMD_SF=y
++CONFIG_CMD_SPI=y
++CONFIG_CMD_MII=y
++CONFIG_CMD_PING=y
++# CONFIG_CMD_MISC is not set
++CONFIG_DEFAULT_DEVICE_TREE="sagem,f@st1704"
++CONFIG_NET_RANDOM_ETHADDR=y
++# CONFIG_DM_DEVICE_REMOVE is not set
++CONFIG_BCM6348_IUDMA=y
++CONFIG_DM_GPIO=y
++CONFIG_BCM6345_GPIO=y
++CONFIG_LED=y
++CONFIG_LED_GPIO=y
++CONFIG_DM_SPI_FLASH=y
++CONFIG_SPI_FLASH=y
++CONFIG_SPI_FLASH_WINBOND=y
++CONFIG_SPI_FLASH_MTD=y
++CONFIG_PHY_FIXED=y
++CONFIG_DM_ETH=y
++CONFIG_BCM6348_ETH=y
++CONFIG_DM_RESET=y
++CONFIG_RESET_BCM6345=y
++# CONFIG_SPL_SERIAL_PRESENT is not set
++CONFIG_DM_SERIAL=y
++CONFIG_BCM6345_SERIAL=y
++CONFIG_SPI=y
++CONFIG_DM_SPI=y
++CONFIG_BCM63XX_SPI=y
+--- u-boot-2019.04/common/wgmenu.c.orig	1969-12-31 16:00:00.000000000 -0800
++++ u-boot-2019.04/common/wgmenu.c	2022-05-09 14:14:06.978379054 -0700
+@@ -0,0 +1,181 @@
++#include <common.h>
++#ifndef DO_DEPS_ONLY
++#include "generated/version_autogenerated.h"
++#include "generated/timestamp_autogenerated.h"
++#endif
++#include <wgmenu.h>
++
++#define WG_VERSION_STRING ("WatchGuard " U_BOOT_VERSION " - " U_BOOT_DATE " " U_BOOT_TIME)
++#define ANSI_CLEAR		"\e[2J"
++#define ANSI_REVERSE		"\e[7m"
++#define	ANSI_NORMAL		"\e[m"
++#define ANSI_GOTOYX		"\e[%d;%dH"
++
++#define SCREEN_HIGH		24
++#define SCREEN_WIDTH		80
++#define MAX_MENU_ITEMS		10
++
++#define FIRST_LINE_Y		2
++#define FIRST_LINE_X_FUN(len)	((SCREEN_WIDTH - len)/2)
++#define FIRST_LINE_X		FIRST_LINE_X_FUN(58)
++
++#define TABLE_START_Y		4
++#define TABLE_START_X		2 
++#define TABLE_LENGHT		(SCREEN_WIDTH - 6)
++#define TABLE_HIGH		(SCREEN_HIGH/2)
++
++#define	TOP_ROW			(TABLE_START_X + 1)
++#define	MENU_0_ROW		(TABLE_START_Y + 1)
++
++struct __wgmenu_option {
++	const char *label;		// WG:BH - We really only use the label...
++	void (*fn)(void *user);		// but we could add functionality to add dynamically generated menu items.
++	void *user;			// <<< this one is the argument to fn.
++};
++
++static struct __wgmenu_option wg_options[MAX_MENU_ITEMS];
++static int __wgmenu_max_width = TABLE_LENGHT - 4;
++static int __wgmenu_num_options = 0;
++static int __wgmenu_option_pos = 0;
++static int __wgmenu_boot_menu = 1;
++
++static void __wgmenu_print_option(const struct __wgmenu_option *opt, int reverse)
++{
++	int n = (opt - wg_options);
++	char format[10] = {'\0'};
++
++	printf(ANSI_GOTOYX, MENU_0_ROW+n, TABLE_START_X + 1);
++	if (reverse) {
++		printf(ANSI_REVERSE);
++	}
++
++	sprintf(format, "%%-%ds", __wgmenu_max_width);
++	printf(format, opt->label);
++
++	if (reverse) {
++		printf(ANSI_NORMAL);
++	}
++
++	printf(ANSI_GOTOYX ,SCREEN_HIGH + 2 , 1); 
++}
++
++static void __wgmenu_show_bootmenu_table(void)
++{
++	int i = 0,j = 0 ;
++
++	printf(ANSI_CLEAR ANSI_GOTOYX "%s", FIRST_LINE_Y,
++			(int)FIRST_LINE_X_FUN((strlen(WG_VERSION_STRING))), WG_VERSION_STRING);
++
++	for (i = 0 ; i < TABLE_LENGHT ; i++) {	//the above horizontal line
++		printf(ANSI_GOTOYX "-", TABLE_START_Y, TABLE_START_X + i);
++	}
++	for (j = 0 ; j < TABLE_HIGH ; j++) {	//the left line
++		printf(ANSI_GOTOYX "|", TABLE_START_Y + j , TABLE_START_X);
++	}
++	for (j = 0 ; j < TABLE_HIGH ; j++) {	// the right line
++		printf(ANSI_GOTOYX "|", TABLE_START_Y + j , TABLE_START_X + TABLE_LENGHT);
++	}
++	for (i = 1 ; i < TABLE_LENGHT ; i++) {	//the below horizontal line
++		printf(ANSI_GOTOYX "-", TABLE_START_Y + TABLE_HIGH, TABLE_START_X + i);
++	}
++
++	printf(ANSI_GOTOYX "+",TABLE_START_Y, TABLE_START_X);
++	printf(ANSI_GOTOYX "+",TABLE_START_Y , TABLE_START_X + TABLE_LENGHT); 
++	printf(ANSI_GOTOYX "+",TABLE_START_Y + TABLE_HIGH, TABLE_START_X);
++	printf(ANSI_GOTOYX "+",TABLE_START_Y + TABLE_HIGH, TABLE_START_X + TABLE_LENGHT);
++
++	printf(ANSI_GOTOYX "Use the ^ and v keys to select which entry is highlighted.",
++			TABLE_START_Y + TABLE_HIGH + 2, 7);
++	printf(ANSI_GOTOYX "Press enter to boot the selected OS.",
++			TABLE_START_Y + TABLE_HIGH + 3, 7);
++
++	printf(ANSI_GOTOYX , SCREEN_HIGH + 2, 1);
++}
++
++static void __wgmenu_show_bootmenu(void)
++{
++	const struct __wgmenu_option *opt = {NULL};
++
++	__wgmenu_show_bootmenu_table();
++
++	for (opt = wg_options; opt != (wg_options + __wgmenu_num_options); opt++) {
++		__wgmenu_print_option(opt, opt == wg_options);
++	}
++}
++
++static int __wgmenu_wg_display_menu(int key)
++{
++	static struct __wgmenu_option *opt = wg_options;
++
++	__wgmenu_print_option(&wg_options[__wgmenu_option_pos], 0);
++
++	switch (key) {
++		case 65: //up
++			if(__wgmenu_option_pos > 0)
++				__wgmenu_option_pos--;
++			break; 
++		case 66: //down
++			if(__wgmenu_option_pos < (__wgmenu_num_options - 1))
++				__wgmenu_option_pos++;
++			break; 
++		case 13:
++		default:
++			break;
++	}
++
++	__wgmenu_print_option(&wg_options[__wgmenu_option_pos], 1);
++
++	return opt - wg_options ;
++}
++
++int wgmenu_hook(int key)
++{
++	static const struct __wgmenu_option *opt = wg_options;
++	int hooked = 0;
++
++	if ((key == 65 || key == 66) && opt && __wgmenu_num_options) {
++		hooked = 1;
++		__wgmenu_wg_display_menu(key);
++	}
++
++	return hooked;
++}
++
++
++void wgmenu_add(const char *label, void (*fn)(void *user), void *user)
++{
++	int len;
++
++	wg_options[__wgmenu_num_options].label = label;
++	wg_options[__wgmenu_num_options].fn = fn;
++	wg_options[__wgmenu_num_options].user = user;
++	__wgmenu_num_options++;
++
++	len = strlen(label);
++
++	if (len > __wgmenu_max_width)
++		__wgmenu_max_width = len;
++}
++
++
++void wgmenu_show(void)
++{
++	wgmenu_add("WatchGuard (SYSA)", NULL, NULL);
++	wgmenu_add("WatchGuard (SYSB Recovery/Diagnostic Mode)", NULL, NULL);
++	__wgmenu_show_bootmenu();
++}
++
++int wgmenu_selected(void)
++{
++	return __wgmenu_option_pos;
++}
++
++int wgmenu_inmenu(void)
++{
++	return __wgmenu_boot_menu;
++}
++
++void wgmenu_exit(void)
++{
++	__wgmenu_boot_menu = 0;
++}
+--- u-boot-2019.04/tools/env/fw_env.config.orig	1969-12-31 16:00:00.000000000 -0800
++++ u-boot-2019.04/tools/env/fw_env.config	2022-05-09 14:14:05.542437204 -0700
+@@ -0,0 +1,38 @@
++# Configuration file for fw_(printenv/setenv) utility.
++# Up to two entries are valid, in this case the redundant
++# environment sector is assumed present.
++# Notice, that the "Number of sectors" is not required on NOR and SPI-dataflash.
++# Futhermore, if the Flash sector size is omitted, this value is assumed to
++# be the same as the Environment size, which is valid for NOR and SPI-dataflash
++# Device offset must be prefixed with 0x to be parsed as a hexadecimal value.
++
++# NOR example
++# MTD device name	Device offset	Env. size	Flash sector size	Number of sectors
++/dev/mtd1		0x0000		0x4000		0x4000
++/dev/mtd2		0x0000		0x4000		0x4000
++
++# MTD SPI-dataflash example
++# MTD device name	Device offset	Env. size	Flash sector size	Number of sectors
++#/dev/mtd5		0x4200		0x4200
++#/dev/mtd6		0x4200		0x4200
++
++# NAND example
++#/dev/mtd0		0x4000		0x4000		0x20000			2
++
++# On a block device a negative offset is treated as a backwards offset from the
++# end of the device/partition, rather than a forwards offset from the start.
++
++# Block device example
++#/dev/mmcblk0		0xc0000		0x20000
++#/dev/mmcblk0		-0x20000	0x20000
++
++# VFAT example
++#/boot/uboot.env	0x0000          0x4000
++
++# UBI volume
++#/dev/ubi0_0		0x0		0x1f000		0x1f000
++#/dev/ubi0_1		0x0		0x1f000		0x1f000
++
++# UBI volume by name
++#/dev/ubi0:env		0x0		0x1f000		0x1f000
++#/dev/ubi0:env-redund	0x0		0x1f000		0x1f000
+--- u-boot-2019.04/board/sagem/f@st1704/MAINTAINERS.orig	1969-12-31 16:00:00.000000000 -0800
++++ u-boot-2019.04/board/sagem/f@st1704/MAINTAINERS	2022-05-09 14:14:06.790386667 -0700
+@@ -0,0 +1,6 @@
++SAGEM F@ST1704 BOARD
++M:	Álvaro Fernández Rojas <noltari@gmail.com>
++S:	Maintained
++F:	board/sagem/f@st1704/
++F:	include/configs/sagem_f@st1704.h
++F:	configs/sagem_f@st1704_ram_defconfig
+--- u-boot-2019.04/board/sagem/f@st1704/f@st1704.c.orig	1969-12-31 16:00:00.000000000 -0800
++++ u-boot-2019.04/board/sagem/f@st1704/f@st1704.c	2022-05-09 14:14:06.790386667 -0700
+@@ -0,0 +1,6 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ * Copyright (C) 2017 Álvaro Fernández Rojas <noltari@gmail.com>
++ */
++
++#include <common.h>
+--- u-boot-2019.04/board/sagem/f@st1704/Makefile.orig	1969-12-31 16:00:00.000000000 -0800
++++ u-boot-2019.04/board/sagem/f@st1704/Makefile	2022-05-09 14:14:06.790386667 -0700
+@@ -0,0 +1,3 @@
++# SPDX-License-Identifier: GPL-2.0+
++
++obj-y += f@st1704.o
+--- u-boot-2019.04/board/sagem/f@st1704/Kconfig.orig	1969-12-31 16:00:00.000000000 -0800
++++ u-boot-2019.04/board/sagem/f@st1704/Kconfig	2022-05-09 14:14:06.790386667 -0700
+@@ -0,0 +1,12 @@
++if BOARD_SAGEM_FAST1704
++
++config SYS_BOARD
++	default "f@st1704"
++
++config SYS_VENDOR
++	default "sagem"
++
++config SYS_CONFIG_NAME
++	default "sagem_f@st1704"
++
++endif
+--- u-boot-2019.04/include/wgmenu.h.orig	1969-12-31 16:00:00.000000000 -0800
++++ u-boot-2019.04/include/wgmenu.h	2022-05-09 14:14:07.866343094 -0700
+@@ -0,0 +1,11 @@
++#ifndef _WGMENU_H
++#define _WGMENU_H
++
++int wgmenu_hook(int key);
++void wgmenu_add(const char *label, void (*fn)(void *user), void *user);
++void wgmenu_show(void);
++int wgmenu_selected(void);
++int wgmenu_inmenu(void);
++void wgmenu_exit(void);
++
++#endif /* _WGMENU_H */
+--- u-boot-2019.04/include/configs/sagem_f@st1704.h.orig	1969-12-31 16:00:00.000000000 -0800
++++ u-boot-2019.04/include/configs/sagem_f@st1704.h	2022-05-09 14:14:07.674350870 -0700
+@@ -0,0 +1,10 @@
++/* SPDX-License-Identifier: GPL-2.0+ */
++/*
++ * Copyright (C) 2017 Álvaro Fernández Rojas <noltari@gmail.com>
++ */
++
++#include <configs/bmips_common.h>
++#include <configs/bmips_bcm6338.h>
++
++#define CONFIG_ENV_SIZE			(8 * 1024)
++
+--- u-boot-2019.04/arch/mips/dts/sagem,f@st1704.dts.orig	1969-12-31 16:00:00.000000000 -0800
++++ u-boot-2019.04/arch/mips/dts/sagem,f@st1704.dts	2022-05-09 14:14:06.310406104 -0700
+@@ -0,0 +1,73 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ * Copyright (C) 2017 Álvaro Fernández Rojas <noltari@gmail.com>
++ */
++
++/dts-v1/;
++
++#include "brcm,bcm6338.dtsi"
++
++/ {
++	model = "Sagem F@ST1704";
++	compatible = "sagem,f@st1704", "brcm,bcm6338";
++
++	aliases {
++		serial0 = &uart0;
++	};
++
++	chosen {
++		stdout-path = "serial0:115200n8";
++	};
++
++	gpio-leds {
++		compatible = "gpio-leds";
++
++		inet_green {
++			label = "F@ST1704:green:inet";
++			gpios = <&gpio 0 GPIO_ACTIVE_LOW>;
++		};
++
++		power_green {
++			label = "F@ST1704:green:power";
++			gpios = <&gpio 1 GPIO_ACTIVE_LOW>;
++		};
++
++		inet_red {
++			label = "F@ST1704:red:inet";
++			gpios = <&gpio 2 GPIO_ACTIVE_LOW>;
++		};
++	};
++};
++
++&enet {
++	status = "okay";
++	phy = <&enetphy>;
++	phy-mode = "mii";
++
++	enetphy: fixed-link {
++		reg = <1>;
++		speed = <100>;
++		full-duplex;
++	};
++};
++
++&gpio {
++	status = "okay";
++};
++
++&spi {
++	status = "okay";
++
++	spi-flash@0 {
++		compatible = "spi-flash";
++		reg = <0>;
++		#address-cells = <1>;
++		#size-cells = <1>;
++		spi-max-frequency = <20000000>;
++	};
++};
++
++&uart0 {
++	u-boot,dm-pre-reloc;
++	status = "okay";
++};

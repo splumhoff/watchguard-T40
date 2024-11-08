@@ -1,0 +1,60 @@
+WatchGuard patches to sources for libnetfilter_queue-1.0.2 as of
+Mon May  9 13:56:15 PDT 2022
+The patches shown here have been applied to source .tar.gz 
+files supplied with the WatchGuard Open Source Archive.
+
+==========================================================================
+--- libnetfilter_queue-1.0.2/build-aux/ltmain.sh.orig	2022-05-09 13:56:14.029855273 -0700
++++ libnetfilter_queue-1.0.2/build-aux/ltmain.sh	2022-05-09 13:56:14.133851054 -0700
+@@ -6921,7 +6921,8 @@
+ 	      fi
+ 	    else
+ 	      # We cannot seem to hardcode it, guess we'll fake it.
+-	      add_dir="-L$libdir"
++	      # WG: don't fake it this introduces host pollution
++	      # add_dir="-L$libdir"
+ 	      # Try looking first in the location we're being installed to.
+ 	      if test -n "$inst_prefix_dir"; then
+ 		case $libdir in
+--- libnetfilter_queue-1.0.2/ltmain.sh.orig	2022-05-09 13:56:14.041854786 -0700
++++ libnetfilter_queue-1.0.2/ltmain.sh	2022-05-09 13:56:14.149850405 -0700
+@@ -6921,7 +6921,8 @@
+ 	      fi
+ 	    else
+ 	      # We cannot seem to hardcode it, guess we'll fake it.
+-	      add_dir="-L$libdir"
++	      # WG: don't fake it this introduces host pollution
++	      # add_dir="-L$libdir"
+ 	      # Try looking first in the location we're being installed to.
+ 	      if test -n "$inst_prefix_dir"; then
+ 		case $libdir in
+--- libnetfilter_queue-1.0.2/src/extra/ipv4.c.orig	2022-05-09 13:56:14.045854624 -0700
++++ libnetfilter_queue-1.0.2/src/extra/ipv4.c	2022-05-09 13:56:14.153850243 -0700
+@@ -138,7 +138,27 @@
+ 				  "PREC=0x%X TTL=%u ID=%u PROTO=%u ",
+ 			inet_ntoa(src), inet_ntoa(dst),
+ 			ntohs(iph->tot_len), IPTOS_TOS(iph->tos),
++#ifdef WG_BUILD_AGAINST_BUSTED_IPTOS_CLASS_MACRO
++/* WatchGuard -- libc bug in toolchain breaks build.
++ *
++ * https://sourceware.org/bugzilla/show_bug.cgi?id=11903
++ *
++ * #define IPTOS_CLASS_MASK        0xe0
++ * #define IPTOS_CLASS(class)      ((tos) & IPTOS_CLASS_MASK)
++ * #define IPTOS_PREC(tos)         IPTOS_CLASS(tos)
++ *
++ * Breaks when you build it.  Macro _should_ read:
++ *
++ * #define IPTOS_CLASS(class)      ((class) & IPTOS_CLASS_MASK)
++ *
++ * but we can't re-issue all toolchains at this point.  Work
++ * around.
++ *
++ */
+ 			IPTOS_PREC(iph->tos), iph->ttl, ntohs(iph->id),
++#else
++			(iph->tos) & IPTOS_CLASS_MASK, iph->ttl, ntohs(iph->id),
++#endif
+ 			iph->protocol);
+ 
+ 	return ret;

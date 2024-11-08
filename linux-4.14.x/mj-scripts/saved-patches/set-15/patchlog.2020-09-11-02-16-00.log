@@ -1,0 +1,72 @@
+2462
+2512
+trying to patch file: patchfile:hello/2462-net-mlx5e-Fix-error-handling-when-refreshing-TIRs.patch
+Checking patch drivers/net/ethernet/mellanox/mlx5/core/en_common.c...
+git apply status: 0
+trying to patch file: patchfile:hello/2463-net-mlx5e-Add-a-lock-on-tir-list.patch
+Checking patch drivers/net/ethernet/mellanox/mlx5/core/en_common.c...
+Checking patch include/linux/mlx5/driver.h...
+git apply status: 0
+trying to patch file: patchfile:hello/2464-nfp-validate-the-return-code-from-dev_queue_xmit.patch
+Checking patch drivers/net/ethernet/netronome/nfp/nfp_net_repr.c...
+git apply status: 0
+trying to patch file: patchfile:hello/2465-bnxt_en-Improve-RX-consumer-index-validity-check.patch
+Checking patch drivers/net/ethernet/broadcom/bnxt/bnxt.c...
+git apply status: 0
+trying to patch file: patchfile:hello/2466-bnxt_en-Reset-device-on-RX-buffer-errors.patch
+Checking patch drivers/net/ethernet/broadcom/bnxt/bnxt.c...
+git apply status: 0
+trying to patch file: patchfile:hello/2467-net-sched-act_sample-fix-divide-by-zero-in-the-traff.patch
+Checking patch net/sched/act_sample.c...
+git apply status: 0
+trying to patch file: patchfile:hello/2468-netns-provide-pure-entropy-for-net_hash_mix.patch
+Checking patch include/net/net_namespace.h...
+error: while searching for:
+						 */
+	spinlock_t		rules_mod_lock;
+
+	atomic64_t		cookie_gen;
+
+	struct list_head	list;		/* list of network namespaces */
+
+error: patch failed: include/net/net_namespace.h:56
+error: include/net/net_namespace.h: patch does not apply
+Checking patch include/net/netns/hash.h...
+error: while searching for:
+#ifndef __NET_NS_HASH_H__
+#define __NET_NS_HASH_H__
+
+#include <asm/cache.h>
+
+struct net;
+
+static inline u32 net_hash_mix(const struct net *net)
+{
+#ifdef CONFIG_NET_NS
+	/*
+	 * shift this right to eliminate bits, that are
+	 * always zeroed
+	 */
+
+	return (u32)(((unsigned long)net) >> L1_CACHE_SHIFT);
+#else
+	return 0;
+#endif
+}
+#endif
+
+error: patch failed: include/net/netns/hash.h:2
+error: include/net/netns/hash.h: patch does not apply
+Checking patch net/core/net_namespace.c...
+error: while searching for:
+
+	atomic_set(&net->count, 1);
+	refcount_set(&net->passive, 1);
+	net->dev_base_seq = 1;
+	net->user_ns = user_ns;
+	idr_init(&net->netns_ids);
+
+error: patch failed: net/core/net_namespace.c:285
+error: net/core/net_namespace.c: patch does not apply
+git apply test (--check) failed: 2468, commit all changes so far, try just patch with hello/2468-netns-provide-pure-entropy-for-net_hash_mix.patch
+tets it yourself: git apply --check -v hello/2468-netns-provide-pure-entropy-for-net_hash_mix.patch

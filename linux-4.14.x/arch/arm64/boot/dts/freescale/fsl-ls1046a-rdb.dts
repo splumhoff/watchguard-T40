@@ -1,0 +1,281 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ * Device Tree Include file for Freescale Layerscape-1046A family SoC.
+ *
+ * Copyright 2016 Freescale Semiconductor, Inc.
+ *
+ * Mingkai Hu <mingkai.hu@nxp.com>
+ */
+
+/dts-v1/;
+
+#include "fsl-ls1046a.dtsi"
+
+/ {
+	model = "LS1046A RDB Board";
+	compatible = "fsl,ls1046a-rdb", "fsl,ls1046a";
+
+	aliases {
+		serial0 = &duart0;
+		serial1 = &duart1;
+		serial2 = &duart2;
+		serial3 = &duart3;
+		spi0 = &qspi;
+	};
+
+	chosen {
+		stdout-path = "serial0:115200n8";
+	};
+};
+
+&duart0 {
+	status = "okay";
+};
+
+&duart1 {
+	status = "okay";
+};
+
+&esdhc {
+	mmc-hs200-1_8v;
+	sd-uhs-sdr104;
+	sd-uhs-sdr50;
+	sd-uhs-sdr25;
+	sd-uhs-sdr12;
+};
+
+&i2c0 {
+	status = "okay";
+    tpm@29 {
+             compatible = "tpm,tpm_i2c_atmel";
+             reg = <0x29>;
+    };
+    tpm_i2c_ptp: tpm_i2c_ptp@2e {
+            compatible = "tcg,tpm_i2c_ptp";
+            reg = <0x2e>;
+            /* tpm-pirq = <&gpio 24 GPIO_ACTIVE_HIGH>; */
+    };
+
+#if 0
+	ina220@40 {
+		compatible = "ti,ina220";
+		reg = <0x40>;
+		shunt-resistor = <1000>;
+	};
+
+	temp-sensor@4c {
+		compatible = "adi,adt7461";
+		reg = <0x4c>;
+	};
+
+	eeprom@56 {
+		compatible = "atmel,24c512";
+		reg = <0x52>;
+	};
+
+	eeprom@57 {
+		compatible = "atmel,24c512";
+		reg = <0x53>;
+	};
+#endif
+};
+&i2c1 {
+	status = "okay";
+    poe@20 {
+            compatible = "poe,poe_i2c_microsemi";
+            reg = <0x20>;
+    };
+};
+
+&i2c3 {
+	status = "okay";
+	/*
+	rtc@51 {
+		compatible = "nxp,pcf2129";
+		reg = <0x51>;
+	};*/
+	/* Talor Lin fixed [FBX-17370]: T80 hw clock/rtc doesn't work */
+        pca9546@71 {
+                compatible = "nxp,pca9546";
+                reg = <0x71>;
+                #address-cells = <1>;
+                #size-cells = <0>;
+
+                i2c@0 {
+                        #address-cells = <1>;
+                        #size-cells = <0>;
+                        reg = <0x0>;
+
+                        rtc@68 {
+                                compatible = "pericom,pt7c4338";
+                                reg = <0x68>;
+                        };
+                };
+
+                i2c@1 {
+                        #address-cells = <1>;
+                        #size-cells = <0>;
+                        reg = <0x1>;
+
+                        hwmon@2d {
+                                compatible = "nuvoton,nct7904";
+                                reg = <0x2d>;
+                        };
+                };
+        };	
+};
+
+#if 0
+&ifc {
+	#address-cells = <2>;
+	#size-cells = <1>;
+	/* NAND Flashe and CPLD on board */
+	ranges = <0x0 0x0 0x0 0x7e800000 0x00010000
+		  0x2 0x0 0x0 0x7fb00000 0x00000100>;
+	status = "okay";
+
+	nand@0,0 {
+		compatible = "fsl,ifc-nand";
+		#address-cells = <1>;
+		#size-cells = <1>;
+		reg = <0x0 0x0 0x10000>;
+	};
+
+	cpld: board-control@2,0 {
+		compatible = "fsl,ls1046ardb-cpld";
+		reg = <0x2 0x0 0x0000100>;
+	};
+};
+#endif
+
+&qspi {
+        bus-num = <0>;
+        status = "okay";
+
+        qflash0: mx25u3235f@0 {
+                #address-cells = <1>;
+                #size-cells = <1>;
+                compatible = "spi-flash";
+                spi-max-frequency = <55000000>;
+                reg = <0>;
+
+                partition@uboot {
+                         /*2MB: RCW (64K + ~960K hole + u-boot bin */
+                        reg = <0x0 0x00200000>;
+                        label = "NOR (RO) RCW + E-Hole + U-boot Image";
+                };
+
+                partition@EMPTY-Hole-1 {
+                         /*64KB: EMPTY-hole TODO:FIXME or leave me (precaution: incase we have to u-boot down */
+                        reg = <0x200000 0x10000>;
+                        label = "NOR (RO) EMPTY Hole 1";
+                };
+
+                partition@env {
+                         /*64KB: u-boot ENV */
+                        reg = <0x210000 0x10000>;
+                        label = "NOR (RW) U-Boot ENV";
+                };
+
+                partition@fman-current {
+                         /*128KB: Current fman ucode */
+                        label = "NOR (RW) FMAN UCODE";
+                        reg = <0x220000 0x20000>;
+                };
+
+                partition@ppa {
+                         /*256KB: E-hole 2 (make it T20/T40 compatible) storing PPA */
+                        label = "NOR (RW) E-HOLE 2 or PPA";
+                        reg = <0x240000 0x40000>;
+                };
+
+                partition@WG-CFG0 {
+                         /*128KB: WG CFG0 */
+                        reg = <0x280000 0x20000>;
+                        label = "NOR (RW) WG CFG0";
+                };
+
+                partition@WG-CFG1 {
+                         /*128KB: WG CFG1 */
+                        reg = <0x2a0000 0x20000>;
+                        label = "NOR (RW) WG CFG1";
+                };
+
+                partition@WG-MFG {
+                         /*128KB: WG MFG */
+                        reg = <0x2c0000 0x20000>;
+                        label = "NOR (RW) WG MFG";
+                };
+
+                partition@EMPTY-Hole-3 {
+                         /*128KB: E-Hole 3 */
+                        reg = <0x2e0000 0x20000>;
+                        label = "NOR (RW) E-HOLE 3";
+                };
+
+                partition@EMPTY-Hole-4 {
+                         /*128KB: E-Hole 4 */
+                        reg = <0x300000 0x20000>;
+                        label = "NOR (RW) E-HOLE 4";
+                };
+
+                partition@WG-bootOpt {
+                         /*896KB: WG bootOpt Data & reserved (end of Flash) */
+                        reg = <0x320000 0xe0000>;
+                        label = "NOR (RW) WG bootOpt Data & reserved";
+                };
+        };
+};
+
+#include "fsl-ls1046-post.dtsi"
+
+&fman0 {
+
+	ethernet@e0000 {
+		status = "disabled";
+	};
+	ethernet@e2000 {
+		status = "disabled";
+	};
+	ethernet@e4000 {
+		status = "disabled";
+	};
+	ethernet@e6000 {
+		status = "disabled";
+	};
+	ethernet@e8000 {
+		status = "disabled";
+	};
+	ethernet@ea000 {
+		status = "disabled";
+	};
+	ethernet@ec000 {
+		status = "disabled";
+	};
+	ethernet@ee000 {
+		status = "disabled";
+	};
+
+	ethernet@f0000 { /* 2.5GEC1 */
+		fixed-link = <0 1 1000 0 0>;
+		phy-connection-type = "sgmii-2500";
+		phy-mode = "sgmii-2500";
+	};
+
+	ethernet@f2000 { /* 2.5GEC2 */
+		fixed-link = <0 1 1000 0 0>;
+		phy-connection-type = "sgmii-2500";
+		phy-mode = "sgmii-2500";
+	};
+
+	mdio@fc000 {
+		compatible = "fsl,fman-xmdio";
+		reg = <0xfc000 0x1000>;
+		sgmii_phy1: ethernet-phy@9 {
+			reg = <0x9>;
+		};
+		sgmii_phy2: ethernet-phy@10 {
+			reg = <0xa>;
+		};
+	};
+};
